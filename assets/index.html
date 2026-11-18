@@ -849,7 +849,7 @@
             transform: scale(0.98);
         }
 
-        /* Tab 2: Biblioteca */
+        /* Tab 2: Biblioteca (Obsidian Titanium Bento) */
         .library-header-row {
             display: flex;
             justify-content: space-between;
@@ -858,18 +858,43 @@
         }
 
         .library-main-title {
-            font-size: 1.15rem;
+            font-size: 1.08rem;
             font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-subtitle-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #A1A1AA;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
         .btn-clear-history-mono {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 0.78rem;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: var(--radius-pill);
+            padding: 5px 12px;
+            color: #D4D4D8;
+            font-size: 0.72rem;
             font-weight: 700;
             cursor: pointer;
-            text-decoration: underline;
+            text-decoration: none;
+            transition: all var(--transition-smooth);
+        }
+
+        .btn-clear-history-mono:active {
+            background: rgba(255, 255, 255, 0.16);
+            color: #FFFFFF;
         }
 
         .library-items-list {
@@ -879,10 +904,11 @@
         }
 
         .library-item-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 10px 12px;
+            background: linear-gradient(180deg, rgba(24, 24, 29, 0.9) 0%, rgba(14, 14, 18, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 20px rgba(0, 0, 0, 0.6);
+            border-radius: 18px;
+            padding: 11px 13px;
             display: flex;
             gap: 12px;
             align-items: center;
@@ -892,17 +918,18 @@
 
         .library-item-card:active {
             border-color: #FFFFFF;
-            background: var(--bg-elevated);
+            transform: scale(0.99);
+            background: rgba(32, 32, 38, 0.95);
         }
 
         .library-thumb-image {
-            width: 48px;
-            height: 48px;
-            min-width: 48px;
-            border-radius: var(--radius-sm);
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            border-radius: 13px;
             object-fit: cover;
-            background: #000000;
-            border: 1px solid var(--border-subtle);
+            background: #121216;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
         }
 
         .library-text-column {
@@ -911,12 +938,13 @@
         }
 
         .library-item-creator {
-            font-size: 0.88rem;
-            font-weight: 700;
+            font-size: 0.9rem;
+            font-weight: 800;
             color: #FFFFFF;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 2px;
         }
 
         .library-item-caption {
@@ -928,75 +956,101 @@
         }
 
         .library-play-glyph {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             color: #FFFFFF;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4px;
         }
 
         .empty-library-display {
             text-align: center;
             padding: 48px 20px;
             color: var(--text-muted);
-            background: var(--bg-card);
-            border: 1px dashed var(--border-subtle);
-            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(22, 22, 27, 0.85) 0%, rgba(12, 12, 16, 0.92) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 22px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
-        /* Tab 3: Ajustes */
+        /* Tab 3: Ajustes (Obsidian Titanium Bento Suite) */
+        .settings-hero-banner {
+            background: linear-gradient(135deg, rgba(30, 30, 38, 0.92) 0%, rgba(14, 14, 18, 0.96) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 22px;
+            padding: 16px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 12px 32px rgba(0, 0, 0, 0.75);
+        }
+
         .settings-flow-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(24, 24, 29, 0.9) 0%, rgba(13, 13, 17, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 12px 30px rgba(0, 0, 0, 0.7);
+            border-radius: 22px;
             padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             margin-bottom: 20px;
         }
 
         .flow-step-row {
             display: flex;
             gap: 12px;
-            align-items: flex-start;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 14px;
+            padding: 10px 12px;
         }
 
         .flow-step-circle {
-            width: 26px;
-            height: 26px;
-            min-width: 26px;
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
             background: #FFFFFF;
             color: #000000;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 0.8rem;
+            font-weight: 900;
+            font-size: 0.78rem;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
         }
 
         .flow-step-text h4 {
-            font-size: 0.92rem;
+            font-size: 0.86rem;
             font-weight: 800;
             margin-bottom: 2px;
             color: #FFFFFF;
         }
 
         .flow-step-text p {
-            font-size: 0.8rem;
+            font-size: 0.74rem;
             color: var(--text-secondary);
-            line-height: 1.4;
+            line-height: 1.35;
         }
 
         .settings-switches-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(24, 24, 29, 0.9) 0%, rgba(13, 13, 17, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 12px 30px rgba(0, 0, 0, 0.7);
+            border-radius: 22px;
             padding: 4px 16px;
             margin-bottom: 18px;
         }
@@ -1005,31 +1059,80 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
             padding: 14px 0;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .switch-setting-row:last-child {
             border-bottom: none;
         }
 
-        .switch-label-title {
-            font-size: 0.88rem;
-            font-weight: 700;
+        .setting-row-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .setting-icon-squircle {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: #FFFFFF;
         }
 
+        .switch-label-title {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.01em;
+        }
+
         .switch-label-sub {
-            font-size: 0.74rem;
-            color: var(--text-muted);
+            font-size: 0.72rem;
+            color: #8E8E99;
+            margin-top: 1px;
+        }
+
+        .setting-badge-pill {
+            font-size: 0.68rem;
+            color: #000000;
+            font-weight: 900;
+            background: #FFFFFF;
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+        }
+
+        .setting-badge-subtle {
+            font-size: 0.68rem;
+            color: #E4E4E7;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            letter-spacing: 0.03em;
+            white-space: nowrap;
         }
 
         /* iOS Toggle Switch */
         .ios-switch {
             position: relative;
             display: inline-block;
-            width: 44px;
-            height: 24px;
+            width: 46px;
+            height: 26px;
+            flex-shrink: 0;
         }
 
         .ios-switch input {
@@ -1042,20 +1145,20 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--bg-elevated);
-            border: 1px solid var(--border-subtle);
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             transition: .22s;
-            border-radius: 24px;
+            border-radius: 26px;
         }
 
         .ios-slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 20px;
+            width: 20px;
             left: 2px;
             bottom: 2px;
-            background-color: #A1A1AA;
+            background-color: #8E8E99;
             transition: .22s;
             border-radius: 50%;
         }
@@ -1063,6 +1166,7 @@
         input:checked + .ios-slider {
             background: #FFFFFF;
             border-color: #FFFFFF;
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
         }
 
         input:checked + .ios-slider:before {
@@ -1359,9 +1463,9 @@
             <span class="brand-text-label">SnapTik</span>
             <span class="pro-capsule-badge">PRO</span>
         </div>
-        <div class="header-status-pill">
+        <div class="header-status-pill" id="headerActiveModePill">
             <span class="status-dot-glow"></span>
-            <span>1080p Ready</span>
+            <span id="headerActiveModeText">1080p FHD</span>
         </div>
     </header>
 
@@ -1539,9 +1643,8 @@
                 </div>
 
                 <div class="deck-content-body">
-                    <!-- Embedded Video Player with Floating Badge -->
+                    <!-- Embedded Video Player (Limpio sin texto en la esquina) -->
                     <div class="media-player-frame">
-                        <span class="video-floating-badge">FULL HD • SIN MARCA</span>
                         <video id="playerNativeVideo" controls playsinline preload="metadata"></video>
                     </div>
 
@@ -1684,76 +1787,80 @@
         <!-- TAB 2: BIBLIOTECA -->
         <section id="sectionLibrary" class="section-view">
             <div class="library-header-row">
-                <h2 class="library-main-title">Biblioteca de Descargas</h2>
-                <button type="button" id="btnClearLibraryHistory" class="btn-clear-history-mono">Limpiar Todo</button>
+                <h2 class="library-main-title">
+                    <span>Biblioteca</span>
+                    <span class="section-subtitle-tag">Historial</span>
+                </h2>
+                <button type="button" id="btnClearLibraryHistory" class="btn-clear-history-mono">Vaciar Historial</button>
             </div>
 
             <!-- Botón de apertura directa del explorador de archivos nativo -->
-            <button type="button" id="btnOpenDownloadsFolder" class="btn-tier-action tier-graphite" style="margin-bottom: 14px; padding: 10px 14px;">
+            <button type="button" id="btnOpenDownloadsFolder" class="btn-tier-action tier-graphite" style="margin-bottom: 16px; padding: 13px 15px;">
                 <div class="tier-inner-left">
-                    <div class="tier-icon-bubble" style="width: 28px; height: 28px; min-width: 28px;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <div class="tier-icon-bubble">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
                         </svg>
                     </div>
                     <div class="tier-labels-col">
-                        <span class="tier-headline" style="font-size: 0.84rem;">Abrir carpeta Descargas del teléfono</span>
-                        <span class="tier-subhead" style="font-size: 0.7rem;">Ver videos y audios guardados en tu galería</span>
+                        <span class="tier-headline">Abrir Carpeta de Descargas</span>
+                        <span class="tier-subhead">Ver vídeos y audios guardados en tu galería</span>
                     </div>
                 </div>
-                <span class="tier-pill-tag" style="font-size: 0.65rem; padding: 3px 8px;">ABRIR</span>
+                <span class="tier-pill-tag">GALERÍA ↗</span>
             </button>
 
             <div id="libraryRowsTarget" class="library-items-list"></div>
 
             <div id="placeholderNoDownloads" class="empty-library-display" style="display: none;">
-                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3"/>
-                    <path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"/>
-                    <path d="M3 8h18"/>
-                    <path d="M10 12h4"/>
-                </svg>
-                <div style="font-weight: 800; font-size: 0.95rem; color: #FFFFFF;">Tu biblioteca está vacía</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); max-width: 260px;">Los videos procesados aparecerán listados aquí para acceso y reproducción inmediata.</div>
+                <div class="brand-icon-squircle" style="width: 52px; height: 52px; border-radius: 16px; margin-bottom: 4px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </div>
+                <div style="font-weight: 800; font-size: 0.98rem; color: #FFFFFF;">Tu biblioteca está vacía</div>
+                <div style="font-size: 0.78rem; color: var(--text-secondary); max-width: 250px; line-height: 1.4;">Los vídeos y pistas MP3 que descargues aparecerán aquí para acceso inmediato.</div>
             </div>
         </section>
 
-        <!-- TAB 3: AJUSTES -->
+        <!-- TAB 3: AJUSTES (Obsidian Titanium Bento Suite) -->
         <section id="sectionSettings" class="section-view">
-            <h2 class="library-main-title" style="margin-bottom: 12px;">Flujo de Operación</h2>
-            
-            <div class="settings-flow-box">
-                <div class="flow-step-row">
-                    <div class="flow-step-circle">1</div>
-                    <div class="flow-step-text">
-                        <h4>Abre TikTok y busca un video</h4>
-                        <p>En cualquier video público, pulsa sobre el botón <strong>Compartir</strong>.</p>
+            <!-- Hero Card de Estado en Ajustes -->
+            <div class="settings-hero-banner">
+                <div class="brand-header-box">
+                    <div class="brand-icon-squircle" style="width: 44px; height: 44px; border-radius: 13px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5.5v13l11-6.5-11-6.5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 7px;">
+                            <span style="font-size: 1.05rem; font-weight: 900; color: #FFFFFF;">SnapTik</span>
+                            <span class="pro-capsule-badge">PRO</span>
+                        </div>
+                        <div style="font-size: 0.72rem; color: #A1A1AA; margin-top: 2px;">Edición Obsidian Titanium • Ultra HD</div>
                     </div>
                 </div>
-
-                <div class="flow-step-row">
-                    <div class="flow-step-circle">2</div>
-                    <div class="flow-step-text">
-                        <h4>Copia el enlace o elige SnapTik PRO</h4>
-                        <p>Pulsa en <strong>Copiar Enlace</strong> o pulsa sobre <strong>SnapTik PRO</strong> en el menú de aplicaciones.</p>
-                    </div>
-                </div>
-
-                <div class="flow-step-row">
-                    <div class="flow-step-circle">3</div>
-                    <div class="flow-step-text">
-                        <h4>Guarda en tu almacenamiento</h4>
-                        <p>Pulsa <strong>Descargar Video MP4</strong> y el stream limpio se guardará directamente en <strong>Descargas</strong>.</p>
-                    </div>
-                </div>
+                <span class="setting-badge-subtle">ACTIVO</span>
             </div>
 
-            <h2 class="library-main-title" style="margin-bottom: 12px;">Preferencias del Sistema</h2>
+            <h2 class="library-main-title" style="margin-bottom: 10px;">
+                <span>Preferencias</span>
+                <span class="section-subtitle-tag">Sistema</span>
+            </h2>
             <div class="settings-switches-card">
                 <div class="switch-setting-row">
-                    <div>
-                        <div class="switch-label-title">Detección de Portapapeles</div>
-                        <div class="switch-label-sub">Detectar enlaces automáticamente al abrir la app</div>
+                    <div class="setting-row-left">
+                        <div class="setting-icon-squircle">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="switch-label-title">Detección de Portapapeles</div>
+                            <div class="switch-label-sub">Reconocer enlaces copiados al abrir la app</div>
+                        </div>
                     </div>
                     <label class="ios-switch">
                         <input type="checkbox" id="prefAutoClipboard" checked>
@@ -1762,9 +1869,16 @@
                 </div>
 
                 <div class="switch-setting-row">
-                    <div>
-                        <div class="switch-label-title">Vibración Háptica</div>
-                        <div class="switch-label-sub">Respuesta física al interactuar con botones</div>
+                    <div class="setting-row-left">
+                        <div class="setting-icon-squircle">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 10v4M6 6v12M10 3v18M14 8v8M18 5v14M22 10v4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="switch-label-title">Vibración Háptica</div>
+                            <div class="switch-label-sub">Respuesta táctil al pulsar controles</div>
+                        </div>
                     </div>
                     <label class="ios-switch">
                         <input type="checkbox" id="prefHapticFeedback" checked>
@@ -1773,78 +1887,149 @@
                 </div>
 
                 <div class="switch-setting-row">
-                    <div>
-                        <div class="switch-label-title">Motor de Extracción</div>
-                        <div class="switch-label-sub">Dual-Engine: SSSTik + TikWM Direct CDN</div>
-                    </div>
-                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800; background: rgba(255, 255, 255, 0.12); padding: 4px 8px; border-radius: var(--radius-pill);">ONLINE</span>
-                </div>
-
-                <div class="switch-setting-row">
-                    <div>
-                        <div class="switch-label-title">Versión del Sistema</div>
-                        <div class="switch-label-sub">SnapTik PRO v2.2.0 (Security Hardened)</div>
-                    </div>
-                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800;">OFICIAL</span>
-                </div>
-            </div>
-
-            <!-- Configuración de Descarga & Almacenamiento -->
-            <h2 class="library-main-title" style="margin-top: 24px; margin-bottom: 12px;">Descargas & Almacenamiento</h2>
-            <div class="settings-switches-card">
-                <div class="switch-setting-row">
-                    <div>
-                        <div class="switch-label-title">Calidad Predeterminada</div>
-                        <div class="switch-label-sub">Resolución preferida al pulsar descarga directa</div>
-                    </div>
-                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800; background: rgba(255, 255, 255, 0.12); padding: 4px 10px; border-radius: var(--radius-pill);">1080p ULTRA</span>
-                </div>
-
-                <div class="switch-setting-row">
-                    <div>
-                        <div class="switch-label-title">Carpeta de Destino</div>
-                        <div class="switch-label-sub">Almacenamiento interno / Descargas (Visible en Galería)</div>
-                    </div>
-                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800;">GALERÍA</span>
-                </div>
-
-                <div class="switch-setting-row">
-                    <div>
-                        <div class="switch-label-title">Notificación al Completar</div>
-                        <div class="switch-label-sub">Aviso del sistema cuando el archivo termine de bajar</div>
+                    <div class="setting-row-left">
+                        <div class="setting-icon-squircle">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="switch-label-title">Notificación de Descarga</div>
+                            <div class="switch-label-sub">Avisar cuando el archivo se guarde en galería</div>
+                        </div>
                     </div>
                     <label class="ios-switch">
                         <input type="checkbox" id="prefNotifications" checked>
                         <span class="ios-slider"></span>
                     </label>
                 </div>
+
+                <div class="switch-setting-row">
+                    <div class="setting-row-left">
+                        <div class="setting-icon-squircle">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9 9h.01M15 9h.01M8 13a4 4 0 0 0 8 0"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="switch-label-title">Anuncios para Mayores (+18)</div>
+                            <div class="switch-label-sub" id="lblAdultPrefSub">Permitir enlaces patrocinados +18</div>
+                        </div>
+                    </div>
+                    <label class="ios-switch">
+                        <input type="checkbox" id="prefAdult18Plus">
+                        <span class="ios-slider"></span>
+                    </label>
+                </div>
             </div>
 
-            <!-- Acerca de SnapTik PRO -->
-            <h2 class="library-main-title" style="margin-top: 24px; margin-bottom: 12px;">Acerca de</h2>
+            <!-- Configuración de Descarga & Almacenamiento -->
+            <h2 class="library-main-title" style="margin-top: 20px; margin-bottom: 10px;">
+                <span>Descargas & Calidad</span>
+                <span class="section-subtitle-tag">Multimedia</span>
+            </h2>
             <div class="settings-switches-card">
-                <div class="switch-setting-row">
-                    <div>
-                        <div class="switch-label-title">SnapTik PRO</div>
-                        <div class="switch-label-sub">Versión 2.3.0 Ultra HD • Edición Premium</div>
+                <div class="switch-setting-row" id="rowCycleQuality" style="cursor: pointer;">
+                    <div class="setting-row-left">
+                        <div class="setting-icon-squircle">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                <path d="M8 21h8M12 17v4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="switch-label-title">Formato Seleccionado</div>
+                            <div class="switch-label-sub">Toca para alternar entre 1080p, 720p y MP3</div>
+                        </div>
                     </div>
-                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800; background: rgba(255, 255, 255, 0.12); padding: 4px 10px; border-radius: var(--radius-pill);">PRO ACTIVO</span>
+                    <span id="badgeDefaultQuality" class="setting-badge-pill">1080p FHD</span>
                 </div>
 
                 <div class="switch-setting-row">
-                    <div>
-                        <div class="switch-label-title">Estado de Servidores CDN</div>
-                        <div class="switch-label-sub">Conexión directa optimizada de alta velocidad</div>
+                    <div class="setting-row-left">
+                        <div class="setting-icon-squircle">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="switch-label-title">Carpeta de Destino</div>
+                            <div class="switch-label-sub">Almacenamiento interno / Descargas</div>
+                        </div>
                     </div>
-                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800;">OPERATIVO</span>
+                    <span class="setting-badge-subtle">GALERÍA</span>
+                </div>
+            </div>
+
+            <!-- Guía Rápida en 3 Pasos -->
+            <h2 class="library-main-title" style="margin-top: 20px; margin-bottom: 10px;">
+                <span>Guía Rápida</span>
+                <span class="section-subtitle-tag">3 Pasos</span>
+            </h2>
+            <div class="settings-flow-box">
+                <div class="flow-step-row">
+                    <div class="flow-step-circle">1</div>
+                    <div class="flow-step-text">
+                        <h4>Copia el enlace en TikTok</h4>
+                        <p>Pulsa en <strong>Compartir</strong> sobre cualquier vídeo y toca <strong>Copiar enlace</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step-row">
+                    <div class="flow-step-circle">2</div>
+                    <div class="flow-step-text">
+                        <h4>Elige tu formato favorito</h4>
+                        <p>Selecciona <strong>1080p FHD</strong>, <strong>720p HD</strong> o <strong>Audio MP3</strong> en la pantalla principal.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step-row">
+                    <div class="flow-step-circle">3</div>
+                    <div class="flow-step-text">
+                        <h4>Guarda sin marca de agua</h4>
+                        <p>Toca <strong>Procesar y Descargar</strong> para guardarlo limpio en tu galería.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acerca de & Actualizaciones -->
+            <h2 class="library-main-title" style="margin-top: 20px; margin-bottom: 10px;">
+                <span>Acerca de</span>
+                <span class="section-subtitle-tag">Nube</span>
+            </h2>
+            <div class="settings-switches-card">
+                <div class="switch-setting-row">
+                    <div class="setting-row-left">
+                        <div class="setting-icon-squircle">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="switch-label-title">Servidores de Extracción</div>
+                            <div class="switch-label-sub">Conexión directa de alta velocidad</div>
+                        </div>
+                    </div>
+                    <span class="setting-badge-subtle" style="color: #4ADE80; border-color: rgba(74, 222, 128, 0.3);">ONLINE</span>
                 </div>
 
                 <div class="switch-setting-row" id="rowCheckUpdates" style="cursor: pointer;">
-                    <div>
-                        <div class="switch-label-title">Actualizaciones de la App</div>
-                        <div class="switch-label-sub" id="lblUpdateStatus">Comprobar nueva versión disponible</div>
+                    <div class="setting-row-left">
+                        <div class="setting-icon-squircle">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="switch-label-title">Actualizaciones de la App</div>
+                            <div class="switch-label-sub" id="lblUpdateStatus">Comprobar nueva versión disponible</div>
+                        </div>
                     </div>
-                    <button type="button" id="btnCheckUpdatesNow" class="btn-sponsor-action" style="padding: 6px 12px; font-size: 0.72rem; width: auto; margin: 0; box-shadow: none;">BUSCAR</button>
+                    <button type="button" id="btnCheckUpdatesNow" class="btn-sponsor-action" style="padding: 6px 13px; font-size: 0.7rem; width: auto; margin: 0;">BUSCAR</button>
                 </div>
             </div>
         </section>
@@ -1962,17 +2147,62 @@
             }
             refreshSecurityStatus();
 
-            // Resolution / Format Selector Tiles
+            // Resolution / Format Selector Tiles (Sincronizado en toda la app)
             const modeTiles = document.querySelectorAll('.mode-tile-card');
-            let selectedMode = '1080p';
+            const headerActiveModeText = document.getElementById('headerActiveModeText');
+            const badgeDefaultQuality = document.getElementById('badgeDefaultQuality');
+            const rowCycleQuality = document.getElementById('rowCycleQuality');
+            let selectedMode = localStorage.getItem('snaptik_selected_mode') || '1080p';
+
+            function syncSelectedModeUI(mode) {
+                selectedMode = mode;
+                localStorage.setItem('snaptik_selected_mode', mode);
+
+                modeTiles.forEach(t => {
+                    if (t.dataset.mode === mode) {
+                        t.classList.add('active');
+                    } else {
+                        t.classList.remove('active');
+                    }
+                });
+
+                const labelMap = {
+                    '1080p': '1080p FHD',
+                    '720p': '720p HD',
+                    'audio': 'Audio MP3'
+                };
+                if (headerActiveModeText) headerActiveModeText.textContent = labelMap[mode] || '1080p FHD';
+                if (badgeDefaultQuality) badgeDefaultQuality.textContent = labelMap[mode] || '1080p FHD';
+
+                const bHd = document.getElementById('btnActionMpHd');
+                const bSd = document.getElementById('btnActionMp4');
+                const bMp3 = document.getElementById('btnActionMp3');
+
+                if (bHd && bSd && bMp3) {
+                    bHd.className = (mode === '1080p') ? 'btn-tier-action tier-white-solid' : 'btn-tier-action tier-graphite';
+                    bSd.className = (mode === '720p') ? 'btn-tier-action tier-white-solid' : 'btn-tier-action tier-graphite';
+                    bMp3.className = (mode === 'audio') ? 'btn-tier-action tier-white-solid' : 'btn-tier-action tier-graphite';
+                }
+            }
+
             modeTiles.forEach(tile => {
                 tile.addEventListener('click', () => {
-                    modeTiles.forEach(t => t.classList.remove('active'));
-                    tile.classList.add('active');
-                    selectedMode = tile.dataset.mode;
                     triggerHaptics(12);
+                    syncSelectedModeUI(tile.dataset.mode);
                 });
             });
+
+            if (rowCycleQuality) {
+                rowCycleQuality.addEventListener('click', () => {
+                    triggerHaptics(15);
+                    const order = ['1080p', '720p', 'audio'];
+                    const nextIdx = (order.indexOf(selectedMode) + 1) % order.length;
+                    syncSelectedModeUI(order[nextIdx]);
+                    showHudToast(`Formato activo: ${order[nextIdx].toUpperCase()}`);
+                });
+            }
+
+            syncSelectedModeUI(selectedMode);
 
             // Form & Input elements
             const form = document.getElementById('extractMainForm');
@@ -2213,12 +2443,13 @@
                     }
                 }
 
-                // MP4 Full HD Action (1080p) - Protegido por Video Reward Unity Ads
+                // MP4 Full HD Action (1080p)
                 const hdUrl = data.hd_url || data.video_url;
                 if (hdUrl && !isPhotoAlbum) {
                     btnMpHd.style.display = 'flex';
                     btnMpHd.onclick = () => {
                         triggerHaptics(40);
+                        syncSelectedModeUI('1080p');
                         const fname = `tiktok_${data.id || Date.now()}_1080p_FHD.mp4`;
                         triggerRewardedDownload(hdUrl, fname, 'Full HD 1080p', data);
                     };
@@ -2231,6 +2462,7 @@
                     btnMp4.style.display = 'flex';
                     btnMp4.onclick = () => {
                         triggerHaptics(40);
+                        syncSelectedModeUI('720p');
                         const fname = `tiktok_${data.id || Date.now()}_720p.mp4`;
                         if (window.AndroidApp) {
                             window.AndroidApp.download(data.video_url, fname);
@@ -2238,7 +2470,7 @@
                             window.open(data.video_url, '_blank');
                         }
                         saveItemToLocalLibrary(data);
-                        showHudToast('Descarga iniciada...');
+                        showHudToast('Descarga 720p iniciada...');
                     };
                 } else {
                     btnMp4.style.display = 'none';
@@ -2266,38 +2498,29 @@
                     btnPhotos.style.display = 'none';
                 }
 
-                // MP3 Action
-                if (data.audio_url && data.audio_url.length > 5) {
+                // MP3 Action (Siempre disponible para vídeos)
+                const audioStreamUrl = (data.audio_url && data.audio_url.length > 5) ? data.audio_url : data.video_url;
+                if (audioStreamUrl && !isPhotoAlbum) {
                     btnMp3.style.display = 'flex';
                     btnMp3.onclick = () => {
                         triggerHaptics(40);
+                        syncSelectedModeUI('audio');
                         const fname = `tiktok_${data.id || Date.now()}_AUDIO.mp3`;
                         if (window.AndroidApp) {
-                            window.AndroidApp.download(data.audio_url, fname);
+                            window.AndroidApp.download(audioStreamUrl, fname);
                         } else {
-                            window.open(data.audio_url, '_blank');
+                            window.open(audioStreamUrl, '_blank');
                         }
+                        saveItemToLocalLibrary(data);
                         showHudToast('Descargando pista MP3...');
                     };
                 } else {
                     btnMp3.style.display = 'none';
                 }
 
-                // Resaltar el formato/resolución seleccionada por el usuario
+                // Iluminar exactamente la opción elegida por el usuario (1080p, 720p o Audio MP3)
                 if (!isPhotoAlbum) {
-                    if (selectedMode === '1080p') {
-                        btnMpHd.className = 'btn-tier-action tier-white-solid';
-                        btnMp4.className = 'btn-tier-action tier-graphite';
-                        btnMp3.className = 'btn-tier-action tier-graphite';
-                    } else if (selectedMode === '720p') {
-                        btnMpHd.className = 'btn-tier-action tier-graphite';
-                        btnMp4.className = 'btn-tier-action tier-white-solid';
-                        btnMp3.className = 'btn-tier-action tier-graphite';
-                    } else if (selectedMode === 'audio') {
-                        btnMpHd.className = 'btn-tier-action tier-graphite';
-                        btnMp4.className = 'btn-tier-action tier-graphite';
-                        btnMp3.className = 'btn-tier-action tier-white-solid';
-                    }
+                    syncSelectedModeUI(selectedMode);
                 }
 
                 saveItemToLocalLibrary(data);
@@ -2663,8 +2886,99 @@
                 }
                 showHudToast('Error en la descarga: ' + err);
             };
+
+            // Age Verification (+18) Controller for Smartlink 4 & 5
+            const modalAgeGate = document.getElementById('modalAgeGate');
+            const btnAgeAdultYes = document.getElementById('btnAgeAdultYes');
+            const btnAgeAdultNo = document.getElementById('btnAgeAdultNo');
+            const prefAdult18Plus = document.getElementById('prefAdult18Plus');
+            const lblAdultPrefSub = document.getElementById('lblAdultPrefSub');
+
+            function applyAgePreference(isAdult, showToastMsg = false) {
+                localStorage.setItem('snaptik_age_verified', 'true');
+                localStorage.setItem('snaptik_adult_18_plus', isAdult ? 'true' : 'false');
+                if (prefAdult18Plus) prefAdult18Plus.checked = isAdult;
+                if (lblAdultPrefSub) {
+                    lblAdultPrefSub.textContent = isAdult
+                        ? 'Anuncios +18 activados (Todos los enlaces activos)'
+                        : 'Anuncios +18 desactivados (Modo estándar)';
+                }
+                if (window.AndroidApp && typeof window.AndroidApp.setAgePreference === 'function') {
+                    window.AndroidApp.setAgePreference(isAdult);
+                }
+                if (modalAgeGate) modalAgeGate.style.display = 'none';
+                if (showToastMsg) {
+                    showHudToast(isAdult ? 'Anuncios +18 activados' : 'Anuncios +18 desactivados');
+                }
+            }
+
+            // Inicializar estado de verificación de edad al abrir la app
+            let alreadyVerified = localStorage.getItem('snaptik_age_verified') === 'true';
+            let savedAdultState = localStorage.getItem('snaptik_adult_18_plus') === 'true';
+            if (window.AndroidApp && typeof window.AndroidApp.isAgeVerified === 'function') {
+                try {
+                    if (window.AndroidApp.isAgeVerified()) {
+                        alreadyVerified = true;
+                        savedAdultState = window.AndroidApp.isAdultModeEnabled();
+                    }
+                } catch (e) {}
+            }
+
+            if (alreadyVerified) {
+                applyAgePreference(savedAdultState, false);
+            } else {
+                if (modalAgeGate) modalAgeGate.style.display = 'flex';
+            }
+
+            if (btnAgeAdultYes) {
+                btnAgeAdultYes.addEventListener('click', () => {
+                    triggerHaptics(25);
+                    applyAgePreference(true, true);
+                });
+            }
+
+            if (btnAgeAdultNo) {
+                btnAgeAdultNo.addEventListener('click', () => {
+                    triggerHaptics(20);
+                    applyAgePreference(false, true);
+                });
+            }
+
+            if (prefAdult18Plus) {
+                prefAdult18Plus.addEventListener('change', (e) => {
+                    triggerHaptics(20);
+                    applyAgePreference(e.target.checked, true);
+                });
+            }
         });
     </script>
+
+    <!-- Age Verification Modal (+18 Smartlink 4 & 5 Filter) -->
+    <div id="modalAgeGate" class="ad-interstitial-overlay" style="display: none;">
+        <div class="ad-interstitial-card" style="background: linear-gradient(180deg, #1A1A20 0%, #101014 100%); border: 1px solid rgba(255, 255, 255, 0.24); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 24px 60px rgba(0, 0, 0, 0.95);">
+            <div class="ad-interstitial-header">
+                <span class="ad-tag-badge" style="color: #E4E4E7; font-weight: 800;">CONFIGURACIÓN DE ANUNCIOS</span>
+                <span class="countdown-badge" style="background: #FFFFFF; color: #000000; font-weight: 900;">+18</span>
+            </div>
+            <div class="ad-interstitial-body" style="gap: 14px;">
+                <div class="brand-icon-squircle" style="width: 56px; height: 56px; border-radius: 16px;">
+                    <span style="font-size: 1.15rem; font-weight: 900; color: #FFFFFF;">18+</span>
+                </div>
+                <h3 class="ad-headline" style="font-size: 1.2rem;">Confirma tu Edad</h3>
+                <p class="ad-description" style="font-size: 0.8rem; color: #A1A1AA; line-height: 1.45;">
+                    Algunos enlaces patrocinados incluyen anuncios para mayores de 18 años. Si eres menor de edad, esos anuncios quedarán desactivados automáticamente.
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 6px;">
+                    <button type="button" id="btnAgeAdultYes" class="btn-cta-hero-white" style="padding: 14px; font-size: 0.86rem; margin-bottom: 0;">
+                        SOY MAYOR DE 18 AÑOS (+18)
+                    </button>
+                    <button type="button" id="btnAgeAdultNo" class="btn-flat-secondary" style="padding: 13px; font-size: 0.82rem; color: #FFFFFF;">
+                        Soy menor de 18 años (Desactivar +18)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- In-App Update Modal Dialog (OTA outside PlayStore) -->
     <div id="modalAppUpdate" class="ad-interstitial-overlay" style="display: none;">

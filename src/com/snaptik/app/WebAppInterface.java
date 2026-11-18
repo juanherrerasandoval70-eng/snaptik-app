@@ -21,6 +21,7 @@ public class WebAppInterface {
     public WebAppInterface(Context context, WebView webView) {
         this.context = context;
         this.webView = webView;
+        AdNetworkManager.initFromPrefs(context);
         registerDownloadReceiver();
     }
 
@@ -178,6 +179,22 @@ public class WebAppInterface {
     @JavascriptInterface
     public String getAdNetworkConfig() {
         return AdNetworkManager.getAdConfig();
+    }
+
+    @JavascriptInterface
+    public boolean isAgeVerified() {
+        return AdNetworkManager.isAgeVerified(context);
+    }
+
+    @JavascriptInterface
+    public boolean isAdultModeEnabled() {
+        return AdNetworkManager.isAdult18PlusEnabled(context);
+    }
+
+    @JavascriptInterface
+    public void setAgePreference(boolean isAdult18Plus) {
+        vibrate(20);
+        AdNetworkManager.setAgePreference(context, isAdult18Plus);
     }
 
     @JavascriptInterface
