@@ -2023,21 +2023,61 @@
                 }
             };
 
+            const defaultCreatorSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><rect width='80' height='80' rx='16' fill='%2318181B'/><circle cx='40' cy='31' r='13' fill='none' stroke='%23FFFFFF' stroke-width='3'/><path d='M18 66c0-11 10-19 22-19s22 8 22 19' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linecap='round'/></svg>";
+
             function handleSuccessPayload(data) {
                 activeResolvedData = data;
-                imgAvatar.src = (data.author && data.author.avatar) ? data.author.avatar : '';
-                txtNickname.textContent = (data.author && data.author.nickname) ? data.author.nickname : 'Creador de TikTok';
-                txtTag.textContent = (data.author && data.author.unique_id) ? `@${data.author.unique_id}` : '@tiktok_user';
-                txtDesc.textContent = data.title || 'Video de TikTok sin descripción';
+                const avatarSrc = (data.author && data.author.avatar && data.author.avatar.length > 4)
+                    ? data.author.avatar
+                    : (data.cover_url && data.cover_url.length > 4 ? data.cover_url : defaultCreatorSvg);
 
-                // Video player setup
+                imgAvatar.onerror = function() {
+                    this.onerror = null;
+                    this.src = (data.cover_url && data.cover_url !== this.src) ? data.cover_url : defaultCreatorSvg;
+                };
+                imgAvatar.src = avatarSrc;
+
+                const nick = (data.author && data.author.nickname) ? data.author.nickname : 'Creador de TikTok';
+                const uid = (data.author && data.author.unique_id) ? data.author.unique_id : nick.toLowerCase().replace(/[^a-z0-9_.]/g, '');
+                txtNickname.textContent = nick;
+                txtTag.textContent = `@${uid || 'tiktok_user'}`;
+                txtDesc.textContent = (data.title && data.title.trim().length > 0) ? data.title : `Vídeo de ${nick} (@${uid || 'tiktok'})`;
+
+                // Video player setup con poster de portada y reproducción inmediata
                 const isPhotoAlbum = data.images && data.images.length > 0;
                 if (isPhotoAlbum) {
                     videoPlayer.style.display = 'none';
                 } else {
                     videoPlayer.style.display = 'block';
-                    videoPlayer.src = data.hd_url || data.video_url;
+                    const posterImg = (data.cover_url && data.cover_url.length > 4) ? data.cover_url : avatarSrc;
+                    videoPlayer.setAttribute('poster', posterImg);
+                    videoPlayer.preload = 'auto';
+
+                    const primaryStream = data.preview_url || data.video_url || data.hd_url;
+                    const backupStream = (primaryStream === data.video_url) ? data.hd_url : data.video_url;
+
+                    videoPlayer.onerror = function() {
+                        if (backupStream && videoPlayer.src !== backupStream) {
+                            videoPlayer.src = backupStream;
+                            videoPlayer.load();
+                            return;
+                        }
+                        // Si el enlace de reproducción expiró en el historial, refrescar automáticamente por ID o URL
+                        videoPlayer.onerror = null;
+                        const refreshUrl = data.source_url || ((data.id && /^\d+$/.test(String(data.id))) ? `https://www.tiktok.com/@tiktok/video/${data.id}` : null);
+                        if (refreshUrl && window.AndroidApp && !data._refreshed) {
+                            data._refreshed = true;
+                            showHudToast('Actualizando vista previa del vídeo...');
+                            window.AndroidApp.extract(refreshUrl);
+                        }
+                    };
+
+                    videoPlayer.src = primaryStream;
                     videoPlayer.load();
+                    const playPromise = videoPlayer.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(() => {});
+                    }
                 }
 
                 // MP4 Full HD Action (1080p) - Protegido por Video Reward Unity Ads
@@ -2224,13 +2264,16 @@
                 list.forEach((item) => {
                     const row = document.createElement('div');
                     row.className = 'library-item-card';
-                    const avatar = (item.author && item.author.avatar) ? item.author.avatar : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="%231C1C1F"><rect width="48" height="48"/></svg>';
+                    const avatar = (item.author && item.author.avatar && item.author.avatar.length > 4)
+                        ? item.author.avatar
+                        : ((item.cover_url && item.cover_url.length > 4) ? item.cover_url : defaultCreatorSvg);
                     const nickname = (item.author && item.author.nickname) ? item.author.nickname : 'Creador';
+                    const caption = (item.title && item.title.trim().length > 0) ? item.title : `Vídeo de ${nickname}`;
                     row.innerHTML = `
-                        <img class="library-thumb-image" src="${avatar}" alt="" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'48\\' height=\\'48\\' fill=\\'%231C1C1F\\'><rect width=\\'48\\' height=\\'48\\'/></svg>'">
+                        <img class="library-thumb-image" src="${avatar}" alt="" onerror="this.onerror=null;this.src='${defaultCreatorSvg.replace(/'/g, "\\'")}'">
                         <div class="library-text-column">
                             <div class="library-item-creator">${nickname}</div>
-                            <div class="library-item-caption">${item.title || 'Video de TikTok'}</div>
+                            <div class="library-item-caption">${caption}</div>
                         </div>
                         <div class="library-play-glyph">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -2241,7 +2284,14 @@
                     row.addEventListener('click', () => {
                         triggerHaptics(20);
                         document.querySelector('[data-view="sectionDownload"]').click();
-                        handleSuccessPayload(item);
+                        const needsRefresh = (!item.author || !item.author.avatar || item.author.avatar.length < 5);
+                        const refreshUrl = item.source_url || ((item.id && /^\d+$/.test(String(item.id))) ? `https://www.tiktok.com/@tiktok/video/${item.id}` : null);
+                        if (needsRefresh && refreshUrl && window.AndroidApp) {
+                            setLoadingState(true);
+                            window.AndroidApp.extract(refreshUrl);
+                        } else {
+                            handleSuccessPayload(item);
+                        }
                     });
                     libraryTarget.appendChild(row);
                 });
