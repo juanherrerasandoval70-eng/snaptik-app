@@ -12,9 +12,9 @@ import org.json.JSONObject;
 public class AdNetworkManager {
 
     private static final String TAG = "AdsterraSnapTik";
-    private static final String PREFS_NAME = "snaptik_pro_prefs";
-    private static final String KEY_AGE_VERIFIED = "age_verified";
-    private static final String KEY_ADULT_18_PLUS = "is_adult_18_plus";
+    private static final String PREFS_NAME = "snaptik_pro_prefs_v2";
+    private static final String KEY_AGE_VERIFIED = "age_verified_v2";
+    private static final String KEY_ADULT_18_PLUS = "is_adult_18_plus_v2";
 
     private static int downloadCount = 0;
     private static int adClickCount = 0;
@@ -22,23 +22,23 @@ public class AdNetworkManager {
 
     private static final String ACTIVE_NETWORK = "Adsterra Smartlinks (High eCPM)";
 
-    // Smartlinks generales (Aptos para todo público: Smartlink 1, 2 y 3)
+    // Smartlinks LIMPIOS / SIN +18 (Dominio asiafilm.org -> Redirigen solo a Google Play Store)
+    // Verificados por inspección de payload: Smartlink_3 (31224747), Smartlink_2 (31224644), Smartlink_5 (32351410)
     public static final String[] SAFE_SMARTLINKS = {
-        "https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b", // Smartlink_3 (ID: 31224747)
-        "https://asiafilm.org/4/b70dfeb9161b32fbda5a5d24daca1943", // Smartlink_2 (ID: 31224644)
-        "https://auctionr.org/4/ceb82fb7e10796fc95547d9b50cfe003"  // Smartlink_1 (ID: 31224274)
+        "https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b", // Smartlink_3 (ID: 31224747 - Limpio Mainstream)
+        "https://asiafilm.org/4/b70dfeb9161b32fbda5a5d24daca1943", // Smartlink_2 (ID: 31224644 - Limpio Mainstream)
+        "https://asiafilm.org/4/7f20a7584445d119b20cbbaa4fc4012c"  // Smartlink_5 (ID: 32351410 - Limpio Mainstream)
     };
 
-    // Todos los Smartlinks incluyendo Smartlink 4 y 5 (+18 Adultos)
+    // Todos los Smartlinks incluyendo los +18 (Dominio auctionr.org -> Smartlink_1 y Smartlink_4 contienen campañas +18)
     public static final String[] ALL_SMARTLINKS = {
-        "https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b", // Smartlink_3 (ID: 31224747)
-        "https://asiafilm.org/4/b70dfeb9161b32fbda5a5d24daca1943", // Smartlink_2 (ID: 31224644)
-        "https://auctionr.org/4/ceb82fb7e10796fc95547d9b50cfe003", // Smartlink_1 (ID: 31224274)
-        "https://auctionr.org/4/048d8aa6b801685694fdae38b9f9cb5b", // Smartlink_4 (ID: 32351281 - +18)
-        "https://asiafilm.org/4/7f20a7584445d119b20cbbaa4fc4012c"  // Smartlink_5 (ID: 32351410 - +18)
+        "https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b", // Smartlink_3 (ID: 31224747 - Limpio)
+        "https://asiafilm.org/4/b70dfeb9161b32fbda5a5d24daca1943", // Smartlink_2 (ID: 31224644 - Limpio)
+        "https://asiafilm.org/4/7f20a7584445d119b20cbbaa4fc4012c", // Smartlink_5 (ID: 32351410 - Limpio)
+        "https://auctionr.org/4/ceb82fb7e10796fc95547d9b50cfe003", // Smartlink_1 (ID: 31224274 - +18 Adultos)
+        "https://auctionr.org/4/048d8aa6b801685694fdae38b9f9cb5b"  // Smartlink_4 (ID: 32351281 - +18 Adultos)
     };
 
-    // Compatibilidad con referencias existentes
     public static final String[] SMARTLINKS = ALL_SMARTLINKS;
 
     private static int currentLinkIndex = 0;
@@ -84,7 +84,8 @@ public class AdNetworkManager {
     }
 
     /**
-     * Obtiene el siguiente Smartlink activo según el filtro de edad (+18 activa 4 y 5; menor de 18 los desactiva).
+     * Obtiene el siguiente Smartlink activo según el filtro de edad.
+     * Si +18 está desactivado, NUNCA usa los enlaces de auctionr.org (Smartlink_1 ni Smartlink_4).
      */
     public static synchronized String getNextSmartlink(Context context) {
         String[] pool = getActivePool(context);

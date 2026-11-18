@@ -1904,25 +1904,6 @@
                         <span class="ios-slider"></span>
                     </label>
                 </div>
-
-                <div class="switch-setting-row">
-                    <div class="setting-row-left">
-                        <div class="setting-icon-squircle">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M9 9h.01M15 9h.01M8 13a4 4 0 0 0 8 0"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="switch-label-title">Anuncios para Mayores (+18)</div>
-                            <div class="switch-label-sub" id="lblAdultPrefSub">Permitir enlaces patrocinados +18</div>
-                        </div>
-                    </div>
-                    <label class="ios-switch">
-                        <input type="checkbox" id="prefAdult18Plus">
-                        <span class="ios-slider"></span>
-                    </label>
-                </div>
             </div>
 
             <!-- Configuración de Descarga & Almacenamiento -->
@@ -2887,45 +2868,35 @@
                 showHudToast('Error en la descarga: ' + err);
             };
 
-            // Age Verification (+18) Controller for Smartlink 4 & 5
+            // Age Verification (+18) Controller at App Entry (Bloquea auctionr.org Smartlink_1 y Smartlink_4 si es menor de 18)
             const modalAgeGate = document.getElementById('modalAgeGate');
             const btnAgeAdultYes = document.getElementById('btnAgeAdultYes');
             const btnAgeAdultNo = document.getElementById('btnAgeAdultNo');
-            const prefAdult18Plus = document.getElementById('prefAdult18Plus');
-            const lblAdultPrefSub = document.getElementById('lblAdultPrefSub');
 
-            function applyAgePreference(isAdult, showToastMsg = false) {
-                localStorage.setItem('snaptik_age_verified', 'true');
-                localStorage.setItem('snaptik_adult_18_plus', isAdult ? 'true' : 'false');
-                if (prefAdult18Plus) prefAdult18Plus.checked = isAdult;
-                if (lblAdultPrefSub) {
-                    lblAdultPrefSub.textContent = isAdult
-                        ? 'Anuncios +18 activados (Todos los enlaces activos)'
-                        : 'Anuncios +18 desactivados (Modo estándar)';
-                }
+            function applyAgePreference(isAdult) {
+                localStorage.setItem('snaptik_age_verified_v2', 'true');
+                localStorage.setItem('snaptik_adult_18_plus_v2', isAdult ? 'true' : 'false');
                 if (window.AndroidApp && typeof window.AndroidApp.setAgePreference === 'function') {
                     window.AndroidApp.setAgePreference(isAdult);
                 }
                 if (modalAgeGate) modalAgeGate.style.display = 'none';
-                if (showToastMsg) {
-                    showHudToast(isAdult ? 'Anuncios +18 activados' : 'Anuncios +18 desactivados');
-                }
             }
 
-            // Inicializar estado de verificación de edad al abrir la app
-            let alreadyVerified = localStorage.getItem('snaptik_age_verified') === 'true';
-            let savedAdultState = localStorage.getItem('snaptik_adult_18_plus') === 'true';
+            let alreadyVerified = localStorage.getItem('snaptik_age_verified_v2') === 'true';
+            let savedAdultState = localStorage.getItem('snaptik_adult_18_plus_v2') === 'true';
             if (window.AndroidApp && typeof window.AndroidApp.isAgeVerified === 'function') {
                 try {
                     if (window.AndroidApp.isAgeVerified()) {
                         alreadyVerified = true;
                         savedAdultState = window.AndroidApp.isAdultModeEnabled();
+                    } else {
+                        alreadyVerified = false;
                     }
                 } catch (e) {}
             }
 
             if (alreadyVerified) {
-                applyAgePreference(savedAdultState, false);
+                applyAgePreference(savedAdultState);
             } else {
                 if (modalAgeGate) modalAgeGate.style.display = 'flex';
             }
@@ -2933,21 +2904,14 @@
             if (btnAgeAdultYes) {
                 btnAgeAdultYes.addEventListener('click', () => {
                     triggerHaptics(25);
-                    applyAgePreference(true, true);
+                    applyAgePreference(true);
                 });
             }
 
             if (btnAgeAdultNo) {
                 btnAgeAdultNo.addEventListener('click', () => {
                     triggerHaptics(20);
-                    applyAgePreference(false, true);
-                });
-            }
-
-            if (prefAdult18Plus) {
-                prefAdult18Plus.addEventListener('change', (e) => {
-                    triggerHaptics(20);
-                    applyAgePreference(e.target.checked, true);
+                    applyAgePreference(false);
                 });
             }
         });
