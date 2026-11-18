@@ -1,0 +1,7 @@
+bin/
+build/
+dex/
+gen/
+unity_decompiled/
+unity_src/
+*.log

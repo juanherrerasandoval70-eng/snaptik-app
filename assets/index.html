@@ -1,0 +1,2555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SnapTik PRO</title>
+    <style>
+        :root {
+            --bg-pure: #000000;
+            --bg-card: #121214;
+            --bg-elevated: #1C1C1F;
+            --border-subtle: rgba(255, 255, 255, 0.12);
+            --border-active: #FFFFFF;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --text-muted: #71717A;
+            --accent-white: #FFFFFF;
+            --radius-xs: 8px;
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 22px;
+            --radius-pill: 9999px;
+            --font-stack: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --transition-smooth: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-pure);
+            background-image: radial-gradient(circle at 50% -10%, #1a1a22 0%, #0a0a0c 45%, #000000 85%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            font-family: var(--font-stack);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            padding-bottom: 90px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Bar */
+        .top-navbar {
+            padding: 14px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(8, 8, 10, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .brand-header-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-glyph-svg {
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+            color: #FFFFFF;
+        }
+
+        .brand-text-label {
+            font-size: 1.22rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #FFFFFF;
+        }
+
+        .pro-capsule-badge {
+            font-size: 0.62rem;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.12);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            padding: 2px 7px;
+            border-radius: var(--radius-pill);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        /* Main Viewport Container */
+        .app-viewport {
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+            padding: 10px 18px 24px 18px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* View Tabs */
+        .section-view {
+            display: none;
+            animation: fadeInView 0.22s ease-out;
+        }
+
+        .section-view.active {
+            display: block;
+        }
+
+        @keyframes fadeInView {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Smart Clipboard HUD */
+        .smart-clipboard-island {
+            background: #121214;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: var(--radius-md);
+            padding: 11px 14px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            animation: slideDown 0.25s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .island-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .island-icon {
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+        }
+
+        .island-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .island-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .island-btn-action {
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            font-size: 0.76rem;
+            font-weight: 800;
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Hero Typography */
+        .hero-headline-block {
+            margin-top: 10px;
+            margin-bottom: 22px;
+            text-align: left;
+        }
+
+        .hero-line-1 {
+            font-size: 1.78rem;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            color: #FFFFFF;
+        }
+
+        .hero-line-2 {
+            font-size: 1.78rem;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            background: linear-gradient(180deg, #A1A1AA 0%, #71717A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 2px;
+        }
+
+        /* Command Input Dock */
+        .dock-input-bar {
+            background: rgba(22, 22, 26, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 20px;
+            padding: 5px 6px 5px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all var(--transition-smooth);
+        }
+
+        .dock-input-bar:focus-within {
+            border-color: rgba(255, 255, 255, 0.45);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .dock-link-glyph {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+        }
+
+        .input-text-native {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #FFFFFF;
+            font-size: 0.94rem;
+            font-family: inherit;
+            padding: 12px 0;
+            width: 100%;
+        }
+
+        .input-text-native::placeholder {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        .dock-pill-btn {
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            border-radius: var(--radius-pill);
+            padding: 7px 15px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);
+            transition: all var(--transition-smooth);
+        }
+
+        .dock-pill-btn:active {
+            transform: scale(0.96);
+            background: #E4E4E7;
+        }
+
+        /* 3 Mode Selector Pills (Exactly from Image) */
+        .mode-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-tile-card {
+            background: rgba(20, 20, 24, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-md);
+            padding: 14px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            color: var(--text-secondary);
+        }
+
+        .mode-tile-card svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 1.8;
+            color: var(--text-secondary);
+            transition: color var(--transition-smooth);
+        }
+
+        .mode-tile-label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .mode-tile-card.active {
+            border: 1.5px solid #FFFFFF;
+            background: rgba(255, 255, 255, 0.08);
+            color: #FFFFFF;
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.08);
+        }
+
+        .mode-tile-card.active svg {
+            color: #FFFFFF;
+            stroke-width: 2.2;
+        }
+
+        /* Hero Action CTA Button (Solid White) */
+        .btn-cta-hero-white {
+            width: 100%;
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            border-radius: var(--radius-pill);
+            padding: 16px 22px;
+            font-size: 0.98rem;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 26px rgba(255, 255, 255, 0.18);
+            transition: transform var(--transition-smooth), opacity var(--transition-smooth);
+            margin-bottom: 24px;
+        }
+
+        .btn-cta-hero-white:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .btn-cta-hero-white:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner-dark {
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(0, 0, 0, 0.2);
+            border-top-color: #000000;
+            border-radius: 50%;
+            animation: spinCta 0.75s linear infinite;
+        }
+
+        @keyframes spinCta {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error Notice */
+        .notice-error-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            color: #E4E4E7;
+            font-size: 0.84rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        /* Trust Strip Matrix (Thin Line Vectors) */
+        .trust-line-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .trust-item-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            text-align: center;
+        }
+
+        .trust-glyph-box {
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 22px;
+        }
+
+        .trust-text-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        /* Result Workstation Card */
+        .media-result-deck {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 24px;
+            animation: fadeInView 0.25s ease-out;
+        }
+
+        .deck-top-row {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .deck-status-indicator {
+            font-size: 0.74rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.03em;
+        }
+
+        .btn-deck-dismiss {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .deck-content-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .media-player-frame {
+            background: #000000;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            aspect-ratio: 9/16;
+            max-height: 440px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .media-player-frame video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .author-meta-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-elevated);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .author-circle-avatar {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid #FFFFFF;
+            background: #000000;
+        }
+
+        .author-col-details {
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .author-title-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .author-name-text {
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .author-unique-tag {
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+        }
+
+        .caption-display-box {
+            background: #000000;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            border-left: 2px solid #FFFFFF;
+        }
+
+        .caption-body-text {
+            font-size: 0.84rem;
+            color: #D4D4D8;
+            line-height: 1.45;
+            word-break: break-word;
+            margin-bottom: 8px;
+        }
+
+        .btn-copy-clip-text {
+            background: transparent;
+            border: none;
+            color: #FFFFFF;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: underline;
+        }
+
+        /* Action Buttons Stack */
+        .action-tiers-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-tier-action {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            width: 100%;
+            text-align: left;
+        }
+
+        .btn-tier-action:active {
+            transform: scale(0.98);
+        }
+
+        .tier-inner-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tier-icon-bubble {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tier-labels-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tier-headline {
+            font-size: 0.92rem;
+            font-weight: 800;
+        }
+
+        .tier-subhead {
+            font-size: 0.74rem;
+        }
+
+        .tier-pill-tag {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            white-space: nowrap;
+        }
+
+        .tier-white-solid {
+            background: #FFFFFF;
+            color: #000000;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.16);
+        }
+
+        .tier-white-solid:active {
+            background: #E4E4E7;
+            transform: scale(0.98);
+        }
+
+        .tier-white-solid .tier-icon-bubble {
+            background: rgba(0, 0, 0, 0.08);
+            color: #000000;
+        }
+
+        .tier-white-solid .tier-subhead {
+            color: #3F3F46;
+        }
+
+        .tier-white-solid .tier-pill-tag {
+            background: #000000;
+            color: #FFFFFF;
+        }
+
+        .tier-graphite {
+            background: rgba(24, 24, 28, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #FFFFFF;
+        }
+
+        .tier-graphite:active {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.28);
+            transform: scale(0.98);
+        }
+
+        .tier-graphite .tier-icon-bubble {
+            background: rgba(255, 255, 255, 0.08);
+            color: #FFFFFF;
+        }
+
+        .tier-graphite .tier-subhead {
+            color: var(--text-secondary);
+        }
+
+        .tier-graphite .tier-pill-tag {
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sub-actions-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-flat-secondary {
+            background: rgba(24, 24, 28, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            padding: 11px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all var(--transition-smooth);
+        }
+
+        .btn-flat-secondary:active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            transform: scale(0.98);
+        }
+
+        /* Tab 2: Biblioteca */
+        .library-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .library-main-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .btn-clear-history-mono {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .library-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .library-item-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+        }
+
+        .library-item-card:active {
+            border-color: #FFFFFF;
+            background: var(--bg-elevated);
+        }
+
+        .library-thumb-image {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            background: #000000;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .library-text-column {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .library-item-creator {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .library-item-caption {
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .library-play-glyph {
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .empty-library-display {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border: 1px dashed var(--border-subtle);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Tab 3: Ajustes */
+        .settings-flow-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .flow-step-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .flow-step-circle {
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
+            background: #FFFFFF;
+            color: #000000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.8rem;
+        }
+
+        .flow-step-text h4 {
+            font-size: 0.92rem;
+            font-weight: 800;
+            margin-bottom: 2px;
+            color: #FFFFFF;
+        }
+
+        .flow-step-text p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .settings-switches-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 4px 16px;
+            margin-bottom: 18px;
+        }
+
+        .switch-setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .switch-setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .switch-label-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .switch-label-sub {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+        }
+
+        /* iOS Toggle Switch */
+        .ios-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .ios-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .ios-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            transition: .22s;
+            border-radius: 24px;
+        }
+
+        .ios-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background-color: #A1A1AA;
+            transition: .22s;
+            border-radius: 50%;
+        }
+
+        input:checked + .ios-slider {
+            background: #FFFFFF;
+            border-color: #FFFFFF;
+        }
+
+        input:checked + .ios-slider:before {
+            transform: translateX(20px);
+            background-color: #000000;
+        }
+
+        /* Docked Bottom Bar (iOS floating pill) */
+        .floating-dock-nav {
+            position: fixed;
+            bottom: 12px;
+            left: 16px;
+            right: 16px;
+            max-width: 420px;
+            margin: 0 auto;
+            background: rgba(16, 16, 20, 0.92);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: var(--radius-pill);
+            height: 60px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
+        }
+
+        .dock-nav-item {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            padding: 6px 18px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            transition: all var(--transition-smooth);
+        }
+
+        .dock-nav-item svg {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            stroke-width: 1.8;
+            transition: transform var(--transition-smooth);
+        }
+
+        .dock-nav-item.active {
+            color: #FFFFFF;
+        }
+
+        .dock-nav-item.active svg {
+            stroke-width: 2.4;
+            transform: translateY(-1px);
+        }
+
+        /* Floating HUD Toast */
+        .mono-toast-hud {
+            position: fixed;
+            bottom: 82px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #FFFFFF;
+            color: #000000;
+            padding: 9px 18px;
+            border-radius: var(--radius-pill);
+            font-size: 0.8rem;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.22s ease;
+            z-index: 200;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mono-toast-hud.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Native Sponsor Card */
+        .sponsor-native-slot {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+        .sponsor-native-slot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        }
+        .sponsor-native-slot:active {
+            transform: scale(0.99);
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.07);
+        }
+        .sponsor-pill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sponsor-badge-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sponsor-tag {
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: #000000;
+            background: #FFFFFF;
+            padding: 2px 7px;
+            border-radius: var(--radius-pill);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .sponsor-subtag {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .sponsor-verified-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #E4E4E7;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .sponsor-verified-badge svg {
+            color: #FFFFFF;
+        }
+        .sponsor-content-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sponsor-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            flex-shrink: 0;
+        }
+        .sponsor-info-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+        .sponsor-title {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.01em;
+        }
+        .sponsor-sub {
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            line-height: 1.35;
+        }
+        .btn-sponsor-action {
+            width: 100%;
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 11px 16px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: 0.03em;
+            transition: all var(--transition-smooth);
+            box-shadow: 0 4px 14px rgba(255, 255, 255, 0.1);
+        }
+        .btn-sponsor-action:active {
+            transform: scale(0.98);
+            background: #E4E4E7;
+        }
+
+        /* Interstitial Modal */
+        .ad-interstitial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .ad-interstitial-card {
+            background: #121214;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 360px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+        }
+        .ad-interstitial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .ad-tag-badge {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #A1A1AA;
+            letter-spacing: 0.05em;
+        }
+        .countdown-badge {
+            font-size: 0.74rem;
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+        }
+        .btn-ad-close {
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            border-radius: var(--radius-pill);
+            padding: 4px 12px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .ad-interstitial-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+        }
+        .ad-graphic-box {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #1C1C1F;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+        }
+        .ad-headline {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+        }
+        .ad-description {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .btn-ad-cta-white {
+            width: 100%;
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="top-navbar">
+        <div class="brand-header-box">
+            <!-- High-Precision Cinematic Media Shutter Glyph (Zero Book Resemblance) -->
+            <svg class="brand-glyph-svg" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2.5" y="2.5" width="23" height="23" rx="7" stroke="currentColor" stroke-width="2.2"/>
+                <polygon points="11,8 19.5,14 11,20" fill="currentColor"/>
+                <circle cx="21" cy="7" r="2.2" fill="currentColor"/>
+            </svg>
+            <span class="brand-text-label">SnapTik</span>
+            <span class="pro-capsule-badge">PRO</span>
+        </div>
+    </header>
+
+    <!-- Main Viewport Layout -->
+    <main class="app-viewport">
+
+        <!-- TAB 1: DESCARGA PRINCIPAL -->
+        <section id="sectionDownload" class="section-view active">
+
+            <!-- Smart Clipboard HUD -->
+            <div id="smartClipboardIsland" class="smart-clipboard-island" style="display: none;">
+                <div class="island-left">
+                    <div class="island-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                            <path d="M9 14l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="island-title">Enlace de TikTok detectado</div>
+                        <div id="islandUrlPreview" class="island-sub">Listo para pegar y procesar</div>
+                    </div>
+                </div>
+                <button type="button" id="btnApplyIsland" class="island-btn-action">Pegar</button>
+            </div>
+
+            <!-- Hero Typography (Exact Match to Mockup) -->
+            <div class="hero-headline-block">
+                <div class="hero-line-1">Extracción Directa</div>
+                <div class="hero-line-2">en Máxima Calidad</div>
+            </div>
+
+            <!-- Command Dock Input Form -->
+            <form id="extractMainForm">
+                <div class="dock-input-bar">
+                    <span class="dock-link-glyph">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                    </span>
+                    <input 
+                        type="url" 
+                        id="inputUrlField" 
+                        class="input-text-native" 
+                        placeholder="Pega el enlace de TikTok..." 
+                        autocomplete="off"
+                        spellcheck="false"
+                        required
+                    >
+                    <button type="button" id="btnDockPasteAction" class="dock-pill-btn">Pegar</button>
+                    <button type="button" id="btnDockClearAction" class="dock-pill-btn" style="display: none; padding: 8px 12px;">✕</button>
+                </div>
+
+                <!-- 3 Resolution / Format Selector Pills -->
+                <div class="mode-selector-grid">
+                    <!-- 1080p Full HD -->
+                    <div class="mode-tile-card active" data-mode="1080p">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                            <path d="M8 21h8"/>
+                            <path d="M12 17v4"/>
+                        </svg>
+                        <span class="mode-tile-label">1080p FHD</span>
+                    </div>
+
+                    <!-- 720p Standard HD -->
+                    <div class="mode-tile-card" data-mode="720p">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="14" height="16" rx="2"/>
+                            <polygon points="22 7 16 12 22 17 22 7"/>
+                        </svg>
+                        <span class="mode-tile-label">720p HD</span>
+                    </div>
+
+                    <!-- Audio MP3 -->
+                    <div class="mode-tile-card" data-mode="audio">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18V5l12-2v13"/>
+                            <circle cx="6" cy="18" r="3"/>
+                            <circle cx="18" cy="16" r="3"/>
+                        </svg>
+                        <span class="mode-tile-label">Audio MP3</span>
+                    </div>
+                </div>
+
+                <!-- Action CTA Button (Solid White) -->
+                <button type="submit" id="btnSubmitExtract" class="btn-cta-hero-white">
+                    <span class="cta-label-wrap">
+                        <span style="display: inline-block; vertical-align: middle;">PROCESAR Y DESCARGAR</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 6px;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </span>
+                    <span class="cta-spinner-wrap" style="display: none;">
+                        <div class="spinner-dark"></div>
+                    </span>
+                </button>
+            </form>
+
+            <div id="errorNoticeBox" class="notice-error-box" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span id="errorNoticeText"></span>
+            </div>
+
+            <!-- Trust Line Matrix (Thin Line Vectors) -->
+            <div class="trust-line-matrix">
+                <div class="trust-item-col">
+                    <div class="trust-glyph-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M9 12l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <span class="trust-text-label">Sin Marca</span>
+                </div>
+
+                <div class="trust-item-col">
+                    <div class="trust-glyph-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="3"/>
+                            <path d="M7 15V9l3 6V9M14 9v6h3a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-3z"/>
+                        </svg>
+                    </div>
+                    <span class="trust-text-label">Full HD</span>
+                </div>
+
+                <div class="trust-item-col">
+                    <div class="trust-glyph-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 10v4M6 6v12M10 3v18M14 8v8M18 5v14M22 10v4"/>
+                        </svg>
+                    </div>
+                    <span class="trust-text-label">Audio 320k</span>
+                </div>
+
+                <div class="trust-item-col">
+                    <div class="trust-glyph-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+                    <span class="trust-text-label">Privado</span>
+                </div>
+            </div>
+
+            <!-- Media Result Workstation -->
+            <div id="mediaResultDeck" class="media-result-deck" style="display: none;">
+                <div class="deck-top-row">
+                    <div class="deck-status-indicator">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        <span>CONTENIDO EXTRAÍDO</span>
+                    </div>
+                    <button type="button" id="btnDismissDeck" class="btn-deck-dismiss">✕ Cerrar</button>
+                </div>
+
+                <div class="deck-content-body">
+                    <!-- Embedded Video Player -->
+                    <div class="media-player-frame">
+                        <video id="playerNativeVideo" controls playsinline preload="metadata"></video>
+                    </div>
+
+                    <!-- Author Details -->
+                    <div class="author-meta-card">
+                        <img id="imgAuthorAvatar" class="author-circle-avatar" src="" alt="">
+                        <div class="author-col-details">
+                            <div class="author-title-row">
+                                <span id="txtAuthorNickname" class="author-name-text">Creador</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFFFFF">
+                                    <path d="M12 2l2.4 2.4 3.4-.4 1.2 3.2 3 1.6-1 3.2 2 2.8-2 2.8 1 3.2-3 1.6-1.2 3.2-3.4-.4L12 22l-2.4-2.4-3.4.4-1.2-3.2-3-1.6 1-3.2-2-2.8 2-2.8-1-3.2 3-1.6 1.2-3.2 3.4.4L12 2zm-1.5 13.5l6-6-1.4-1.4-4.6 4.6-2.1-2.1-1.4 1.4 3.5 3.5z"/>
+                                </svg>
+                            </div>
+                            <span id="txtAuthorTag" class="author-unique-tag">@tiktok_creator</span>
+                        </div>
+                    </div>
+
+                    <!-- Caption Box -->
+                    <div class="caption-display-box">
+                        <p id="txtVideoDesc" class="caption-body-text"></p>
+                        <button type="button" id="btnCopyDescText" class="btn-copy-clip-text">Copiar descripción</button>
+                    </div>
+
+                    <!-- Download Buttons Stack -->
+                    <div class="action-tiers-stack">
+                        <!-- MP4 Full HD Action -->
+                        <button type="button" id="btnActionMpHd" class="btn-tier-action tier-white-solid">
+                            <div class="tier-inner-left">
+                                <div class="tier-icon-bubble">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                </div>
+                                <div class="tier-labels-col">
+                                    <span class="tier-headline">Descargar Full HD (1080p)</span>
+                                    <span class="tier-subhead">Máxima tasa de bits sin marca de agua</span>
+                                </div>
+                            </div>
+                            <span class="tier-pill-tag">1080p ULTRA</span>
+                        </button>
+
+                        <!-- MP4 Standard Action -->
+                        <button type="button" id="btnActionMp4" class="btn-tier-action tier-graphite">
+                            <div class="tier-inner-left">
+                                <div class="tier-icon-bubble">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="23 7 16 12 23 17 23 7"/>
+                                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                    </svg>
+                                </div>
+                                <div class="tier-labels-col">
+                                    <span class="tier-headline">Descargar Estándar (720p)</span>
+                                    <span class="tier-subhead">Calidad ligera optimizada</span>
+                                </div>
+                            </div>
+                            <span class="tier-pill-tag">720p FAST</span>
+                        </button>
+
+                        <!-- Photos Action (Carrusel) -->
+                        <button type="button" id="btnActionPhotos" class="btn-tier-action tier-graphite" style="display: none;">
+                            <div class="tier-inner-left">
+                                <div class="tier-icon-bubble">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <polyline points="21 15 16 10 5 21"/>
+                                    </svg>
+                                </div>
+                                <div class="tier-labels-col">
+                                    <span class="tier-headline" id="lblPhotosHeadline">Descargar Álbum de Fotos</span>
+                                    <span class="tier-subhead">Guardar imágenes en galería</span>
+                                </div>
+                            </div>
+                            <span class="tier-pill-tag" id="tagPhotosCount">FOTOS</span>
+                        </button>
+
+                        <!-- MP3 Action -->
+                        <button type="button" id="btnActionMp3" class="btn-tier-action tier-graphite" style="display: none;">
+                            <div class="tier-inner-left">
+                                <div class="tier-icon-bubble">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 18V5l12-2v13"/>
+                                        <circle cx="6" cy="18" r="3"/>
+                                        <circle cx="18" cy="16" r="3"/>
+                                    </svg>
+                                </div>
+                                <div class="tier-labels-col">
+                                    <span class="tier-headline">Descargar Audio MP3</span>
+                                    <span class="tier-subhead">Pista de sonido original aislada</span>
+                                </div>
+                            </div>
+                            <span class="tier-pill-tag">320 KBPS</span>
+                        </button>
+
+                        <!-- Share & Copy Link -->
+                        <div class="sub-actions-split">
+                            <button type="button" id="btnActionShare" class="btn-flat-secondary">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                                </svg>
+                                <span>Compartir</span>
+                            </button>
+                            <button type="button" id="btnActionCopyLink" class="btn-flat-secondary">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                                <span>Copiar Enlace</span>
+                            </button>
+                        </div>
+
+                        <!-- Native Sponsorship Slot (High CPM Monetization) -->
+                        <div id="nativeSponsorCard" class="sponsor-native-slot" role="button" tabindex="0">
+                            <div class="sponsor-pill-header">
+                                <div class="sponsor-badge-group">
+                                    <span class="sponsor-tag">ANUNCIO</span>
+                                    <span class="sponsor-subtag">Patrocinado</span>
+                                </div>
+                                <span class="sponsor-verified-badge">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    Recomendado
+                                </span>
+                            </div>
+                            <div class="sponsor-content-row">
+                                <div class="sponsor-icon-box">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                        <polyline points="15 3 21 3 21 9"/>
+                                        <line x1="10" y1="14" x2="21" y2="3"/>
+                                    </svg>
+                                </div>
+                                <div class="sponsor-info-col">
+                                    <div class="sponsor-title">Anuncio Patrocinado</div>
+                                    <div class="sponsor-sub">Visita el contenido recomendado por nuestros patrocinadores oficiales.</div>
+                                </div>
+                            </div>
+                            <button type="button" id="btnOpenSponsor" class="btn-sponsor-action">ABRIR ANUNCIO ↗</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: BIBLIOTECA -->
+        <section id="sectionLibrary" class="section-view">
+            <div class="library-header-row">
+                <h2 class="library-main-title">Biblioteca de Descargas</h2>
+                <button type="button" id="btnClearLibraryHistory" class="btn-clear-history-mono">Limpiar Todo</button>
+            </div>
+
+            <!-- Botón de apertura directa del explorador de archivos nativo -->
+            <button type="button" id="btnOpenDownloadsFolder" class="btn-tier-action tier-graphite" style="margin-bottom: 14px; padding: 10px 14px;">
+                <div class="tier-inner-left">
+                    <div class="tier-icon-bubble" style="width: 28px; height: 28px; min-width: 28px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <div class="tier-labels-col">
+                        <span class="tier-headline" style="font-size: 0.84rem;">Abrir carpeta Descargas del teléfono</span>
+                        <span class="tier-subhead" style="font-size: 0.7rem;">Ver videos y audios guardados en tu galería</span>
+                    </div>
+                </div>
+                <span class="tier-pill-tag" style="font-size: 0.65rem; padding: 3px 8px;">ABRIR</span>
+            </button>
+
+            <div id="libraryRowsTarget" class="library-items-list"></div>
+
+            <div id="placeholderNoDownloads" class="empty-library-display" style="display: none;">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3"/>
+                    <path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"/>
+                    <path d="M3 8h18"/>
+                    <path d="M10 12h4"/>
+                </svg>
+                <div style="font-weight: 800; font-size: 0.95rem; color: #FFFFFF;">Tu biblioteca está vacía</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); max-width: 260px;">Los videos procesados aparecerán listados aquí para acceso y reproducción inmediata.</div>
+            </div>
+        </section>
+
+        <!-- TAB 3: AJUSTES -->
+        <section id="sectionSettings" class="section-view">
+            <h2 class="library-main-title" style="margin-bottom: 12px;">Flujo de Operación</h2>
+            
+            <div class="settings-flow-box">
+                <div class="flow-step-row">
+                    <div class="flow-step-circle">1</div>
+                    <div class="flow-step-text">
+                        <h4>Abre TikTok y busca un video</h4>
+                        <p>En cualquier video público, pulsa sobre el botón <strong>Compartir</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step-row">
+                    <div class="flow-step-circle">2</div>
+                    <div class="flow-step-text">
+                        <h4>Copia el enlace o elige SnapTik PRO</h4>
+                        <p>Pulsa en <strong>Copiar Enlace</strong> o pulsa sobre <strong>SnapTik PRO</strong> en el menú de aplicaciones.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step-row">
+                    <div class="flow-step-circle">3</div>
+                    <div class="flow-step-text">
+                        <h4>Guarda en tu almacenamiento</h4>
+                        <p>Pulsa <strong>Descargar Video MP4</strong> y el stream limpio se guardará directamente en <strong>Descargas</strong>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="library-main-title" style="margin-bottom: 12px;">Preferencias del Sistema</h2>
+            <div class="settings-switches-card">
+                <div class="switch-setting-row">
+                    <div>
+                        <div class="switch-label-title">Detección de Portapapeles</div>
+                        <div class="switch-label-sub">Detectar enlaces automáticamente al abrir la app</div>
+                    </div>
+                    <label class="ios-switch">
+                        <input type="checkbox" id="prefAutoClipboard" checked>
+                        <span class="ios-slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-setting-row">
+                    <div>
+                        <div class="switch-label-title">Vibración Háptica</div>
+                        <div class="switch-label-sub">Respuesta física al interactuar con botones</div>
+                    </div>
+                    <label class="ios-switch">
+                        <input type="checkbox" id="prefHapticFeedback" checked>
+                        <span class="ios-slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-setting-row">
+                    <div>
+                        <div class="switch-label-title">Motor de Extracción</div>
+                        <div class="switch-label-sub">Dual-Engine: SSSTik + TikWM Direct CDN</div>
+                    </div>
+                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800; background: rgba(255, 255, 255, 0.12); padding: 4px 8px; border-radius: var(--radius-pill);">ONLINE</span>
+                </div>
+
+                <div class="switch-setting-row">
+                    <div>
+                        <div class="switch-label-title">Versión del Sistema</div>
+                        <div class="switch-label-sub">SnapTik PRO v2.2.0 (Security Hardened)</div>
+                    </div>
+                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800;">OFICIAL</span>
+                </div>
+            </div>
+
+            <!-- Configuración de Descarga & Almacenamiento -->
+            <h2 class="library-main-title" style="margin-top: 24px; margin-bottom: 12px;">Descargas & Almacenamiento</h2>
+            <div class="settings-switches-card">
+                <div class="switch-setting-row">
+                    <div>
+                        <div class="switch-label-title">Calidad Predeterminada</div>
+                        <div class="switch-label-sub">Resolución preferida al pulsar descarga directa</div>
+                    </div>
+                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800; background: rgba(255, 255, 255, 0.12); padding: 4px 10px; border-radius: var(--radius-pill);">1080p ULTRA</span>
+                </div>
+
+                <div class="switch-setting-row">
+                    <div>
+                        <div class="switch-label-title">Carpeta de Destino</div>
+                        <div class="switch-label-sub">Almacenamiento interno / Descargas (Visible en Galería)</div>
+                    </div>
+                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800;">GALERÍA</span>
+                </div>
+
+                <div class="switch-setting-row">
+                    <div>
+                        <div class="switch-label-title">Notificación al Completar</div>
+                        <div class="switch-label-sub">Aviso del sistema cuando el archivo termine de bajar</div>
+                    </div>
+                    <label class="ios-switch">
+                        <input type="checkbox" id="prefNotifications" checked>
+                        <span class="ios-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Acerca de SnapTik PRO -->
+            <h2 class="library-main-title" style="margin-top: 24px; margin-bottom: 12px;">Acerca de</h2>
+            <div class="settings-switches-card">
+                <div class="switch-setting-row">
+                    <div>
+                        <div class="switch-label-title">SnapTik PRO</div>
+                        <div class="switch-label-sub">Versión 2.3.0 Ultra HD • Edición Premium</div>
+                    </div>
+                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800; background: rgba(255, 255, 255, 0.12); padding: 4px 10px; border-radius: var(--radius-pill);">PRO ACTIVO</span>
+                </div>
+
+                <div class="switch-setting-row">
+                    <div>
+                        <div class="switch-label-title">Estado de Servidores CDN</div>
+                        <div class="switch-label-sub">Conexión directa optimizada de alta velocidad</div>
+                    </div>
+                    <span style="font-size: 0.72rem; color: #FFFFFF; font-weight: 800;">OPERATIVO</span>
+                </div>
+
+                <div class="switch-setting-row" id="rowCheckUpdates" style="cursor: pointer;">
+                    <div>
+                        <div class="switch-label-title">Actualizaciones de la App</div>
+                        <div class="switch-label-sub" id="lblUpdateStatus">Comprobar nueva versión disponible</div>
+                    </div>
+                    <button type="button" id="btnCheckUpdatesNow" class="btn-sponsor-action" style="padding: 6px 12px; font-size: 0.72rem; width: auto; margin: 0; box-shadow: none;">BUSCAR</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Docked Tab Bar (iOS Style) -->
+    <nav class="floating-dock-nav">
+        <button type="button" class="dock-nav-item active" data-view="sectionDownload">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Descargar</span>
+        </button>
+
+        <button type="button" class="dock-nav-item" data-view="sectionLibrary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="3"/>
+                <polygon points="10 9 15 12 10 15 10 9" fill="currentColor"/>
+            </svg>
+            <span>Biblioteca</span>
+        </button>
+
+        <button type="button" class="dock-nav-item" data-view="sectionSettings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span>Ajustes</span>
+        </button>
+    </nav>
+
+    <!-- Floating Monochrome HUD Toast -->
+    <div id="monoToastHud" class="mono-toast-hud">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span id="monoToastText"></span>
+    </div>
+
+    <!-- Application Controller Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Preferences
+            const prefAutoClipboard = document.getElementById('prefAutoClipboard');
+            const prefHapticFeedback = document.getElementById('prefHapticFeedback');
+
+            function triggerHaptics(duration = 20) {
+                if (!prefHapticFeedback.checked) return;
+                if (window.AndroidApp) {
+                    window.AndroidApp.vibrate(duration);
+                } else if (navigator.vibrate) {
+                    navigator.vibrate(duration);
+                }
+            }
+
+            function showHudToast(msg) {
+                const toast = document.getElementById('monoToastHud');
+                const text = document.getElementById('monoToastText');
+                text.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2400);
+            }
+
+            // Tabs Navigation
+            const navButtons = document.querySelectorAll('.dock-nav-item');
+            const sections = document.querySelectorAll('.section-view');
+
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.dataset.view;
+                    navButtons.forEach(b => b.classList.remove('active'));
+                    sections.forEach(s => s.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(targetId).classList.add('active');
+                    triggerHaptics(15);
+                    if (targetId === 'sectionLibrary') renderLibraryList();
+                    if (targetId === 'sectionSettings') refreshSecurityStatus();
+                });
+            });
+
+            // Security Hardening & Unity Ads Live Monitor
+            function refreshSecurityStatus() {
+                if (window.AndroidApp && window.AndroidApp.getSecurityReport) {
+                    try {
+                        const rep = JSON.parse(window.AndroidApp.getSecurityReport());
+                        const bSig = document.getElementById('badgeSecSig');
+                        const bRoot = document.getElementById('badgeSecRoot');
+                        const bHook = document.getElementById('badgeSecHook');
+                        const bDebug = document.getElementById('badgeSecDebug');
+                        if (bSig) bSig.textContent = rep.signatureValid ? 'AUTORIZADO' : 'ALTERADO';
+                        if (bRoot) bRoot.textContent = rep.rootDetected ? 'ROOT DETECTADO' : 'PROTEGIDO';
+                        if (bHook) bHook.textContent = rep.hookingDetected ? 'INYECCIÓN DETECTADA' : 'ACTIVO';
+                        if (bDebug) bDebug.textContent = rep.debuggerDetected ? 'DEBUG ACTIVO' : 'ACTIVO';
+                    } catch (e) {}
+                }
+                if (window.AndroidApp && window.AndroidApp.getUnityAdsStatus) {
+                    try {
+                        const uStatus = JSON.parse(window.AndroidApp.getUnityAdsStatus());
+                        const bUnity = document.getElementById('badgeUnityStatus');
+                        if (bUnity) {
+                            if (uStatus.ready) {
+                                bUnity.textContent = 'LISTO';
+                                bUnity.style.background = 'rgba(255, 255, 255, 0.28)';
+                            } else if (uStatus.initialized) {
+                                bUnity.textContent = 'INICIALIZADO';
+                                bUnity.style.background = 'rgba(255, 255, 255, 0.18)';
+                            } else {
+                                bUnity.textContent = 'CONECTANDO';
+                            }
+                        }
+                    } catch (e) {}
+                }
+            }
+            refreshSecurityStatus();
+
+            // Resolution / Format Selector Tiles
+            const modeTiles = document.querySelectorAll('.mode-tile-card');
+            let selectedMode = '1080p';
+            modeTiles.forEach(tile => {
+                tile.addEventListener('click', () => {
+                    modeTiles.forEach(t => t.classList.remove('active'));
+                    tile.classList.add('active');
+                    selectedMode = tile.dataset.mode;
+                    triggerHaptics(12);
+                });
+            });
+
+            // Form & Input elements
+            const form = document.getElementById('extractMainForm');
+            const urlInput = document.getElementById('inputUrlField');
+            const btnPaste = document.getElementById('btnDockPasteAction');
+            const btnClear = document.getElementById('btnDockClearAction');
+            const btnSubmit = document.getElementById('btnSubmitExtract');
+            const ctaLabel = btnSubmit.querySelector('.cta-label-wrap');
+            const ctaSpinner = btnSubmit.querySelector('.cta-spinner-wrap');
+            const errorNotice = document.getElementById('errorNoticeBox');
+            const errorText = document.getElementById('errorNoticeText');
+
+            // Result Workstation elements
+            const resultDeck = document.getElementById('mediaResultDeck');
+            const videoPlayer = document.getElementById('playerNativeVideo');
+            const imgAvatar = document.getElementById('imgAuthorAvatar');
+            const txtNickname = document.getElementById('txtAuthorNickname');
+            const txtTag = document.getElementById('txtAuthorTag');
+            const txtDesc = document.getElementById('txtVideoDesc');
+            const btnCopyDesc = document.getElementById('btnCopyDescText');
+            const btnMpHd = document.getElementById('btnActionMpHd');
+            const btnMp4 = document.getElementById('btnActionMp4');
+            const btnPhotos = document.getElementById('btnActionPhotos');
+            const lblPhotos = document.getElementById('lblPhotosHeadline');
+            const tagPhotos = document.getElementById('tagPhotosCount');
+            const btnMp3 = document.getElementById('btnActionMp3');
+            const btnShare = document.getElementById('btnActionShare');
+            const btnCopyLink = document.getElementById('btnActionCopyLink');
+            const btnDismiss = document.getElementById('btnDismissDeck');
+
+            // Island Clipboard
+            const smartIsland = document.getElementById('smartClipboardIsland');
+            const btnApplyIsland = document.getElementById('btnApplyIsland');
+
+            // Library elements
+            const libraryTarget = document.getElementById('libraryRowsTarget');
+            const placeholderEmpty = document.getElementById('placeholderNoDownloads');
+            const btnClearLibrary = document.getElementById('btnClearLibraryHistory');
+
+            let activeResolvedData = null;
+
+            // Smart Clipboard Sniffer
+            async function checkClipboardForTikTok() {
+                if (!prefAutoClipboard.checked) return;
+                let text = "";
+                if (window.AndroidApp) {
+                    text = window.AndroidApp.getClipboard() || "";
+                } else if (navigator.clipboard && navigator.clipboard.readText) {
+                    try { text = await navigator.clipboard.readText(); } catch (e) {}
+                }
+
+                if (text && (text.includes('tiktok.com/') || text.includes('douyin.com/')) && text !== urlInput.value) {
+                    smartIsland.style.display = 'flex';
+                    btnApplyIsland.onclick = () => {
+                        triggerHaptics(25);
+                        urlInput.value = text.trim();
+                        updateInputButtons();
+                        smartIsland.style.display = 'none';
+                        btnSubmit.click();
+                    };
+                } else {
+                    smartIsland.style.display = 'none';
+                }
+            }
+
+            window.addEventListener('focus', checkClipboardForTikTok);
+            setTimeout(checkClipboardForTikTok, 500);
+
+            function updateInputButtons() {
+                if (urlInput.value.trim().length > 0) {
+                    btnPaste.style.display = 'none';
+                    btnClear.style.display = 'flex';
+                } else {
+                    btnPaste.style.display = 'flex';
+                    btnClear.style.display = 'none';
+                }
+            }
+            urlInput.addEventListener('input', updateInputButtons);
+
+            btnPaste.addEventListener('click', async () => {
+                triggerHaptics(20);
+                if (window.AndroidApp) {
+                    const clip = window.AndroidApp.getClipboard();
+                    if (clip) {
+                        urlInput.value = clip.trim();
+                        updateInputButtons();
+                        return;
+                    }
+                }
+                try {
+                    const clip = await navigator.clipboard.readText();
+                    if (clip) {
+                        urlInput.value = clip.trim();
+                        updateInputButtons();
+                    }
+                } catch (e) {
+                    urlInput.focus();
+                }
+            });
+
+            btnClear.addEventListener('click', () => {
+                triggerHaptics(15);
+                urlInput.value = '';
+                updateInputButtons();
+                hideErrorBox();
+                urlInput.focus();
+            });
+
+            // Form Submit / Extraction
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const url = urlInput.value.trim();
+                if (!url) return;
+
+                if (!url.includes('tiktok.com') && !url.includes('douyin.com')) {
+                    showErrorBox('Introduce un enlace válido de TikTok (ej. vt.tiktok.com/...)');
+                    return;
+                }
+
+                triggerHaptics(30);
+                setLoadingState(true);
+                hideErrorBox();
+                smartIsland.style.display = 'none';
+
+                if (window.AndroidApp) {
+                    window.AndroidApp.extract(url);
+                } else {
+                    fetch('/api/extract', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url })
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.success && res.data) {
+                            handleSuccessPayload(res.data);
+                        } else {
+                            showErrorBox(res.detail || res.error || 'No se pudo extraer el video.');
+                        }
+                    })
+                    .catch(() => showErrorBox('Error de conexión con el motor de extracción.'))
+                    .finally(() => setLoadingState(false));
+                }
+            });
+
+            // Base64 Safe IPC Callback from Java
+            window.onExtractionCompleteBase64 = function(base64Payload) {
+                setLoadingState(false);
+                try {
+                    const rawJson = decodeURIComponent(escape(window.atob(base64Payload)));
+                    const res = JSON.parse(rawJson);
+                    if (res.success && res.data) {
+                        handleSuccessPayload(res.data);
+                    } else {
+                        showErrorBox(res.error || 'El video es privado o fue eliminado de TikTok.');
+                    }
+                } catch (e) {
+                    showErrorBox('Error decodificando respuesta: ' + e.message);
+                }
+            };
+
+            window.onExtractionComplete = function(jsonString) {
+                setLoadingState(false);
+                try {
+                    const res = JSON.parse(jsonString);
+                    if (res.success && res.data) {
+                        handleSuccessPayload(res.data);
+                    } else {
+                        showErrorBox(res.error || 'El video no está disponible.');
+                    }
+                } catch (e) {
+                    showErrorBox('Error parseando JSON: ' + e.message);
+                }
+            };
+
+            window.onSharedLinkReceived = function(sharedText) {
+                if (sharedText && (sharedText.includes('tiktok.com') || sharedText.includes('douyin.com'))) {
+                    urlInput.value = sharedText.trim();
+                    updateInputButtons();
+                    btnSubmit.click();
+                }
+            };
+
+            function handleSuccessPayload(data) {
+                activeResolvedData = data;
+                imgAvatar.src = (data.author && data.author.avatar) ? data.author.avatar : '';
+                txtNickname.textContent = (data.author && data.author.nickname) ? data.author.nickname : 'Creador de TikTok';
+                txtTag.textContent = (data.author && data.author.unique_id) ? `@${data.author.unique_id}` : '@tiktok_user';
+                txtDesc.textContent = data.title || 'Video de TikTok sin descripción';
+
+                // Video player setup
+                const isPhotoAlbum = data.images && data.images.length > 0;
+                if (isPhotoAlbum) {
+                    videoPlayer.style.display = 'none';
+                } else {
+                    videoPlayer.style.display = 'block';
+                    videoPlayer.src = data.hd_url || data.video_url;
+                    videoPlayer.load();
+                }
+
+                // MP4 Full HD Action (1080p) - Protegido por Video Reward Unity Ads
+                const hdUrl = data.hd_url || data.video_url;
+                if (hdUrl && !isPhotoAlbum) {
+                    btnMpHd.style.display = 'flex';
+                    btnMpHd.onclick = () => {
+                        triggerHaptics(40);
+                        const fname = `tiktok_${data.id || Date.now()}_1080p_FHD.mp4`;
+                        triggerRewardedDownload(hdUrl, fname, 'Full HD 1080p', data);
+                    };
+                } else {
+                    btnMpHd.style.display = 'none';
+                }
+
+                // MP4 Standard Action (720p)
+                if (data.video_url && !isPhotoAlbum) {
+                    btnMp4.style.display = 'flex';
+                    btnMp4.onclick = () => {
+                        triggerHaptics(40);
+                        const fname = `tiktok_${data.id || Date.now()}_720p.mp4`;
+                        if (window.AndroidApp) {
+                            window.AndroidApp.download(data.video_url, fname);
+                        } else {
+                            window.open(data.video_url, '_blank');
+                        }
+                        saveItemToLocalLibrary(data);
+                        showHudToast('Descarga iniciada...');
+                    };
+                } else {
+                    btnMp4.style.display = 'none';
+                }
+
+                // Photos Album Action
+                if (isPhotoAlbum) {
+                    btnPhotos.style.display = 'flex';
+                    lblPhotos.textContent = `Descargar Álbum (${data.images.length} Fotos)`;
+                    tagPhotos.textContent = `${data.images.length} FOTOS`;
+                    btnPhotos.onclick = () => {
+                        triggerHaptics(40);
+                        data.images.forEach((imgUrl, idx) => {
+                            const fname = `tiktok_${data.id || Date.now()}_img_${idx + 1}.jpg`;
+                            if (window.AndroidApp) {
+                                window.AndroidApp.download(imgUrl, fname);
+                            } else {
+                                window.open(imgUrl, '_blank');
+                            }
+                        });
+                        saveItemToLocalLibrary(data);
+                        showHudToast(`Descargando ${data.images.length} fotos...`);
+                    };
+                } else {
+                    btnPhotos.style.display = 'none';
+                }
+
+                // MP3 Action
+                if (data.audio_url && data.audio_url.length > 5) {
+                    btnMp3.style.display = 'flex';
+                    btnMp3.onclick = () => {
+                        triggerHaptics(40);
+                        const fname = `tiktok_${data.id || Date.now()}_AUDIO.mp3`;
+                        if (window.AndroidApp) {
+                            window.AndroidApp.download(data.audio_url, fname);
+                        } else {
+                            window.open(data.audio_url, '_blank');
+                        }
+                        showHudToast('Descargando pista MP3...');
+                    };
+                } else {
+                    btnMp3.style.display = 'none';
+                }
+
+                // Resaltar el formato/resolución seleccionada por el usuario
+                if (!isPhotoAlbum) {
+                    if (selectedMode === '1080p') {
+                        btnMpHd.className = 'btn-tier-action tier-white-solid';
+                        btnMp4.className = 'btn-tier-action tier-graphite';
+                        btnMp3.className = 'btn-tier-action tier-graphite';
+                    } else if (selectedMode === '720p') {
+                        btnMpHd.className = 'btn-tier-action tier-graphite';
+                        btnMp4.className = 'btn-tier-action tier-white-solid';
+                        btnMp3.className = 'btn-tier-action tier-graphite';
+                    } else if (selectedMode === 'audio') {
+                        btnMpHd.className = 'btn-tier-action tier-graphite';
+                        btnMp4.className = 'btn-tier-action tier-graphite';
+                        btnMp3.className = 'btn-tier-action tier-white-solid';
+                    }
+                }
+
+                saveItemToLocalLibrary(data);
+                resultDeck.style.display = 'block';
+                resultDeck.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // Copy Description Text
+            btnCopyDesc.addEventListener('click', async () => {
+                if (!activeResolvedData || !activeResolvedData.title) return;
+                triggerHaptics(20);
+                try {
+                    await navigator.clipboard.writeText(activeResolvedData.title);
+                    showHudToast('Descripción copiada');
+                } catch (e) {}
+            });
+
+            // Native Share
+            btnShare.addEventListener('click', () => {
+                if (!activeResolvedData) return;
+                triggerHaptics(20);
+                const shareUrl = activeResolvedData.video_url;
+                if (window.AndroidApp) {
+                    window.AndroidApp.shareText(shareUrl, "Descargar video sin marca de agua");
+                } else if (navigator.share) {
+                    navigator.share({ title: activeResolvedData.title, url: shareUrl });
+                } else {
+                    showHudToast('Enlace listo para compartir');
+                }
+            });
+
+            // Copy Direct Link
+            btnCopyLink.addEventListener('click', async () => {
+                if (!activeResolvedData || !activeResolvedData.video_url) return;
+                triggerHaptics(20);
+                try {
+                    await navigator.clipboard.writeText(activeResolvedData.video_url);
+                    if (window.AndroidApp) {
+                        window.AndroidApp.showToast('Enlace copiado al portapapeles');
+                    } else {
+                        showHudToast('Enlace copiado');
+                    }
+                } catch (e) {
+                    showHudToast('No se pudo copiar');
+                }
+            });
+
+            // Dismiss Deck
+            btnDismiss.addEventListener('click', () => {
+                triggerHaptics(15);
+                resultDeck.style.display = 'none';
+                videoPlayer.pause();
+                videoPlayer.src = '';
+                urlInput.value = '';
+                updateInputButtons();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            function setLoadingState(isLoading) {
+                btnSubmit.disabled = isLoading;
+                if (isLoading) {
+                    ctaLabel.style.display = 'none';
+                    ctaSpinner.style.display = 'block';
+                } else {
+                    ctaLabel.style.display = 'inline-block';
+                    ctaSpinner.style.display = 'none';
+                }
+            }
+
+            function showErrorBox(msg) {
+                errorText.textContent = msg;
+                errorNotice.style.display = 'flex';
+                triggerHaptics(50);
+            }
+
+            function hideErrorBox() {
+                errorNotice.style.display = 'none';
+                errorText.textContent = '';
+            }
+
+            // Storage Library Management
+            function renderLibraryList() {
+                const raw = localStorage.getItem('snaptik_pro_history');
+                let list = [];
+                if (raw) {
+                    try { list = JSON.parse(raw); } catch (e) {}
+                }
+
+                if (!list || list.length === 0) {
+                    libraryTarget.innerHTML = '';
+                    placeholderEmpty.style.display = 'flex';
+                    return;
+                }
+
+                placeholderEmpty.style.display = 'none';
+                libraryTarget.innerHTML = '';
+                list.forEach((item) => {
+                    const row = document.createElement('div');
+                    row.className = 'library-item-card';
+                    const avatar = (item.author && item.author.avatar) ? item.author.avatar : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="%231C1C1F"><rect width="48" height="48"/></svg>';
+                    const nickname = (item.author && item.author.nickname) ? item.author.nickname : 'Creador';
+                    row.innerHTML = `
+                        <img class="library-thumb-image" src="${avatar}" alt="" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'48\\' height=\\'48\\' fill=\\'%231C1C1F\\'><rect width=\\'48\\' height=\\'48\\'/></svg>'">
+                        <div class="library-text-column">
+                            <div class="library-item-creator">${nickname}</div>
+                            <div class="library-item-caption">${item.title || 'Video de TikTok'}</div>
+                        </div>
+                        <div class="library-play-glyph">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                        </div>
+                    `;
+                    row.addEventListener('click', () => {
+                        triggerHaptics(20);
+                        document.querySelector('[data-view="sectionDownload"]').click();
+                        handleSuccessPayload(item);
+                    });
+                    libraryTarget.appendChild(row);
+                });
+            }
+
+            function saveItemToLocalLibrary(item) {
+                let list = [];
+                const raw = localStorage.getItem('snaptik_pro_history');
+                if (raw) {
+                    try { list = JSON.parse(raw); } catch (e) {}
+                }
+                list = list.filter(x => x.id !== item.id);
+                list.unshift(item);
+                if (list.length > 25) list.pop();
+                localStorage.setItem('snaptik_pro_history', JSON.stringify(list));
+            }
+
+            const btnOpenDownloads = document.getElementById('btnOpenDownloadsFolder');
+            if (btnOpenDownloads) {
+                btnOpenDownloads.addEventListener('click', () => {
+                    triggerHaptics(20);
+                    if (window.AndroidApp && window.AndroidApp.openDownloadsFolder) {
+                        window.AndroidApp.openDownloadsFolder();
+                    } else {
+                        showHudToast('Archivos guardados en tu almacenamiento');
+                    }
+                });
+            }
+
+            btnClearLibrary.addEventListener('click', () => {
+                triggerHaptics(30);
+                localStorage.removeItem('snaptik_pro_history');
+                renderLibraryList();
+                showHudToast('Historial vaciado');
+            });
+
+            // High-CPM Non-Google Interstitial Controller
+            const modalAd = document.getElementById('modalAdInterstitial');
+            const btnCloseAd = document.getElementById('btnCloseAdInterstitial');
+            const countdownTimer = document.getElementById('countdownAdTimer');
+            const btnInterCta = document.getElementById('btnInterSponsorCta');
+            const btnOpenSponsor = document.getElementById('btnOpenSponsor');
+            const nativeSponsorCard = document.getElementById('nativeSponsorCard');
+
+            function triggerOpenSponsorOffer(e) {
+                if (e) e.stopPropagation();
+                triggerHaptics(20);
+                if (window.AndroidApp && window.AndroidApp.openSponsorOffer) {
+                    window.AndroidApp.openSponsorOffer('');
+                } else {
+                    window.open('https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b', '_blank');
+                }
+            }
+
+            if (btnOpenSponsor) {
+                btnOpenSponsor.addEventListener('click', triggerOpenSponsorOffer);
+            }
+            if (nativeSponsorCard) {
+                nativeSponsorCard.addEventListener('click', triggerOpenSponsorOffer);
+            }
+
+            if (btnInterCta) {
+                btnInterCta.addEventListener('click', () => {
+                    triggerHaptics(20);
+                    if (window.AndroidApp && window.AndroidApp.openSponsorOffer) {
+                        window.AndroidApp.openSponsorOffer('');
+                    } else {
+                        window.open('https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b', '_blank');
+                    }
+                    if (modalAd) modalAd.style.display = 'none';
+                });
+            }
+
+            if (btnCloseAd) {
+                btnCloseAd.addEventListener('click', () => {
+                    triggerHaptics(15);
+                    if (modalAd) modalAd.style.display = 'none';
+                });
+            }
+
+            // Adsterra Smartlink Monetization Controller
+            let pendingRewardAction = null;
+
+            function triggerRewardedDownload(url, fname, label, itemData) {
+                if (window.AndroidApp && typeof window.AndroidApp.requestRewardedVideo === 'function') {
+                    showHudToast('Preparando descarga en Full HD (1080p)...');
+                    pendingRewardAction = () => {
+                        window.AndroidApp.download(url, fname);
+                        saveItemToLocalLibrary(itemData);
+                        showHudToast(`Descargando ${label}...`);
+                    };
+
+                    window.AndroidApp.requestRewardedVideo();
+                } else {
+                    if (window.AndroidApp) {
+                        window.AndroidApp.download(url, fname);
+                    } else {
+                        window.open(url, '_blank');
+                    }
+                    saveItemToLocalLibrary(itemData);
+                    showHudToast(`Descargando ${label}...`);
+                }
+            }
+
+            window.onAdsterraRewardUnlocked = function() {
+                if (pendingRewardAction) {
+                    showHudToast('Descarga Full HD iniciada');
+                    pendingRewardAction();
+                    pendingRewardAction = null;
+                }
+            };
+            window.onUnityRewardUnlocked = window.onAdsterraRewardUnlocked;
+
+            const btnTestUnityAd = document.getElementById('btnTestUnityAd');
+            if (btnTestUnityAd) {
+                btnTestUnityAd.addEventListener('click', () => {
+                    triggerHaptics(30);
+                    if (window.AndroidApp && typeof window.AndroidApp.testRewardedVideo === 'function') {
+                        showHudToast('Abriendo Adsterra Smartlink rotativo...');
+                        window.AndroidApp.testRewardedVideo();
+                    } else {
+                        showHudToast('Función disponible en el APK instalado');
+                    }
+                });
+            }
+
+            window.showMonochromeInterstitial = function() {
+                if (!modalAd) return;
+                modalAd.style.display = 'flex';
+                let remaining = 3;
+                if (countdownTimer) {
+                    countdownTimer.style.display = 'inline-block';
+                    countdownTimer.textContent = `${remaining}s`;
+                }
+                if (btnCloseAd) btnCloseAd.style.display = 'none';
+
+                const timer = setInterval(() => {
+                    remaining--;
+                    if (remaining > 0) {
+                        if (countdownTimer) countdownTimer.textContent = `${remaining}s`;
+                    } else {
+                        clearInterval(timer);
+                        if (countdownTimer) countdownTimer.style.display = 'none';
+                        if (btnCloseAd) btnCloseAd.style.display = 'inline-block';
+                    }
+                }, 1000);
+            };
+
+            // OTA Update Controller
+            const btnCheckUpdatesNow = document.getElementById('btnCheckUpdatesNow');
+            const rowCheckUpdates = document.getElementById('rowCheckUpdates');
+            const modalAppUpdate = document.getElementById('modalAppUpdate');
+            const btnDismissUpdate = document.getElementById('btnDismissUpdate');
+            const btnStartUpdateDownload = document.getElementById('btnStartUpdateDownload');
+            const badgeNewVersion = document.getElementById('badgeNewVersion');
+            const txtUpdateChangelog = document.getElementById('txtUpdateChangelog');
+            const boxUpdateProgress = document.getElementById('boxUpdateProgress');
+            const barUpdateProgress = document.getElementById('barUpdateProgress');
+            const txtUpdatePercent = document.getElementById('txtUpdatePercent');
+            const lblUpdateStatus = document.getElementById('lblUpdateStatus');
+
+            let pendingUpdatePayload = null;
+
+            function triggerCheckUpdates() {
+                triggerHaptics(20);
+                if (lblUpdateStatus) lblUpdateStatus.textContent = 'Comprobando...';
+                if (window.AndroidApp && typeof window.AndroidApp.checkForUpdates === 'function') {
+                    window.AndroidApp.checkForUpdates(true);
+                } else {
+                    setTimeout(() => {
+                        showHudToast('Tienes la versión más reciente instalada');
+                        if (lblUpdateStatus) lblUpdateStatus.textContent = 'Comprobar nueva versión disponible';
+                    }, 600);
+                }
+            }
+
+            if (btnCheckUpdatesNow) btnCheckUpdatesNow.addEventListener('click', triggerCheckUpdates);
+            if (rowCheckUpdates) rowCheckUpdates.addEventListener('click', triggerCheckUpdates);
+
+            if (btnDismissUpdate) {
+                btnDismissUpdate.addEventListener('click', () => {
+                    triggerHaptics(15);
+                    if (modalAppUpdate) modalAppUpdate.style.display = 'none';
+                });
+            }
+
+            if (btnStartUpdateDownload) {
+                btnStartUpdateDownload.addEventListener('click', () => {
+                    triggerHaptics(30);
+                    if (!pendingUpdatePayload) return;
+                    if (boxUpdateProgress) boxUpdateProgress.style.display = 'block';
+                    btnStartUpdateDownload.disabled = true;
+                    btnStartUpdateDownload.textContent = 'Descargando...';
+
+                    if (window.AndroidApp && typeof window.AndroidApp.installUpdate === 'function') {
+                        window.AndroidApp.installUpdate(pendingUpdatePayload.apkUrl, pendingUpdatePayload.newVersion);
+                    } else {
+                        window.open(pendingUpdatePayload.apkUrl, '_blank');
+                    }
+                });
+            }
+
+            window.onUpdateAvailable = function(payload) {
+                pendingUpdatePayload = payload;
+                if (lblUpdateStatus) lblUpdateStatus.textContent = `¡Nueva versión ${payload.newVersion} lista!`;
+                if (badgeNewVersion) badgeNewVersion.textContent = payload.newVersion;
+                if (txtUpdateChangelog) txtUpdateChangelog.textContent = payload.changelog;
+                if (btnStartUpdateDownload) {
+                    btnStartUpdateDownload.disabled = false;
+                    btnStartUpdateDownload.textContent = 'ACTUALIZAR AHORA';
+                }
+                if (boxUpdateProgress) boxUpdateProgress.style.display = 'none';
+                if (btnDismissUpdate && payload.forceUpdate) btnDismissUpdate.style.display = 'none';
+                if (modalAppUpdate) modalAppUpdate.style.display = 'flex';
+            };
+
+            window.onUpdateCheckResult = function(payload) {
+                if (lblUpdateStatus) lblUpdateStatus.textContent = 'Versión al día';
+                showHudToast(`Estás en la última versión (${payload.currentVersion})`);
+            };
+
+            window.onUpdateError = function(msg) {
+                if (lblUpdateStatus) lblUpdateStatus.textContent = 'Comprobar nueva versión disponible';
+                showHudToast(msg || 'Error al comprobar actualización');
+            };
+
+            window.onUpdateDownloadProgress = function(percent) {
+                if (barUpdateProgress) barUpdateProgress.style.width = percent + '%';
+                if (txtUpdatePercent) txtUpdatePercent.textContent = percent + '%';
+            };
+
+            window.onUpdateDownloadError = function(err) {
+                if (btnStartUpdateDownload) {
+                    btnStartUpdateDownload.disabled = false;
+                    btnStartUpdateDownload.textContent = 'REINTENTAR';
+                }
+                showHudToast('Error en la descarga: ' + err);
+            };
+        });
+    </script>
+
+    <!-- In-App Update Modal Dialog (OTA outside PlayStore) -->
+    <div id="modalAppUpdate" class="ad-interstitial-overlay" style="display: none;">
+        <div class="ad-interstitial-card" style="border-color: rgba(255, 255, 255, 0.3);">
+            <div class="ad-interstitial-header">
+                <span class="ad-tag-badge" style="color: #FFFFFF; font-weight: 800;">ACTUALIZACIÓN DISPONIBLE</span>
+                <span id="badgeNewVersion" class="countdown-badge" style="background: #FFFFFF; color: #000000; font-weight: 900;">v2.1.0</span>
+            </div>
+            <div class="ad-interstitial-body" style="text-align: left; align-items: flex-start; gap: 14px;">
+                <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                    <div class="sponsor-icon-box" style="width: 44px; height: 44px; border-radius: 12px; background: #FFFFFF; color: #000000;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="ad-headline" style="font-size: 1.05rem;">Nueva versión lista</h3>
+                        <p style="font-size: 0.74rem; color: var(--text-secondary);">Descarga e instala directamente sin perder datos</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px; width: 100%;">
+                    <div style="font-size: 0.74rem; font-weight: 800; color: #FFFFFF; margin-bottom: 6px;">Novedades:</div>
+                    <div id="txtUpdateChangelog" style="font-size: 0.74rem; color: #D4D4D8; line-height: 1.45; white-space: pre-line;">
+                        • Mayor velocidad de descarga 1080p
+                        • Mejoras de estabilidad y rendimiento
+                    </div>
+                </div>
+
+                <div id="boxUpdateProgress" style="display: none; width: 100%;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 4px;">
+                        <span>Descargando paquete APK...</span>
+                        <span id="txtUpdatePercent">0%</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                        <div id="barUpdateProgress" style="width: 0%; height: 100%; background: #FFFFFF; transition: width 0.2s ease;"></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
+                    <button type="button" id="btnDismissUpdate" class="btn-flat-secondary" style="flex: 1; padding: 12px;">Más tarde</button>
+                    <button type="button" id="btnStartUpdateDownload" class="btn-cta-hero-white" style="flex: 2; margin-bottom: 0; padding: 12px; font-size: 0.84rem;">ACTUALIZAR AHORA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interstitial Ad Modal (Non-Google High CPM) -->
+    <div id="modalAdInterstitial" class="ad-interstitial-overlay" style="display: none;">
+        <div class="ad-interstitial-card">
+            <div class="ad-interstitial-header">
+                <span class="ad-tag-badge">PATROCINADOR OFICIAL</span>
+                <span id="countdownAdTimer" class="countdown-badge">3s</span>
+                <button type="button" id="btnCloseAdInterstitial" class="btn-ad-close" style="display:none;">✕ Continuar</button>
+            </div>
+            <div class="ad-interstitial-body">
+                <div class="ad-graphic-box">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                </div>
+                <h3 class="ad-headline">Descargas Ilimitadas Activas</h3>
+                <p class="ad-description">Gracias a nuestros patrocinadores, SnapTik PRO se mantiene gratuito, en Full HD y sin marcas de agua.</p>
+                <button type="button" id="btnInterSponsorCta" class="btn-ad-cta-white">CONOCER OFERTA EXCLUSIVA ↗</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
