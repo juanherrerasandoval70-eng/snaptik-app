@@ -1904,6 +1904,25 @@
                         <span class="ios-slider"></span>
                     </label>
                 </div>
+
+                <div class="switch-setting-row">
+                    <div class="setting-row-left">
+                        <div class="setting-icon-squircle">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 8v4M12 16h.01"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="switch-label-title">Anuncios para Mayores (+18)</div>
+                            <div class="switch-label-sub" id="lblAdultPrefSub">Permitir enlaces patrocinados +18</div>
+                        </div>
+                    </div>
+                    <label class="ios-switch">
+                        <input type="checkbox" id="prefAdult18Plus">
+                        <span class="ios-slider"></span>
+                    </label>
+                </div>
             </div>
 
             <!-- Configuración de Descarga & Almacenamiento -->
@@ -2868,10 +2887,19 @@
                 showHudToast('Error en la descarga: ' + err);
             };
 
-            // Age Verification (+18) Controller at App Entry (Bloquea auctionr.org Smartlink_1 y Smartlink_4 si es menor de 18)
+            // Age Verification (+18) Controller at App Entry & Settings Toggle
             const modalAgeGate = document.getElementById('modalAgeGate');
             const btnAgeAdultYes = document.getElementById('btnAgeAdultYes');
             const btnAgeAdultNo = document.getElementById('btnAgeAdultNo');
+            const prefAdult18Plus = document.getElementById('prefAdult18Plus');
+            const lblAdultPrefSub = document.getElementById('lblAdultPrefSub');
+
+            function syncAdultSwitchUI(isAdult) {
+                if (prefAdult18Plus) prefAdult18Plus.checked = isAdult;
+                if (lblAdultPrefSub) {
+                    lblAdultPrefSub.textContent = isAdult ? 'Activado: enlaces +18 y generales' : 'Desactivado: solo anuncios limpios y seguros';
+                }
+            }
 
             function applyAgePreference(isAdult) {
                 localStorage.setItem('snaptik_age_verified_v2', 'true');
@@ -2879,6 +2907,7 @@
                 if (window.AndroidApp && typeof window.AndroidApp.setAgePreference === 'function') {
                     window.AndroidApp.setAgePreference(isAdult);
                 }
+                syncAdultSwitchUI(isAdult);
                 if (modalAgeGate) modalAgeGate.style.display = 'none';
             }
 
@@ -2898,7 +2927,17 @@
             if (alreadyVerified) {
                 applyAgePreference(savedAdultState);
             } else {
+                syncAdultSwitchUI(savedAdultState);
                 if (modalAgeGate) modalAgeGate.style.display = 'flex';
+            }
+
+            if (prefAdult18Plus) {
+                prefAdult18Plus.addEventListener('change', (e) => {
+                    const checked = e.target.checked;
+                    triggerHaptics(20);
+                    applyAgePreference(checked);
+                    showHudToast(checked ? 'Anuncios +18 activados' : 'Anuncios +18 desactivados (modo seguro)');
+                });
             }
 
             if (btnAgeAdultYes) {
