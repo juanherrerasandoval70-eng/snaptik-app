@@ -29,6 +29,15 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
+        // Cargar backend remoto guardado en caché si existe
+        try {
+            String cachedBackend = getSharedPreferences("snaptik_prefs", MODE_PRIVATE)
+                                   .getString("custom_backend_url", null);
+            if (cachedBackend != null && !cachedBackend.isEmpty()) {
+                TikTokResolver.setCustomBackendUrl(cachedBackend);
+            }
+        } catch (Exception ignored) {}
+
         webView = findViewById(R.id.webView);
         webView.setBackgroundColor(0xFF000000);
 

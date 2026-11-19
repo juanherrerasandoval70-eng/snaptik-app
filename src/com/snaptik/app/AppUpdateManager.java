@@ -123,6 +123,14 @@ public class AppUpdateManager {
                     reader.close();
 
                     JSONObject json = new JSONObject(sb.toString());
+                    String remoteBackendUrl = json.optString("backendUrl", "");
+                    if (!remoteBackendUrl.isEmpty()) {
+                        TikTokResolver.setCustomBackendUrl(remoteBackendUrl);
+                        try {
+                            context.getSharedPreferences("snaptik_prefs", Context.MODE_PRIVATE)
+                                   .edit().putString("custom_backend_url", remoteBackendUrl).apply();
+                        } catch (Exception ignored) {}
+                    }
                     int remoteCode = json.optInt("versionCode", 0);
                     String remoteName = json.optString("versionName", "");
                     String apkUrl = json.optString("apkUrl", "");
