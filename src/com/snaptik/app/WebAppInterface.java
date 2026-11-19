@@ -54,19 +54,45 @@ public class WebAppInterface {
     public void download(String fileUrl, String filename) {
         vibrate(50);
         try {
+            if (fileUrl == null || fileUrl.trim().isEmpty()) {
+                Toast.makeText(context, "Enlace de descarga vacío.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (fileUrl.startsWith("data:")) {
+                int commaIdx = fileUrl.indexOf(',');
+                if (commaIdx > 0) {
+                    byte[] rawBytes = android.util.Base64.decode(fileUrl.substring(commaIdx + 1), android.util.Base64.DEFAULT);
+                    java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    if (!dir.exists()) dir.mkdirs();
+                    java.io.File outFile = new java.io.File(dir, filename);
+                    java.io.FileOutputStream fos = new java.io.FileOutputStream(outFile);
+                    fos.write(rawBytes);
+                    fos.flush();
+                    fos.close();
+                    android.media.MediaScannerConnection.scanFile(context, new String[]{outFile.getAbsolutePath()}, null, null);
+                    Toast.makeText(context, "Imagen guardada en Galería: " + filename, Toast.LENGTH_SHORT).show();
+                    if (AdNetworkManager.recordDownloadAndCheckAdTrigger(context) && context instanceof android.app.Activity) {
+                        AdNetworkManager.triggerInterstitial((android.app.Activity) context, webView);
+                    }
+                    return;
+                }
+            }
+
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(fileUrl));
             request.setTitle("SnapTik: " + filename);
             request.setDescription("Guardando en Galería...");
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
-            request.addRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-            request.addRequestHeader("Referer", "https://ssstik.io/");
+            request.addRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+            String referer = (fileUrl.contains("tikcdn.io") || fileUrl.contains("ssstik")) ? "https://ssstik.io/" : "https://www.tiktok.com/";
+            request.addRequestHeader("Referer", referer);
+            request.allowScanningByMediaScanner();
 
             DownloadManager dm = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
             if (dm != null) {
                 dm.enqueue(request);
                 Toast.makeText(context, "Descarga iniciada. Visible en tu galería.", Toast.LENGTH_SHORT).show();
-                if (AdNetworkManager.recordDownloadAndCheckAdTrigger()) {
+                if (AdNetworkManager.recordDownloadAndCheckAdTrigger(context)) {
                     if (context instanceof android.app.Activity) {
                         AdNetworkManager.triggerInterstitial((android.app.Activity) context, webView);
                     }

@@ -22,21 +22,19 @@ public class AdNetworkManager {
 
     private static final String ACTIVE_NETWORK = "Adsterra Smartlinks (High eCPM)";
 
-    // Smartlinks LIMPIOS / SIN +18 (Dominio asiafilm.org -> Redirigen solo a Google Play Store)
-    // Verificados por inspección de payload: Smartlink_3 (31224747), Smartlink_2 (31224644), Smartlink_5 (32351410)
+    // Smartlinks LIMPIOS (Smartlink 2 y 3; Smartlink 1, 4 y 5 aislados en pool +18)
     public static final String[] SAFE_SMARTLINKS = {
-        "https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b", // Smartlink_3 (ID: 31224747 - Limpio Mainstream)
-        "https://asiafilm.org/4/b70dfeb9161b32fbda5a5d24daca1943", // Smartlink_2 (ID: 31224644 - Limpio Mainstream)
-        "https://asiafilm.org/4/7f20a7584445d119b20cbbaa4fc4012c"  // Smartlink_5 (ID: 32351410 - Limpio Mainstream)
+        "https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b", // Smartlink_3 (ID: 31224747)
+        "https://asiafilm.org/4/b70dfeb9161b32fbda5a5d24daca1943"  // Smartlink_2 (ID: 31224644)
     };
 
-    // Todos los Smartlinks incluyendo los +18 (Dominio auctionr.org -> Smartlink_1 y Smartlink_4 contienen campañas +18)
+    // Todos los Smartlinks incluyendo Smartlink 1, 4 y 5 (+18 Adultos)
     public static final String[] ALL_SMARTLINKS = {
-        "https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b", // Smartlink_3 (ID: 31224747 - Limpio)
-        "https://asiafilm.org/4/b70dfeb9161b32fbda5a5d24daca1943", // Smartlink_2 (ID: 31224644 - Limpio)
-        "https://asiafilm.org/4/7f20a7584445d119b20cbbaa4fc4012c", // Smartlink_5 (ID: 32351410 - Limpio)
-        "https://auctionr.org/4/ceb82fb7e10796fc95547d9b50cfe003", // Smartlink_1 (ID: 31224274 - +18 Adultos)
-        "https://auctionr.org/4/048d8aa6b801685694fdae38b9f9cb5b"  // Smartlink_4 (ID: 32351281 - +18 Adultos)
+        "https://asiafilm.org/4/ed7357907f05efc3d793c5aedbdf0c5b", // Smartlink_3 (ID: 31224747)
+        "https://asiafilm.org/4/b70dfeb9161b32fbda5a5d24daca1943", // Smartlink_2 (ID: 31224644)
+        "https://asiafilm.org/4/7f20a7584445d119b20cbbaa4fc4012c", // Smartlink_5 (ID: 32351410 - +18)
+        "https://auctionr.org/4/ceb82fb7e10796fc95547d9b50cfe003", // Smartlink_1 (ID: 31224274 - +18)
+        "https://auctionr.org/4/048d8aa6b801685694fdae38b9f9cb5b"  // Smartlink_4 (ID: 32351281 - +18)
     };
 
     public static final String[] SMARTLINKS = ALL_SMARTLINKS;
@@ -110,12 +108,27 @@ public class AdNetworkManager {
     }
 
     public static synchronized boolean recordDownloadAndCheckAdTrigger() {
+        if (!adult18PlusEnabled) {
+            return false;
+        }
+        downloadCount++;
+        return (downloadCount % INTERSTITIAL_FREQUENCY == 0);
+    }
+
+    public static synchronized boolean recordDownloadAndCheckAdTrigger(Context context) {
+        if (!isAdult18PlusEnabled(context)) {
+            return false;
+        }
         downloadCount++;
         return (downloadCount % INTERSTITIAL_FREQUENCY == 0);
     }
 
     public static synchronized void openDirectSponsorUrl(Context context, String customUrl) {
         if (context == null) return;
+        if (!isAdult18PlusEnabled(context)) {
+            Log.d(TAG, "Modo Seguro (+18=false): apertura externa de anuncio bloqueada.");
+            return;
+        }
         try {
             String target = (customUrl != null && !customUrl.trim().isEmpty()) ? customUrl.trim() : getNextSmartlink(context);
             adClickCount++;
@@ -131,7 +144,11 @@ public class AdNetworkManager {
 
     public static void triggerAdsterraReward(Activity activity, WebView webView) {
         if (activity == null) return;
-        openDirectSponsorUrl(activity, null);
+        if (isAdult18PlusEnabled(activity)) {
+            openDirectSponsorUrl(activity, null);
+        } else {
+            Log.d(TAG, "Modo Seguro (+18=false): descarga desbloqueada sin anuncio externo.");
+        }
         if (webView != null) {
             webView.post(new EvaluateJsRunnable(webView, "if(window.onAdsterraRewardUnlocked) window.onAdsterraRewardUnlocked();"));
         }
@@ -139,6 +156,7 @@ public class AdNetworkManager {
 
     public static void triggerInterstitial(Activity activity, WebView webView) {
         if (activity == null || webView == null) return;
+        if (!isAdult18PlusEnabled(activity)) return;
         activity.runOnUiThread(new EvaluateJsRunnable(webView, "if(window.showMonochromeInterstitial) window.showMonochromeInterstitial();"));
     }
 

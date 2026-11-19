@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SnapTik PRO</title>
     <style>
@@ -335,11 +336,11 @@
             background: #E4E4E7;
         }
 
-        /* 3 Mode Selector Pills (Bento Titanium Cards) */
+        /* 4 Mode Selector Pills (Bento Titanium Cards: 4K, 1080p, 720p, MP3) */
         .mode-selector-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
             margin-bottom: 16px;
         }
 
@@ -347,13 +348,13 @@
             position: relative;
             background: linear-gradient(180deg, rgba(32, 32, 38, 0.65) 0%, rgba(20, 20, 25, 0.75) 100%);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
-            padding: 16px 6px 13px 6px;
+            border-radius: 16px;
+            padding: 13px 4px 11px 4px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 3px;
             cursor: pointer;
             transition: all var(--transition-smooth);
             color: var(--text-secondary);
@@ -361,27 +362,29 @@
         }
 
         .mode-tile-card svg {
-            width: 24px;
-            height: 24px;
+            width: 21px;
+            height: 21px;
             stroke-width: 1.9;
             color: #A1A1AA;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             transition: color var(--transition-smooth);
         }
 
         .mode-tile-label {
-            font-size: 0.8rem;
+            font-size: 0.74rem;
             font-weight: 800;
             color: #FFFFFF;
-            letter-spacing: -0.01em;
+            letter-spacing: -0.02em;
+            white-space: nowrap;
         }
 
         .mode-tile-sub {
-            font-size: 0.58rem;
+            font-size: 0.54rem;
             font-weight: 700;
             color: #8E8E99;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.03em;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .mode-tile-card.active {
@@ -601,6 +604,130 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+        }
+
+        /* Interactive Photo Carousel & Music Stage */
+        .photo-carousel-stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #08080B;
+        }
+
+        .carousel-img-main {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .carousel-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 6;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(15, 15, 20, 0.78);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #FFFFFF;
+            font-size: 1.15rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65);
+        }
+
+        .carousel-nav-btn:active {
+            background: #FFFFFF;
+            color: #000000;
+        }
+
+        .carousel-nav-prev { left: 10px; }
+        .carousel-nav-next { right: 10px; }
+
+        .carousel-top-counter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 6;
+            background: rgba(12, 12, 16, 0.84);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: var(--radius-pill);
+            padding: 4px 11px;
+            font-size: 0.66rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: 0.04em;
+        }
+
+        .carousel-audio-bar {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            z-index: 6;
+            background: rgba(14, 14, 18, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 14px;
+            padding: 7px 11px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .carousel-music-info {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .carousel-music-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .carousel-music-btn {
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            border-radius: var(--radius-pill);
+            padding: 5px 11px;
+            font-size: 0.66rem;
+            font-weight: 900;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .deck-res-detected-pill {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.26);
+            color: #FFFFFF;
+            font-size: 0.62rem;
+            font-weight: 900;
+            padding: 3px 9px;
+            border-radius: var(--radius-pill);
+            letter-spacing: 0.04em;
         }
 
         /* Unified Frosted Creator + Caption Card */
@@ -1528,8 +1655,17 @@
                         <button type="button" id="btnDockClearAction" class="dock-pill-btn" style="display: none; padding: 8px 12px;">✕</button>
                     </div>
 
-                    <!-- 3 Resolution / Format Selector Pills -->
+                    <!-- 4 Resolution / Format Selector Pills -->
                     <div class="mode-selector-grid">
+                        <!-- 4K Ultra HD -->
+                        <div class="mode-tile-card" data-mode="4k">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            <span class="mode-tile-label">4K UHD</span>
+                            <span class="mode-tile-sub">2160p MAX</span>
+                        </div>
+
                         <!-- 1080p Full HD -->
                         <div class="mode-tile-card active" data-mode="1080p">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -1637,21 +1773,44 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
-                        <span>CONTENIDO EXTRAÍDO</span>
+                        <span id="txtDeckStatusLabel">CONTENIDO EXTRAÍDO</span>
                     </div>
-                    <button type="button" id="btnDismissDeck" class="btn-deck-dismiss">✕ Cerrar</button>
+                    <div style="display: flex; align-items: center; gap: 7px;">
+                        <span id="badgeDetectedRes" class="deck-res-detected-pill">1080p FHD</span>
+                        <button type="button" id="btnDismissDeck" class="btn-deck-dismiss">✕ Cerrar</button>
+                    </div>
                 </div>
 
                 <div class="deck-content-body">
-                    <!-- Embedded Video Player (Limpio sin texto en la esquina) -->
-                    <div class="media-player-frame">
+                    <!-- Embedded Video Player & Interactive Photo Carousel + Music Stage -->
+                    <div class="media-player-frame" id="mediaPlayerFrameBox">
                         <video id="playerNativeVideo" controls playsinline preload="metadata" controlsList="nodownload noplaybackrate noremoteplayback nofullscreen" disablePictureInPicture disableRemotePlayback oncontextmenu="return false;"></video>
+
+                        <div id="photoCarouselStage" class="photo-carousel-stage" style="display: none;">
+                            <span id="carouselCounterBadge" class="carousel-top-counter">FOTO 1 / 1</span>
+                            <button type="button" id="btnCarouselPrev" class="carousel-nav-btn carousel-nav-prev">‹</button>
+                            <img id="carouselMainImg" class="carousel-img-main" src="" alt="" referrerpolicy="no-referrer">
+                            <button type="button" id="btnCarouselNext" class="carousel-nav-btn carousel-nav-next">›</button>
+
+                            <div id="carouselAudioBar" class="carousel-audio-bar">
+                                <div class="carousel-music-info">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2">
+                                        <path d="M9 18V5l12-2v13"/>
+                                        <circle cx="6" cy="18" r="3"/>
+                                        <circle cx="18" cy="16" r="3"/>
+                                    </svg>
+                                    <span id="carouselMusicLabel" class="carousel-music-title">Música original del carrusel</span>
+                                </div>
+                                <button type="button" id="btnCarouselAudioToggle" class="carousel-music-btn">PAUSAR ♫</button>
+                            </div>
+                            <audio id="playerCarouselAudio" loop preload="auto"></audio>
+                        </div>
                     </div>
 
                     <!-- Unified Frosted Creator + Caption Card -->
                     <div class="creator-glass-box">
                         <div class="author-meta-card">
-                            <img id="imgAuthorAvatar" class="author-circle-avatar" src="" alt="">
+                            <img id="imgAuthorAvatar" class="author-circle-avatar" src="" alt="" referrerpolicy="no-referrer">
                             <div class="author-col-details">
                                 <div class="author-title-row">
                                     <span id="txtAuthorNickname" class="author-name-text">Creador</span>
@@ -1671,7 +1830,23 @@
 
                     <!-- Download Buttons Stack -->
                     <div class="action-tiers-stack">
-                        <!-- MP4 Full HD Action -->
+                        <!-- MP4 4K / 2K Ultra HD Master Action -->
+                        <button type="button" id="btnAction4k" class="btn-tier-action tier-graphite" style="display: none;">
+                            <div class="tier-inner-left">
+                                <div class="tier-icon-bubble">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                </div>
+                                <div class="tier-labels-col">
+                                    <span class="tier-headline" id="lbl4kHeadline">Descargar 4K Ultra HD (2160p)</span>
+                                    <span class="tier-subhead" id="lbl4kSubhead">Calidad Master HDR original sin pérdida</span>
+                                </div>
+                            </div>
+                            <span class="tier-pill-tag" id="tag4kBadge">4K ULTRA</span>
+                        </button>
+
+                        <!-- MP4 Full HD Action (1080p) -->
                         <button type="button" id="btnActionMpHd" class="btn-tier-action tier-white-solid">
                             <div class="tier-inner-left">
                                 <div class="tier-icon-bubble">
@@ -1682,13 +1857,13 @@
                                 </div>
                                 <div class="tier-labels-col">
                                     <span class="tier-headline">Descargar Full HD (1080p)</span>
-                                    <span class="tier-subhead">Máxima tasa de bits sin marca de agua</span>
+                                    <span class="tier-subhead" id="lbl1080pSubhead">Máxima tasa de bits 60FPS sin marca</span>
                                 </div>
                             </div>
-                            <span class="tier-pill-tag">1080p ULTRA</span>
+                            <span class="tier-pill-tag" id="tag1080pBadge">1080p ULTRA</span>
                         </button>
 
-                        <!-- MP4 Standard Action -->
+                        <!-- MP4 Standard Action (720p) -->
                         <button type="button" id="btnActionMp4" class="btn-tier-action tier-graphite">
                             <div class="tier-inner-left">
                                 <div class="tier-icon-bubble">
@@ -1700,14 +1875,30 @@
                                 </div>
                                 <div class="tier-labels-col">
                                     <span class="tier-headline">Descargar Estándar (720p)</span>
-                                    <span class="tier-subhead">Calidad ligera optimizada</span>
+                                    <span class="tier-subhead" id="lbl720pSubhead">Calidad HD equilibrada y rápida</span>
                                 </div>
                             </div>
-                            <span class="tier-pill-tag">720p FAST</span>
+                            <span class="tier-pill-tag" id="tag720pBadge">720p FAST</span>
                         </button>
 
-                        <!-- Photos Action (Carrusel) -->
-                        <button type="button" id="btnActionPhotos" class="btn-tier-action tier-graphite" style="display: none;">
+                        <!-- MP4 Lightweight Action (480p SD) -->
+                        <button type="button" id="btnActionSd" class="btn-tier-action tier-graphite">
+                            <div class="tier-inner-left">
+                                <div class="tier-icon-bubble">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                                    </svg>
+                                </div>
+                                <div class="tier-labels-col">
+                                    <span class="tier-headline">Descargar Ligero (480p / SD)</span>
+                                    <span class="tier-subhead">Ahorro de datos ideal para compartir</span>
+                                </div>
+                            </div>
+                            <span class="tier-pill-tag">480p LITE</span>
+                        </button>
+
+                        <!-- Photos Action: Descargar Todo el Álbum (Carrusel) -->
+                        <button type="button" id="btnActionPhotos" class="btn-tier-action tier-white-solid" style="display: none;">
                             <div class="tier-inner-left">
                                 <div class="tier-icon-bubble">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1717,14 +1908,32 @@
                                     </svg>
                                 </div>
                                 <div class="tier-labels-col">
-                                    <span class="tier-headline" id="lblPhotosHeadline">Descargar Álbum de Fotos</span>
-                                    <span class="tier-subhead">Guardar imágenes en galería</span>
+                                    <span class="tier-headline" id="lblPhotosHeadline">Descargar Álbum Completo</span>
+                                    <span class="tier-subhead">Guardar todas las imágenes HD en galería</span>
                                 </div>
                             </div>
                             <span class="tier-pill-tag" id="tagPhotosCount">FOTOS</span>
                         </button>
 
-                        <!-- MP3 Action -->
+                        <!-- Photos Action: Descargar Foto Actual en Pantalla -->
+                        <button type="button" id="btnActionCurrentPhoto" class="btn-tier-action tier-graphite" style="display: none;">
+                            <div class="tier-inner-left">
+                                <div class="tier-icon-bubble">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                </div>
+                                <div class="tier-labels-col">
+                                    <span class="tier-headline" id="lblSinglePhotoHeadline">Descargar Foto en Pantalla (#1)</span>
+                                    <span class="tier-subhead">Guardar únicamente la imagen visible</span>
+                                </div>
+                            </div>
+                            <span class="tier-pill-tag" id="tagSinglePhoto">FOTO #1</span>
+                        </button>
+
+                        <!-- MP3 Action (Disponible para vídeos y carruseles con música) -->
                         <button type="button" id="btnActionMp3" class="btn-tier-action tier-graphite" style="display: none;">
                             <div class="tier-inner-left">
                                 <div class="tier-icon-bubble">
@@ -1735,28 +1944,36 @@
                                     </svg>
                                 </div>
                                 <div class="tier-labels-col">
-                                    <span class="tier-headline">Descargar Audio MP3</span>
-                                    <span class="tier-subhead">Pista de sonido original aislada</span>
+                                    <span class="tier-headline" id="lblMp3Headline">Descargar Audio MP3 (320k)</span>
+                                    <span class="tier-subhead" id="lblMp3Subhead">Pista de sonido original aislada</span>
                                 </div>
                             </div>
                             <span class="tier-pill-tag">320 KBPS</span>
                         </button>
 
-                        <!-- Share & Copy Link -->
-                        <div class="sub-actions-split">
-                            <button type="button" id="btnActionShare" class="btn-flat-secondary">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <!-- Cover / Share / Copy Link (3 Quick Actions) -->
+                        <div class="sub-actions-split" style="grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                            <button type="button" id="btnActionCover" class="btn-flat-secondary" style="padding: 11px 6px; font-size: 0.74rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                <span>Portada HD</span>
+                            </button>
+                            <button type="button" id="btnActionShare" class="btn-flat-secondary" style="padding: 11px 6px; font-size: 0.74rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                                     <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
                                 </svg>
                                 <span>Compartir</span>
                             </button>
-                            <button type="button" id="btnActionCopyLink" class="btn-flat-secondary">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <button type="button" id="btnActionCopyLink" class="btn-flat-secondary" style="padding: 11px 6px; font-size: 0.74rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
                                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
                                 </svg>
-                                <span>Copiar Enlace</span>
+                                <span>Enlace</span>
                             </button>
                         </div>
 
@@ -2167,6 +2384,7 @@
                 });
 
                 const labelMap = {
+                    '4k': '4K UHD',
                     '1080p': '1080p FHD',
                     '720p': '720p HD',
                     'audio': 'Audio MP3'
@@ -2174,13 +2392,17 @@
                 if (headerActiveModeText) headerActiveModeText.textContent = labelMap[mode] || '1080p FHD';
                 if (badgeDefaultQuality) badgeDefaultQuality.textContent = labelMap[mode] || '1080p FHD';
 
+                const b4k = document.getElementById('btnAction4k');
                 const bHd = document.getElementById('btnActionMpHd');
                 const bSd = document.getElementById('btnActionMp4');
+                const bLite = document.getElementById('btnActionSd');
                 const bMp3 = document.getElementById('btnActionMp3');
 
-                if (bHd && bSd && bMp3) {
+                if (b4k && bHd && bSd && bMp3) {
+                    b4k.className = (mode === '4k') ? 'btn-tier-action tier-white-solid' : 'btn-tier-action tier-graphite';
                     bHd.className = (mode === '1080p') ? 'btn-tier-action tier-white-solid' : 'btn-tier-action tier-graphite';
                     bSd.className = (mode === '720p') ? 'btn-tier-action tier-white-solid' : 'btn-tier-action tier-graphite';
+                    if (bLite) bLite.className = (mode === '480p') ? 'btn-tier-action tier-white-solid' : 'btn-tier-action tier-graphite';
                     bMp3.className = (mode === 'audio') ? 'btn-tier-action tier-white-solid' : 'btn-tier-action tier-graphite';
                 }
             }
@@ -2195,7 +2417,7 @@
             if (rowCycleQuality) {
                 rowCycleQuality.addEventListener('click', () => {
                     triggerHaptics(15);
-                    const order = ['1080p', '720p', 'audio'];
+                    const order = ['4k', '1080p', '720p', 'audio'];
                     const nextIdx = (order.indexOf(selectedMode) + 1) % order.length;
                     syncSelectedModeUI(order[nextIdx]);
                     showHudToast(`Formato activo: ${order[nextIdx].toUpperCase()}`);
@@ -2217,21 +2439,50 @@
 
             // Result Workstation elements
             const resultDeck = document.getElementById('mediaResultDeck');
+            const badgeDetectedRes = document.getElementById('badgeDetectedRes');
             const videoPlayer = document.getElementById('playerNativeVideo');
+            const photoCarouselStage = document.getElementById('photoCarouselStage');
+            const carouselCounterBadge = document.getElementById('carouselCounterBadge');
+            const btnCarouselPrev = document.getElementById('btnCarouselPrev');
+            const btnCarouselNext = document.getElementById('btnCarouselNext');
+            const carouselMainImg = document.getElementById('carouselMainImg');
+            const carouselAudioBar = document.getElementById('carouselAudioBar');
+            const carouselMusicLabel = document.getElementById('carouselMusicLabel');
+            const btnCarouselAudioToggle = document.getElementById('btnCarouselAudioToggle');
+            const playerCarouselAudio = document.getElementById('playerCarouselAudio');
+
             const imgAvatar = document.getElementById('imgAuthorAvatar');
             const txtNickname = document.getElementById('txtAuthorNickname');
             const txtTag = document.getElementById('txtAuthorTag');
             const txtDesc = document.getElementById('txtVideoDesc');
             const btnCopyDesc = document.getElementById('btnCopyDescText');
+
+            const btn4k = document.getElementById('btnAction4k');
+            const lbl4kHeadline = document.getElementById('lbl4kHeadline');
+            const tag4kBadge = document.getElementById('tag4kBadge');
             const btnMpHd = document.getElementById('btnActionMpHd');
+            const tag1080pBadge = document.getElementById('tag1080pBadge');
             const btnMp4 = document.getElementById('btnActionMp4');
+            const tag720pBadge = document.getElementById('tag720pBadge');
+            const btnSd = document.getElementById('btnActionSd');
+
             const btnPhotos = document.getElementById('btnActionPhotos');
             const lblPhotos = document.getElementById('lblPhotosHeadline');
             const tagPhotos = document.getElementById('tagPhotosCount');
+            const btnCurrentPhoto = document.getElementById('btnActionCurrentPhoto');
+            const lblSinglePhotoHeadline = document.getElementById('lblSinglePhotoHeadline');
+            const tagSinglePhoto = document.getElementById('tagSinglePhoto');
+
             const btnMp3 = document.getElementById('btnActionMp3');
+            const lblMp3Headline = document.getElementById('lblMp3Headline');
+            const lblMp3Subhead = document.getElementById('lblMp3Subhead');
+
+            const btnCover = document.getElementById('btnActionCover');
             const btnShare = document.getElementById('btnActionShare');
             const btnCopyLink = document.getElementById('btnActionCopyLink');
             const btnDismiss = document.getElementById('btnDismissDeck');
+
+            let activeCarouselIdx = 0;
 
             // Island Clipboard
             const smartIsland = document.getElementById('smartClipboardIsland');
@@ -2388,6 +2639,82 @@
 
             const defaultCreatorSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><rect width='80' height='80' rx='16' fill='%2318181B'/><circle cx='40' cy='31' r='13' fill='none' stroke='%23FFFFFF' stroke-width='3'/><path d='M18 66c0-11 10-19 22-19s22 8 22 19' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linecap='round'/></svg>";
 
+            function renderCarouselSlide(data, index) {
+                const rawList = data.images || [];
+                const prevList = (data.images_preview && data.images_preview.length > 0) ? data.images_preview : rawList;
+                if (rawList.length === 0) return;
+
+                activeCarouselIdx = ((index % rawList.length) + rawList.length) % rawList.length;
+                const displaySrc = prevList[activeCarouselIdx] || rawList[activeCarouselIdx];
+                const fallbackSrc = rawList[activeCarouselIdx];
+
+                if (carouselMainImg) {
+                    carouselMainImg.onerror = function() {
+                        this.onerror = null;
+                        if (fallbackSrc && this.src !== fallbackSrc) {
+                            this.src = fallbackSrc;
+                        }
+                    };
+                    carouselMainImg.src = displaySrc;
+                }
+                if (carouselCounterBadge) {
+                    carouselCounterBadge.textContent = `FOTO ${activeCarouselIdx + 1} / ${rawList.length} • HD`;
+                }
+                if (lblSinglePhotoHeadline) {
+                    lblSinglePhotoHeadline.textContent = `Descargar Foto en Pantalla (#${activeCarouselIdx + 1} de ${rawList.length})`;
+                }
+                if (tagSinglePhoto) {
+                    tagSinglePhoto.textContent = `FOTO #${activeCarouselIdx + 1}`;
+                }
+            }
+
+            if (btnCarouselPrev) {
+                btnCarouselPrev.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!activeResolvedData) return;
+                    triggerHaptics(15);
+                    renderCarouselSlide(activeResolvedData, activeCarouselIdx - 1);
+                });
+            }
+
+            if (btnCarouselNext) {
+                btnCarouselNext.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!activeResolvedData) return;
+                    triggerHaptics(15);
+                    renderCarouselSlide(activeResolvedData, activeCarouselIdx + 1);
+                });
+            }
+
+            if (photoCarouselStage) {
+                let touchStartX = 0;
+                photoCarouselStage.addEventListener('touchstart', (e) => {
+                    if (e.touches && e.touches.length > 0) touchStartX = e.touches[0].clientX;
+                }, { passive: true });
+                photoCarouselStage.addEventListener('touchend', (e) => {
+                    if (!activeResolvedData || !e.changedTouches || e.changedTouches.length === 0) return;
+                    const dx = e.changedTouches[0].clientX - touchStartX;
+                    if (Math.abs(dx) > 38) {
+                        triggerHaptics(12);
+                        renderCarouselSlide(activeResolvedData, dx < 0 ? activeCarouselIdx + 1 : activeCarouselIdx - 1);
+                    }
+                }, { passive: true });
+            }
+
+            if (btnCarouselAudioToggle && playerCarouselAudio) {
+                btnCarouselAudioToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    triggerHaptics(15);
+                    if (playerCarouselAudio.paused) {
+                        playerCarouselAudio.play().catch(() => {});
+                        btnCarouselAudioToggle.textContent = 'PAUSAR ♫';
+                    } else {
+                        playerCarouselAudio.pause();
+                        btnCarouselAudioToggle.textContent = 'SONAR ♫';
+                    }
+                });
+            }
+
             function handleSuccessPayload(data) {
                 activeResolvedData = data;
                 const avatarSrc = (data.author && data.author.avatar && data.author.avatar.length > 4)
@@ -2406,18 +2733,77 @@
                 txtTag.textContent = `@${uid || 'tiktok_user'}`;
                 txtDesc.textContent = (data.title && data.title.trim().length > 0) ? data.title : `Vídeo de ${nick} (@${uid || 'tiktok'})`;
 
-                // Video player setup con poster de portada y reproducción inmediata
-                const isPhotoAlbum = data.images && data.images.length > 0;
+                const isPhotoAlbum = Array.isArray(data.images) && data.images.length > 0;
+                if (badgeDetectedRes) {
+                    badgeDetectedRes.textContent = data.detected_quality || (isPhotoAlbum ? `CARRUSEL • ${data.images.length} FOTOS` : '1080p FULL HD');
+                    badgeDetectedRes.style.color = data.is_4k ? '#4ADE80' : '#FFFFFF';
+                    badgeDetectedRes.style.borderColor = data.is_4k ? 'rgba(74, 222, 128, 0.5)' : 'rgba(255, 255, 255, 0.26)';
+                }
+
                 if (isPhotoAlbum) {
+                    videoPlayer.pause();
+                    videoPlayer.removeAttribute('src');
                     videoPlayer.style.display = 'none';
+
+                    if (photoCarouselStage) {
+                        photoCarouselStage.style.display = 'flex';
+                        renderCarouselSlide(data, 0);
+                    }
+                    if (btnCarouselPrev) btnCarouselPrev.style.display = data.images.length > 1 ? 'flex' : 'none';
+                    if (btnCarouselNext) btnCarouselNext.style.display = data.images.length > 1 ? 'flex' : 'none';
+
+                    if (data.audio_url && data.audio_url.length > 5 && playerCarouselAudio) {
+                        if (carouselAudioBar) carouselAudioBar.style.display = 'flex';
+                        if (carouselMusicLabel) carouselMusicLabel.textContent = data.music_title || 'Música original del carrusel';
+                        playerCarouselAudio.src = data.audio_url;
+                        playerCarouselAudio.load();
+                        const p = playerCarouselAudio.play();
+                        if (p !== undefined) {
+                            p.then(() => {
+                                if (btnCarouselAudioToggle) btnCarouselAudioToggle.textContent = 'PAUSAR ♫';
+                            }).catch(() => {
+                                if (btnCarouselAudioToggle) btnCarouselAudioToggle.textContent = 'SONAR ♫';
+                            });
+                        }
+                    } else if (carouselAudioBar) {
+                        carouselAudioBar.style.display = 'none';
+                    }
                 } else {
+                    if (playerCarouselAudio) {
+                        playerCarouselAudio.pause();
+                        playerCarouselAudio.removeAttribute('src');
+                    }
+                    if (photoCarouselStage) photoCarouselStage.style.display = 'none';
+
                     videoPlayer.style.display = 'block';
                     const posterImg = (data.cover_url && data.cover_url.length > 4) ? data.cover_url : avatarSrc;
                     videoPlayer.setAttribute('poster', posterImg);
                     videoPlayer.preload = 'auto';
 
-                    const primaryStream = data.preview_url || data.video_url || data.hd_url;
+                    const primaryStream = data.hd_url || data.preview_url || data.video_url;
                     const backupStream = (primaryStream === data.video_url) ? data.hd_url : data.video_url;
+
+                    videoPlayer.onloadedmetadata = function() {
+                        const vw = videoPlayer.videoWidth || data.width || 0;
+                        const vh = videoPlayer.videoHeight || data.height || 0;
+                        const maxD = Math.max(vw, vh);
+                        const minD = Math.min(vw, vh);
+                        const isReal4K = maxD >= 2560 || minD >= 1440 || Boolean(data.is_4k);
+                        if (isReal4K) {
+                            data.is_4k = true;
+                            if (badgeDetectedRes) {
+                                badgeDetectedRes.textContent = (vw && vh) ? `● 4K UHD (${vw}×${vh})` : '● 4K UHD DETECTADO';
+                                badgeDetectedRes.style.color = '#4ADE80';
+                                badgeDetectedRes.style.borderColor = 'rgba(74, 222, 128, 0.55)';
+                            }
+                            if (lbl4kHeadline) lbl4kHeadline.textContent = 'Descargar 4K Ultra HD (Detectado)';
+                            if (tag4kBadge) tag4kBadge.textContent = data.hd_size_mb ? `4K REAL • ${data.hd_size_mb}` : '4K REAL 2160p';
+                            syncSelectedModeUI('4k');
+                        } else if (vw && vh && badgeDetectedRes) {
+                            const pLabel = minD >= 1080 ? '1080p FHD' : `${minD}p HD`;
+                            badgeDetectedRes.textContent = `● ${pLabel} (${vw}×${vh})`;
+                        }
+                    };
 
                     videoPlayer.onerror = function() {
                         if (backupStream && videoPlayer.src !== backupStream) {
@@ -2425,7 +2811,6 @@
                             videoPlayer.load();
                             return;
                         }
-                        // Si el enlace de reproducción expiró en el historial, refrescar automáticamente por ID o URL
                         videoPlayer.onerror = null;
                         const refreshUrl = data.source_url || ((data.id && /^\d+$/.test(String(data.id))) ? `https://www.tiktok.com/@tiktok/video/${data.id}` : null);
                         if (refreshUrl && window.AndroidApp && !data._refreshed) {
@@ -2443,10 +2828,37 @@
                     }
                 }
 
-                // MP4 Full HD Action (1080p)
+                // 1. MP4 4K / Master Ultra HD Action (2160p / Master)
+                const uhdUrl = data.uhd_4k_url || data.hd_url || data.video_url;
+                if (btn4k) {
+                    if (uhdUrl && !isPhotoAlbum) {
+                        btn4k.style.display = 'flex';
+                        if (lbl4kHeadline) {
+                            lbl4kHeadline.textContent = data.is_4k ? 'Descargar 4K Ultra HD (Detectado)' : 'Descargar 4K / Master UHD (2160p)';
+                        }
+                        if (tag4kBadge) {
+                            tag4kBadge.textContent = data.hd_size_mb
+                                ? `${data.is_4k ? '4K REAL' : '4K MASTER'} • ${data.hd_size_mb}`
+                                : (data.is_4k ? '4K REAL UHD' : '4K ULTRA');
+                        }
+                        btn4k.onclick = () => {
+                            triggerHaptics(40);
+                            syncSelectedModeUI('4k');
+                            const fname = `tiktok_${data.id || Date.now()}_4K_UHD.mp4`;
+                            triggerRewardedDownload(uhdUrl, fname, '4K Ultra HD', data);
+                        };
+                    } else {
+                        btn4k.style.display = 'none';
+                    }
+                }
+
+                // 2. MP4 Full HD Action (1080p)
                 const hdUrl = data.hd_url || data.video_url;
                 if (hdUrl && !isPhotoAlbum) {
                     btnMpHd.style.display = 'flex';
+                    if (tag1080pBadge) {
+                        tag1080pBadge.textContent = data.hd_size_mb ? `1080p • ${data.hd_size_mb}` : '1080p ULTRA';
+                    }
                     btnMpHd.onclick = () => {
                         triggerHaptics(40);
                         syncSelectedModeUI('1080p');
@@ -2457,13 +2869,16 @@
                     btnMpHd.style.display = 'none';
                 }
 
-                // MP4 Standard Action (720p)
+                // 3. MP4 Standard Action (720p)
                 if (data.video_url && !isPhotoAlbum) {
                     btnMp4.style.display = 'flex';
+                    if (tag720pBadge) {
+                        tag720pBadge.textContent = data.size_mb ? `720p • ${data.size_mb}` : '720p FAST';
+                    }
                     btnMp4.onclick = () => {
                         triggerHaptics(40);
                         syncSelectedModeUI('720p');
-                        const fname = `tiktok_${data.id || Date.now()}_720p.mp4`;
+                        const fname = `tiktok_${data.id || Date.now()}_720p_HD.mp4`;
                         if (window.AndroidApp) {
                             window.AndroidApp.download(data.video_url, fname);
                         } else {
@@ -2476,51 +2891,99 @@
                     btnMp4.style.display = 'none';
                 }
 
-                // Photos Album Action
+                // 4. MP4 Lightweight Action (480p SD)
+                const sdUrl = data.sd_url || data.video_url;
+                if (btnSd) {
+                    if (sdUrl && !isPhotoAlbum) {
+                        btnSd.style.display = 'flex';
+                        btnSd.onclick = () => {
+                            triggerHaptics(35);
+                            const fname = `tiktok_${data.id || Date.now()}_480p_SD.mp4`;
+                            if (window.AndroidApp) {
+                                window.AndroidApp.download(sdUrl, fname);
+                            } else {
+                                window.open(sdUrl, '_blank');
+                            }
+                            saveItemToLocalLibrary(data);
+                            showHudToast('Descarga ligera 480p iniciada...');
+                        };
+                    } else {
+                        btnSd.style.display = 'none';
+                    }
+                }
+
+                // 5. Photos Album Action (Todas las fotos + Foto actual)
                 if (isPhotoAlbum) {
                     btnPhotos.style.display = 'flex';
-                    lblPhotos.textContent = `Descargar Álbum (${data.images.length} Fotos)`;
-                    tagPhotos.textContent = `${data.images.length} FOTOS`;
+                    btnPhotos.className = 'btn-tier-action tier-white-solid';
+                    lblPhotos.textContent = `Descargar Álbum Completo (${data.images.length} Fotos)`;
+                    tagPhotos.textContent = `${data.images.length} FOTOS HD`;
                     btnPhotos.onclick = () => {
                         triggerHaptics(40);
+                        const b64List = data.images_preview || [];
                         data.images.forEach((imgUrl, idx) => {
-                            const fname = `tiktok_${data.id || Date.now()}_img_${idx + 1}.jpg`;
+                            const fname = `tiktok_${data.id || Date.now()}_foto_${idx + 1}.jpg`;
+                            const targetSrc = (b64List[idx] && b64List[idx].startsWith('data:')) ? b64List[idx] : imgUrl;
                             if (window.AndroidApp) {
-                                window.AndroidApp.download(imgUrl, fname);
+                                window.AndroidApp.download(targetSrc, fname);
                             } else {
                                 window.open(imgUrl, '_blank');
                             }
                         });
                         saveItemToLocalLibrary(data);
-                        showHudToast(`Descargando ${data.images.length} fotos...`);
+                        showHudToast(`Guardando las ${data.images.length} fotos en Galería...`);
                     };
+
+                    if (btnCurrentPhoto) {
+                        btnCurrentPhoto.style.display = 'flex';
+                        btnCurrentPhoto.onclick = () => {
+                            triggerHaptics(35);
+                            const b64List = data.images_preview || [];
+                            const idx = activeCarouselIdx || 0;
+                            const fname = `tiktok_${data.id || Date.now()}_foto_${idx + 1}.jpg`;
+                            const targetSrc = (b64List[idx] && b64List[idx].startsWith('data:')) ? b64List[idx] : data.images[idx];
+                            if (window.AndroidApp) {
+                                window.AndroidApp.download(targetSrc, fname);
+                            } else {
+                                window.open(data.images[idx], '_blank');
+                            }
+                            saveItemToLocalLibrary(data);
+                            showHudToast(`Foto #${idx + 1} guardada en Galería`);
+                        };
+                    }
                 } else {
                     btnPhotos.style.display = 'none';
+                    if (btnCurrentPhoto) btnCurrentPhoto.style.display = 'none';
                 }
 
-                // MP3 Action (Siempre disponible para vídeos)
-                const audioStreamUrl = (data.audio_url && data.audio_url.length > 5) ? data.audio_url : data.video_url;
-                if (audioStreamUrl && !isPhotoAlbum) {
+                // 6. MP3 Action (Disponible TANTO para vídeos como para carruseles de fotos con música)
+                const audioStreamUrl = (data.audio_url && data.audio_url.length > 5) ? data.audio_url : (!isPhotoAlbum ? data.video_url : '');
+                if (audioStreamUrl) {
                     btnMp3.style.display = 'flex';
+                    if (lblMp3Headline) {
+                        lblMp3Headline.textContent = isPhotoAlbum ? 'Descargar Música del Carrusel (MP3)' : 'Descargar Audio MP3 (320k)';
+                    }
+                    if (lblMp3Subhead) {
+                        lblMp3Subhead.textContent = data.music_title || 'Pista de sonido original en máxima calidad';
+                    }
                     btnMp3.onclick = () => {
                         triggerHaptics(40);
-                        syncSelectedModeUI('audio');
-                        const fname = `tiktok_${data.id || Date.now()}_AUDIO.mp3`;
+                        if (!isPhotoAlbum) syncSelectedModeUI('audio');
+                        const fname = `tiktok_${data.id || Date.now()}_AUDIO_320K.mp3`;
                         if (window.AndroidApp) {
                             window.AndroidApp.download(audioStreamUrl, fname);
                         } else {
                             window.open(audioStreamUrl, '_blank');
                         }
                         saveItemToLocalLibrary(data);
-                        showHudToast('Descargando pista MP3...');
+                        showHudToast('Descargando música MP3...');
                     };
                 } else {
                     btnMp3.style.display = 'none';
                 }
 
-                // Iluminar exactamente la opción elegida por el usuario (1080p, 720p o Audio MP3)
                 if (!isPhotoAlbum) {
-                    syncSelectedModeUI(selectedMode);
+                    syncSelectedModeUI(data.is_4k ? '4k' : selectedMode);
                 }
 
                 saveItemToLocalLibrary(data);
@@ -2538,13 +3001,30 @@
                 } catch (e) {}
             });
 
+            // Save Cover HD
+            if (btnCover) {
+                btnCover.addEventListener('click', () => {
+                    if (!activeResolvedData) return;
+                    triggerHaptics(25);
+                    const coverSrc = activeResolvedData.cover_url || activeResolvedData.raw_cover_url || (activeResolvedData.images && activeResolvedData.images[0]);
+                    if (!coverSrc) return;
+                    const fname = `tiktok_${activeResolvedData.id || Date.now()}_PORTADA_HD.jpg`;
+                    if (window.AndroidApp) {
+                        window.AndroidApp.download(coverSrc, fname);
+                    } else {
+                        window.open(coverSrc, '_blank');
+                    }
+                    showHudToast('Guardando portada HD en Galería...');
+                });
+            }
+
             // Native Share
             btnShare.addEventListener('click', () => {
                 if (!activeResolvedData) return;
                 triggerHaptics(20);
-                const shareUrl = activeResolvedData.video_url;
+                const shareUrl = activeResolvedData.video_url || (activeResolvedData.images && activeResolvedData.images[0]) || activeResolvedData.source_url;
                 if (window.AndroidApp) {
-                    window.AndroidApp.shareText(shareUrl, "Descargar video sin marca de agua");
+                    window.AndroidApp.shareText(shareUrl, "Descargar sin marca de agua");
                 } else if (navigator.share) {
                     navigator.share({ title: activeResolvedData.title, url: shareUrl });
                 } else {
@@ -2554,12 +3034,14 @@
 
             // Copy Direct Link
             btnCopyLink.addEventListener('click', async () => {
-                if (!activeResolvedData || !activeResolvedData.video_url) return;
+                if (!activeResolvedData) return;
+                const targetLink = activeResolvedData.hd_url || activeResolvedData.video_url || (activeResolvedData.images && activeResolvedData.images[0]) || activeResolvedData.source_url;
+                if (!targetLink) return;
                 triggerHaptics(20);
                 try {
-                    await navigator.clipboard.writeText(activeResolvedData.video_url);
+                    await navigator.clipboard.writeText(targetLink);
                     if (window.AndroidApp) {
-                        window.AndroidApp.showToast('Enlace copiado al portapapeles');
+                        window.AndroidApp.showToast('Enlace directo copiado al portapapeles');
                     } else {
                         showHudToast('Enlace copiado');
                     }
@@ -2574,6 +3056,10 @@
                 resultDeck.style.display = 'none';
                 videoPlayer.pause();
                 videoPlayer.src = '';
+                if (playerCarouselAudio) {
+                    playerCarouselAudio.pause();
+                    playerCarouselAudio.src = '';
+                }
                 urlInput.value = '';
                 updateInputButtons();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2732,14 +3218,14 @@
             let pendingRewardAction = null;
 
             function triggerRewardedDownload(url, fname, label, itemData) {
-                if (window.AndroidApp && typeof window.AndroidApp.requestRewardedVideo === 'function') {
-                    showHudToast('Preparando descarga en Full HD (1080p)...');
+                const isAdultOn = localStorage.getItem('snaptik_adult_18_plus_v2') === 'true';
+                if (isAdultOn && window.AndroidApp && typeof window.AndroidApp.requestRewardedVideo === 'function') {
+                    showHudToast(`Preparando descarga ${label}...`);
                     pendingRewardAction = () => {
                         window.AndroidApp.download(url, fname);
                         saveItemToLocalLibrary(itemData);
                         showHudToast(`Descargando ${label}...`);
                     };
-
                     window.AndroidApp.requestRewardedVideo();
                 } else {
                     if (window.AndroidApp) {
@@ -2897,7 +3383,13 @@
             function syncAdultSwitchUI(isAdult) {
                 if (prefAdult18Plus) prefAdult18Plus.checked = isAdult;
                 if (lblAdultPrefSub) {
-                    lblAdultPrefSub.textContent = isAdult ? 'Activado: enlaces +18 y generales' : 'Desactivado: solo anuncios limpios y seguros';
+                    lblAdultPrefSub.textContent = isAdult ? 'Activado: anuncios patrocinados habilitados' : 'Desactivado: modo seguro sin anuncios +18';
+                }
+                if (nativeSponsorCard) {
+                    nativeSponsorCard.style.display = isAdult ? 'block' : 'none';
+                }
+                if (!isAdult && modalAd) {
+                    modalAd.style.display = 'none';
                 }
             }
 

@@ -54,6 +54,19 @@ public class TikTokResolver {
         }
     }
 
+    private static String ensureAbsoluteTikWmUrl(String u) {
+        if (u == null || u.isEmpty() || "null".equalsIgnoreCase(u)) return "";
+        if (u.startsWith("//")) return "https:" + u;
+        if (u.startsWith("/")) return "https://www.tikwm.com" + u;
+        return u;
+    }
+
+    private static String formatMegabytes(long bytes) {
+        if (bytes <= 0) return "";
+        double mb = bytes / (1024.0 * 1024.0);
+        return String.format(java.util.Locale.US, "%.1f MB", mb);
+    }
+
     private static JSONObject resolveViaTikWM(String cleanUrl) {
         try {
             JSONObject res = new JSONObject();
@@ -69,22 +82,62 @@ public class TikTokResolver {
             }
 
             JSONObject d = root.getJSONObject("data");
-            String playUrl = d.optString("play", "");
-            String hdPlayUrl = d.optString("hdplay", "");
-            if (playUrl.isEmpty() || "null".equals(playUrl)) playUrl = hdPlayUrl;
-            if (hdPlayUrl.isEmpty() || "null".equals(hdPlayUrl)) hdPlayUrl = playUrl;
+            String playUrl = ensureAbsoluteTikWmUrl(d.optString("play", ""));
+            String hdPlayUrl = ensureAbsoluteTikWmUrl(d.optString("hdplay", ""));
+            String wmPlayUrl = ensureAbsoluteTikWmUrl(d.optString("wmplay", ""));
+            if (playUrl.isEmpty()) playUrl = hdPlayUrl;
+            if (hdPlayUrl.isEmpty()) hdPlayUrl = playUrl;
 
-            JSONArray imagesArr = d.optJSONArray("images");
+            JSONArray rawImagesArr = d.optJSONArray("images");
+            JSONArray cleanImagesArr = new JSONArray();
+            JSONArray previewImagesArr = new JSONArray();
+            if (rawImagesArr != null && rawImagesArr.length() > 0) {
+                int maxB64 = Math.min(rawImagesArr.length(), 10);
+                for (int i = 0; i < rawImagesArr.length(); i++) {
+                    String imgU = ensureAbsoluteTikWmUrl(rawImagesArr.optString(i, ""));
+                    if (!imgU.isEmpty()) {
+                        cleanImagesArr.put(imgU);
+                        if (i < maxB64) {
+                            String b64Img = fetchImageAsDataUri(imgU);
+                            previewImagesArr.put((b64Img != null && !b64Img.isEmpty()) ? b64Img : imgU);
+                        } else {
+                            previewImagesArr.put(imgU);
+                        }
+                    }
+                }
+            }
 
-            if (playUrl.isEmpty() && (imagesArr == null || imagesArr.length() == 0)) {
+            boolean isPhotoPost = cleanImagesArr.length() > 0;
+
+            if (playUrl.isEmpty() && !isPhotoPost) {
                 res.put("success", false);
                 res.put("error", "No se encontró enlace directo de reproducción");
                 return res;
             }
 
-            String rawCover = d.optString("cover", "");
-            if (rawCover.isEmpty() || "null".equals(rawCover)) {
-                rawCover = d.optString("origin_cover", "");
+            String audioUrl = ensureAbsoluteTikWmUrl(d.optString("music", ""));
+            String musicTitle = "Audio Original";
+            JSONObject musicInfo = d.optJSONObject("music_info");
+            if (musicInfo != null) {
+                if (audioUrl.isEmpty()) {
+                    audioUrl = ensureAbsoluteTikWmUrl(musicInfo.optString("play", ""));
+                }
+                String mTitle = musicInfo.optString("title", "").trim();
+                String mAuthor = musicInfo.optString("author", "").trim();
+                if (!mTitle.isEmpty()) {
+                    musicTitle = !mAuthor.isEmpty() ? (mTitle + " • " + mAuthor) : mTitle;
+                }
+            }
+            if (audioUrl.isEmpty() && isPhotoPost && !playUrl.isEmpty()) {
+                audioUrl = playUrl;
+            }
+
+            String rawCover = ensureAbsoluteTikWmUrl(d.optString("origin_cover", ""));
+            if (rawCover.isEmpty()) {
+                rawCover = ensureAbsoluteTikWmUrl(d.optString("cover", ""));
+            }
+            if (rawCover.isEmpty() && isPhotoPost) {
+                rawCover = cleanImagesArr.optString(0, "");
             }
 
             String title = d.optString("title", "").trim();
@@ -97,35 +150,67 @@ public class TikTokResolver {
             if (authorObj != null) {
                 nickname = authorObj.optString("nickname", "Creador");
                 uniqueId = authorObj.optString("unique_id", "tiktok_user");
-                rawAvatar = authorObj.optString("avatar", "");
+                rawAvatar = ensureAbsoluteTikWmUrl(authorObj.optString("avatar", ""));
             }
 
             if (title.isEmpty()) {
-                title = "Vídeo de " + nickname + " (@" + uniqueId + ")";
+                title = (isPhotoPost ? "Carrusel de " : "Vídeo de ") + nickname + " (@" + uniqueId + ")";
             }
 
-            // Convertir avatar y cover a Base64 para visualización inmediata y persistencia permanente en Biblioteca
             String avatarFinal = fetchImageAsDataUri(rawAvatar);
             if (avatarFinal == null || avatarFinal.isEmpty()) {
                 avatarFinal = rawAvatar;
             }
 
-            String coverFinal = fetchImageAsDataUri(rawCover);
+            String coverFinal = (isPhotoPost && previewImagesArr.length() > 0)
+                    ? previewImagesArr.optString(0, "")
+                    : fetchImageAsDataUri(rawCover);
             if (coverFinal == null || coverFinal.isEmpty()) {
                 coverFinal = rawCover.isEmpty() ? avatarFinal : rawCover;
             }
+
+            long sizeBytes = d.optLong("size", 0);
+            long hdSizeBytes = d.optLong("hd_size", 0);
+            if (hdSizeBytes <= 0) hdSizeBytes = sizeBytes;
+            int duration = d.optInt("duration", 0);
+            int width = d.optInt("width", 0);
+            int height = d.optInt("height", 0);
+            int maxDim = Math.max(width, height);
+            int minDim = Math.min(width, height);
+
+            boolean is4k = !isPhotoPost && (
+                    maxDim >= 2560 || minDim >= 1440 ||
+                    (hdSizeBytes > 0 && duration > 0 && (hdSizeBytes / Math.max(1, duration)) > 550000) ||
+                    (hdSizeBytes > 18 * 1024 * 1024)
+            );
+            String detectedQuality = isPhotoPost
+                    ? ("CARRUSEL (" + cleanImagesArr.length() + " FOTOS + MÚSICA)")
+                    : (is4k ? "4K UHD DETECTADO" : ((hdSizeBytes > sizeBytes || maxDim >= 1920) ? "1080p FULL HD" : "720p HD"));
 
             JSONObject data = new JSONObject();
             data.put("id", d.optString("id", "video_" + System.currentTimeMillis()));
             data.put("source_url", cleanUrl);
             data.put("title", title);
-            data.put("preview_url", playUrl);
-            data.put("video_url", playUrl);
-            data.put("hd_url", hdPlayUrl);
-            data.put("audio_url", d.optString("music", ""));
+            data.put("preview_url", isPhotoPost ? "" : playUrl);
+            data.put("video_url", isPhotoPost ? "" : playUrl);
+            data.put("hd_url", isPhotoPost ? "" : hdPlayUrl);
+            data.put("uhd_4k_url", isPhotoPost ? "" : hdPlayUrl);
+            data.put("sd_url", isPhotoPost ? "" : playUrl);
+            data.put("wm_url", isPhotoPost ? "" : wmPlayUrl);
+            data.put("audio_url", audioUrl);
+            data.put("music_title", musicTitle);
             data.put("cover_url", coverFinal);
-            if (imagesArr != null && imagesArr.length() > 0) {
-                data.put("images", imagesArr);
+            data.put("raw_cover_url", rawCover);
+            data.put("size_mb", formatMegabytes(sizeBytes));
+            data.put("hd_size_mb", formatMegabytes(hdSizeBytes));
+            data.put("duration", duration);
+            data.put("width", width);
+            data.put("height", height);
+            data.put("is_4k", is4k);
+            data.put("detected_quality", detectedQuality);
+            if (isPhotoPost) {
+                data.put("images", cleanImagesArr);
+                data.put("images_preview", previewImagesArr);
             }
 
             JSONObject author = new JSONObject();
@@ -206,9 +291,19 @@ public class TikTokResolver {
             }
 
             JSONArray imagesArr = new JSONArray();
+            JSONArray previewImagesArr = new JSONArray();
             Matcher imgMatcher = Pattern.compile("data-splide-lazy=[\"'](https?://[^\"']+)[\"']").matcher(postHtml);
+            int idxImg = 0;
             while (imgMatcher.find()) {
-                imagesArr.put(imgMatcher.group(1));
+                String imgU = imgMatcher.group(1);
+                imagesArr.put(imgU);
+                if (idxImg < 10) {
+                    String b64 = fetchImageAsDataUri(imgU);
+                    previewImagesArr.put((b64 != null && !b64.isEmpty()) ? b64 : imgU);
+                } else {
+                    previewImagesArr.put(imgU);
+                }
+                idxImg++;
             }
 
             String authorName = "Creador";
@@ -271,17 +366,24 @@ public class TikTokResolver {
             String uniqueId = authorName.toLowerCase().replaceAll("[^a-z0-9_.]", "");
             if (uniqueId.isEmpty()) uniqueId = "tiktok_creator";
 
+            boolean isPhoto = imagesArr.length() > 0;
             JSONObject data = new JSONObject();
             data.put("id", videoId);
             data.put("source_url", cleanUrl);
             data.put("title", desc);
-            data.put("preview_url", previewUrl);
-            data.put("video_url", videoUrl);
-            data.put("hd_url", videoUrl);
+            data.put("preview_url", isPhoto ? "" : previewUrl);
+            data.put("video_url", isPhoto ? "" : videoUrl);
+            data.put("hd_url", isPhoto ? "" : videoUrl);
+            data.put("uhd_4k_url", isPhoto ? "" : videoUrl);
+            data.put("sd_url", isPhoto ? "" : videoUrl);
             data.put("audio_url", audioUrl);
+            data.put("music_title", "Audio Original");
             data.put("cover_url", coverFinal);
-            if (imagesArr.length() > 0) {
+            data.put("raw_cover_url", rawCover);
+            data.put("detected_quality", isPhoto ? ("CARRUSEL (" + imagesArr.length() + " FOTOS + MÚSICA)") : "1080p FULL HD");
+            if (isPhoto) {
                 data.put("images", imagesArr);
+                data.put("images_preview", previewImagesArr);
             }
 
             JSONObject author = new JSONObject();
@@ -352,7 +454,7 @@ public class TikTokResolver {
 
     private static String normalizeUrl(String input) {
         if (input == null) return null;
-        Matcher m = Pattern.compile("(https?://(?:vm\\.|vt\\.|www\\.|m\\.)?tiktok\\.com/[^\\s\"']+)").matcher(input);
+        Matcher m = Pattern.compile("(https?://(?:[a-zA-Z0-9-]+\\.)?(?:tiktok|douyin)\\.com/[^\\s\"']+)").matcher(input);
         if (m.find()) {
             String raw = m.group(1);
             int qIdx = raw.indexOf('?');
