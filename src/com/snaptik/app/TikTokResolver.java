@@ -17,6 +17,13 @@ import java.util.regex.Pattern;
 public class TikTokResolver {
 
     private static final String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+    public static String PRIVATE_BACKEND_URL = "http://192.168.101.84:8000/api/extract";
+
+    public static void setCustomBackendUrl(String url) {
+        if (url != null && !url.trim().isEmpty()) {
+            PRIVATE_BACKEND_URL = url.trim();
+        }
+    }
 
     public static String resolve(String tiktokUrl) {
         JSONObject res = new JSONObject();
@@ -26,6 +33,14 @@ public class TikTokResolver {
                 res.put("success", false);
                 res.put("error", "URL de TikTok inválida. Debe ser un enlace de tiktok.com.");
                 return res.toString();
+            }
+
+            // Motor 0 (Prioridad 1): Nuestro Servidor Backend Privado
+            if (PRIVATE_BACKEND_URL != null && !PRIVATE_BACKEND_URL.isEmpty()) {
+                JSONObject backendResult = resolveViaPrivateBackend(cleanUrl);
+                if (backendResult != null && backendResult.optBoolean("success", false)) {
+                    return backendResult.toString();
+                }
             }
 
             // Motor 1 (Principal): TikWM Direct HD API (JSON completo con avatar, cover, descripción, 720p y 1080p)
@@ -52,6 +67,28 @@ public class TikTokResolver {
             } catch (Exception ignored) {}
             return res.toString();
         }
+    }
+
+    private static JSONObject resolveViaPrivateBackend(String cleanUrl) {
+        try {
+            JSONObject body = new JSONObject();
+            body.put("url", cleanUrl);
+            String[] headers = new String[]{
+                "Content-Type", "application/json; charset=UTF-8",
+                "Accept", "application/json"
+            };
+            String resp = fetchUrl(PRIVATE_BACKEND_URL, "POST", body.toString(), headers);
+            if (resp != null && !resp.trim().isEmpty()) {
+                JSONObject root = new JSONObject(resp);
+                if (root.optBoolean("success", false)) {
+                    JSONObject d = root.optJSONObject("data");
+                    if (d != null) {
+                        return root;
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
     }
 
     private static String ensureAbsoluteTikWmUrl(String u) {
