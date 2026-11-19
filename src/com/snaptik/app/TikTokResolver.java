@@ -153,6 +153,13 @@ public class TikTokResolver {
             }
 
             String audioUrl = ensureAbsoluteTikWmUrl(d.optString("music", ""));
+            if (isPhotoPost && (playUrl.contains("audio_mpeg") || playUrl.contains("mime_type=audio"))) {
+                if (audioUrl.isEmpty()) {
+                    audioUrl = playUrl;
+                }
+                playUrl = "";
+                hdPlayUrl = "";
+            }
             String musicTitle = "Audio Original";
             JSONObject musicInfo = d.optJSONObject("music_info");
             if (musicInfo != null) {
@@ -329,6 +336,46 @@ public class TikTokResolver {
 
             JSONArray imagesArr = new JSONArray();
             JSONArray previewImagesArr = new JSONArray();
+
+            // 1. Extraer diapositivas desde input hidden slides_data (formato base64 JSON nuevo de SSSTik)
+            Matcher slidesMatcher = Pattern.compile("name=[\"']?slides_data[\"']?[^>]*value=[\"'](.*?)[\"']").matcher(postHtml);
+            if (slidesMatcher.find()) {
+                try {
+                    String rawB64 = slidesMatcher.group(1);
+                    byte[] decoded = android.util.Base64.decode(rawB64, android.util.Base64.DEFAULT);
+                    String jsonStr = new String(decoded, "UTF-8");
+                    JSONObject slidesJson = new JSONObject(jsonStr);
+                    java.util.Iterator<String> keys = slidesJson.keys();
+                    java.util.List<Integer> intKeys = new java.util.ArrayList<>();
+                    while (keys.hasNext()) {
+                        String k = keys.next();
+                        try {
+                            intKeys.add(Integer.parseInt(k));
+                        } catch (Exception ignored) {}
+                    }
+                    java.util.Collections.sort(intKeys);
+                    for (Integer idx : intKeys) {
+                        JSONObject slideObj = slidesJson.optJSONObject(String.valueOf(idx));
+                        if (slideObj != null) {
+                            String slideUrl = slideObj.optString("url", "");
+                            if (!slideUrl.isEmpty()) {
+                                imagesArr.put(slideUrl);
+                                if (previewImagesArr.length() < 10) {
+                                    String b64 = fetchImageAsDataUri(slideUrl);
+                                    previewImagesArr.put((b64 != null && !b64.isEmpty()) ? b64 : slideUrl);
+                                } else {
+                                    previewImagesArr.put(slideUrl);
+                                }
+                            }
+                        }
+                    }
+                    if (audioUrl.isEmpty()) {
+                        audioUrl = slidesJson.optString("music", "");
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // 2. Extraer desde data-splide-lazy (fallback formato clásico)
             Matcher imgMatcher = Pattern.compile("data-splide-lazy=[\"'](https?://[^\"']+)[\"']").matcher(postHtml);
             int idxImg = 0;
             while (imgMatcher.find()) {
@@ -341,6 +388,35 @@ public class TikTokResolver {
                     previewImagesArr.put(imgU);
                 }
                 idxImg++;
+            }
+
+            // 3. Revisar si videoUrl es en realidad una imagen individual de diapositiva
+            boolean isVideoActuallyImg = false;
+            if (!videoUrl.isEmpty()) {
+                String lowerV = videoUrl.toLowerCase();
+                if (lowerV.contains("photomode") || lowerV.endsWith(".webp") || lowerV.endsWith(".jpg") || lowerV.endsWith(".png") || lowerV.endsWith(".jpeg")) {
+                    isVideoActuallyImg = true;
+                } else if (lowerV.contains("/ssstik/ahr0") || lowerV.contains("/ssstik/a/")) {
+                    try {
+                        String b64Part = videoUrl.substring(videoUrl.indexOf("/ssstik/") + 8);
+                        if (b64Part.contains("?")) b64Part = b64Part.substring(0, b64Part.indexOf("?"));
+                        if (b64Part.startsWith("a/")) b64Part = b64Part.substring(2);
+                        byte[] dBytes = android.util.Base64.decode(b64Part, android.util.Base64.DEFAULT);
+                        String dec = new String(dBytes, "UTF-8").toLowerCase();
+                        if (dec.contains("photomode") || dec.contains(".webp") || dec.contains(".jpg") || dec.contains(".png") || dec.contains(".jpeg")) {
+                            isVideoActuallyImg = true;
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }
+
+            if (isVideoActuallyImg) {
+                if (imagesArr.length() == 0) {
+                    imagesArr.put(videoUrl);
+                    previewImagesArr.put(videoUrl);
+                }
+                videoUrl = "";
+                previewUrl = "";
             }
 
             String authorName = "Creador";

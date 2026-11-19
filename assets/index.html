@@ -2819,9 +2819,8 @@
                     if (photoCarouselStage) photoCarouselStage.style.display = 'none';
 
                     videoPlayer.style.display = 'block';
-                    const posterImg = (data.cover_url && data.cover_url.length > 4) ? data.cover_url : avatarSrc;
-                    videoPlayer.setAttribute('poster', posterImg);
-                    videoPlayer.preload = 'none';
+                    videoPlayer.removeAttribute('poster');
+                    videoPlayer.preload = 'metadata';
 
                     const primaryStream = data.hd_url || data.preview_url || data.video_url;
                     const backupStream = (primaryStream === data.video_url) ? data.hd_url : data.video_url;
@@ -2873,7 +2872,8 @@
 
                 // 2. MP4 Full HD Action (1080p) / Vídeo de diapositivas si es carrusel
                 const hdUrl = data.hd_url || data.video_url;
-                if (hdUrl) {
+                const isActualVideo = hdUrl && (!hdUrl.includes('photomode') && !hdUrl.endsWith('.webp') && !hdUrl.endsWith('.jpg') && !hdUrl.endsWith('.png'));
+                if (hdUrl && (!isPhotoAlbum || isActualVideo)) {
                     btnMpHd.style.display = 'flex';
                     const titleText = isPhotoAlbum ? 'Descargar Vídeo Completo (MP4)' : 'Descargar Full HD (1080p)';
                     const subText = isPhotoAlbum ? 'Vídeo animado con música y fotos' : 'Máxima tasa de bits 60FPS sin marca';
