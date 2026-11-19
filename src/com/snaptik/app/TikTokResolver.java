@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class TikTokResolver {
 
     private static final String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-    public static String PRIVATE_BACKEND_URL = "http://192.168.101.84:8000/api/extract";
+    public static String PRIVATE_BACKEND_URL = "https://snaptik-backend.onrender.com/api/extract";
 
     public static void setCustomBackendUrl(String url) {
         if (url != null && !url.trim().isEmpty()) {

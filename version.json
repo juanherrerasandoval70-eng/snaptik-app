@@ -1,8 +1,8 @@
 {
   "versionCode": 3,
   "versionName": "2.1.0",
-  "backendUrl": "http://192.168.101.84:8000/api/extract",
+  "backendUrl": "https://snaptik-backend.onrender.com/api/extract",
   "apkUrl": "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/dist/SnapTik_PRO_v1.0.apk",
-  "changelog": "• Soporte completo de carruseles de fotos con música\n• Descarga en 4K Ultra HD, 1080p, 720p y MP3 320kbps\n• Conexión con motor privado de alta velocidad",
+  "changelog": "• Servidor en la nube 24/7 activo y permanente\n• Soporte completo de carruseles de fotos con música\n• Descarga en 4K Ultra HD, 1080p, 720p y MP3 320kbps\n• Conexión con motor privado de alta velocidad",
   "forceUpdate": false
 }
