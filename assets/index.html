@@ -2647,7 +2647,7 @@
                 }
             };
 
-            const defaultCreatorSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><rect width='80' height='80' rx='16' fill='%2318181B'/><circle cx='40' cy='31' r='13' fill='none' stroke='%23FFFFFF' stroke-width='3'/><path d='M18 66c0-11 10-19 22-19s22 8 22 19' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linecap='round'/></svg>";
+            const defaultCreatorSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIHJ4PSIxNiIgZmlsbD0iIzE4MTgxQiIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMzEiIHI9IjEzIiBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0xOCA2NmMwLTExIDEwLTE5IDIyLTE5czIyIDggMjIgMTkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=";
 
             function renderCarouselSlide(data, index) {
                 const rawList = data.images || [];
@@ -2788,7 +2788,7 @@
                     videoPlayer.style.display = 'block';
                     const posterImg = (data.cover_url && data.cover_url.length > 4) ? data.cover_url : avatarSrc;
                     videoPlayer.setAttribute('poster', posterImg);
-                    videoPlayer.preload = 'auto';
+                    videoPlayer.preload = 'none';
 
                     const primaryStream = data.hd_url || data.preview_url || data.video_url;
                     const backupStream = (primaryStream === data.video_url) ? data.hd_url : data.video_url;
@@ -2808,24 +2808,12 @@
                     videoPlayer.onerror = function() {
                         if (backupStream && videoPlayer.src !== backupStream) {
                             videoPlayer.src = backupStream;
-                            videoPlayer.load();
                             return;
                         }
                         videoPlayer.onerror = null;
-                        const refreshUrl = data.source_url || ((data.id && /^\d+$/.test(String(data.id))) ? `https://www.tiktok.com/@tiktok/video/${data.id}` : null);
-                        if (refreshUrl && window.AndroidApp && !data._refreshed) {
-                            data._refreshed = true;
-                            showHudToast('Actualizando vista previa del vídeo...');
-                            window.AndroidApp.extract(refreshUrl);
-                        }
                     };
 
                     videoPlayer.src = primaryStream;
-                    videoPlayer.load();
-                    const playPromise = videoPlayer.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(() => {});
-                    }
                 }
 
                 // 1. MP4 4K / Master Ultra HD Action (2160p / Master)
