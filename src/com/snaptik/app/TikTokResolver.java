@@ -228,12 +228,12 @@ public class TikTokResolver {
             data.put("id", d.optString("id", "video_" + System.currentTimeMillis()));
             data.put("source_url", cleanUrl);
             data.put("title", title);
-            data.put("preview_url", isPhotoPost ? "" : playUrl);
-            data.put("video_url", isPhotoPost ? "" : playUrl);
-            data.put("hd_url", isPhotoPost ? "" : hdPlayUrl);
-            data.put("uhd_4k_url", isPhotoPost ? "" : hdPlayUrl);
-            data.put("sd_url", isPhotoPost ? "" : playUrl);
-            data.put("wm_url", isPhotoPost ? "" : wmPlayUrl);
+            data.put("preview_url", playUrl);
+            data.put("video_url", playUrl);
+            data.put("hd_url", !hdPlayUrl.isEmpty() ? hdPlayUrl : playUrl);
+            data.put("uhd_4k_url", !hdPlayUrl.isEmpty() ? hdPlayUrl : playUrl);
+            data.put("sd_url", playUrl);
+            data.put("wm_url", wmPlayUrl);
             data.put("audio_url", audioUrl);
             data.put("music_title", musicTitle);
             data.put("cover_url", coverFinal);

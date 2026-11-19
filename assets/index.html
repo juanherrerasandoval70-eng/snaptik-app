@@ -2871,18 +2871,24 @@
                     }
                 }
 
-                // 2. MP4 Full HD Action (1080p)
+                // 2. MP4 Full HD Action (1080p) / Vídeo de diapositivas si es carrusel
                 const hdUrl = data.hd_url || data.video_url;
-                if (hdUrl && !isPhotoAlbum) {
+                if (hdUrl) {
                     btnMpHd.style.display = 'flex';
+                    const titleText = isPhotoAlbum ? 'Descargar Vídeo Completo (MP4)' : 'Descargar Full HD (1080p)';
+                    const subText = isPhotoAlbum ? 'Vídeo animado con música y fotos' : 'Máxima tasa de bits 60FPS sin marca';
+                    const hLine = btnMpHd.querySelector('.tier-headline');
+                    if (hLine) hLine.textContent = titleText;
+                    const sLine = document.getElementById('lbl1080pSubhead');
+                    if (sLine) sLine.textContent = subText;
                     if (tag1080pBadge) {
-                        tag1080pBadge.textContent = '1080p';
+                        tag1080pBadge.textContent = isPhotoAlbum ? 'VÍDEO MP4' : '1080p';
                     }
                     btnMpHd.onclick = () => {
                         triggerHaptics(40);
                         syncSelectedModeUI('1080p');
-                        const fname = makeFileName(data, '1080p_FHD', 'mp4');
-                        triggerRewardedDownload(hdUrl, fname, 'Full HD 1080p', data);
+                        const fname = makeFileName(data, isPhotoAlbum ? 'VIDEO_CARRUSEL' : '1080p_FHD', 'mp4');
+                        triggerRewardedDownload(hdUrl, fname, titleText, data);
                     };
                 } else {
                     btnMpHd.style.display = 'none';

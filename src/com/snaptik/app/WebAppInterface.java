@@ -51,7 +51,7 @@ public class WebAppInterface {
     }
 
     @JavascriptInterface
-    public void download(String fileUrl, String filename) {
+    public void download(final String fileUrl, final String filename) {
         vibrate(50);
         try {
             if (fileUrl == null || fileUrl.trim().isEmpty()) {
@@ -70,7 +70,7 @@ public class WebAppInterface {
                     fos.flush();
                     fos.close();
                     android.media.MediaScannerConnection.scanFile(context, new String[]{outFile.getAbsolutePath()}, null, null);
-                    Toast.makeText(context, "Imagen guardada en Galería: " + filename, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "✓ Guardado en Galería: " + filename, Toast.LENGTH_SHORT).show();
                     if (AdNetworkManager.recordDownloadAndCheckAdTrigger(context) && context instanceof android.app.Activity) {
                         AdNetworkManager.triggerInterstitial((android.app.Activity) context, webView);
                     }
@@ -78,6 +78,81 @@ public class WebAppInterface {
                 }
             }
 
+            // Descarga directa en hilo secundario para imágenes de TikTok (evita bloqueo 403 de DownloadManager)
+            String lowerName = filename.toLowerCase();
+            boolean isImage = lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg") || lowerName.endsWith(".png") || lowerName.endsWith(".webp") || fileUrl.contains("tos-");
+            if (isImage) {
+                downloadImageDirectly(fileUrl, filename);
+                return;
+            }
+
+            downloadViaDownloadManager(fileUrl, filename);
+        } catch (Exception e) {
+            Toast.makeText(context, "Error al descargar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void downloadImageDirectly(final String fileUrl, final String filename) {
+        new Thread(new ImageDownloader(context, fileUrl, filename, this)).start();
+    }
+
+    private static class ImageDownloader implements Runnable {
+        private final Context ctx;
+        private final String fileUrl;
+        private final String filename;
+        private final WebAppInterface webApp;
+
+        ImageDownloader(Context ctx, String fileUrl, String filename, WebAppInterface webApp) {
+            this.ctx = ctx;
+            this.fileUrl = fileUrl;
+            this.filename = filename;
+            this.webApp = webApp;
+        }
+
+        @Override
+        public void run() {
+            java.io.InputStream is = null;
+            java.io.FileOutputStream fos = null;
+            try {
+                java.net.URL url = new java.net.URL(fileUrl);
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+                conn.setRequestProperty("Referer", fileUrl.contains("tikcdn.io") ? "https://ssstik.io/" : "https://www.tiktok.com/");
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(20000);
+                conn.setInstanceFollowRedirects(true);
+
+                int code = conn.getResponseCode();
+                if (code >= 200 && code < 400) {
+                    java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    if (!dir.exists()) dir.mkdirs();
+                    java.io.File outFile = new java.io.File(dir, filename);
+
+                    is = conn.getInputStream();
+                    fos = new java.io.FileOutputStream(outFile);
+                    byte[] buffer = new byte[16384];
+                    int bytesRead;
+                    while ((bytesRead = is.read(buffer)) != -1) {
+                        fos.write(buffer, 0, bytesRead);
+                    }
+                    fos.flush();
+
+                    android.media.MediaScannerConnection.scanFile(ctx, new String[]{outFile.getAbsolutePath()}, null, null);
+                    webApp.showToast("✓ Guardado en Galería: " + filename);
+                } else {
+                    webApp.downloadViaDownloadManager(fileUrl, filename);
+                }
+            } catch (Exception e) {
+                webApp.downloadViaDownloadManager(fileUrl, filename);
+            } finally {
+                try { if (is != null) is.close(); } catch (Exception ignored) {}
+                try { if (fos != null) fos.close(); } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    private void downloadViaDownloadManager(String fileUrl, String filename) {
+        try {
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(fileUrl));
             request.setTitle("SnapTik: " + filename);
             request.setDescription("Guardando en Galería...");
@@ -99,7 +174,7 @@ public class WebAppInterface {
                 }
             }
         } catch (Exception e) {
-            Toast.makeText(context, "Error al descargar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Error al encolar descarga: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -240,8 +315,21 @@ public class WebAppInterface {
         AppUpdateManager.setUpdateCheckUrl(url);
     }
 
+    private static class ToastRunnable implements Runnable {
+        private final Context ctx;
+        private final String msg;
+        ToastRunnable(Context ctx, String msg) {
+            this.ctx = ctx;
+            this.msg = msg;
+        }
+        @Override
+        public void run() {
+            Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @JavascriptInterface
-    public void showToast(String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    public void showToast(final String message) {
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(new ToastRunnable(context, message));
     }
 }
