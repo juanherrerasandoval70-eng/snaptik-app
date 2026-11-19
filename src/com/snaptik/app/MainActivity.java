@@ -14,6 +14,35 @@ import android.webkit.WebView;
 public class MainActivity extends Activity {
 
     public WebView webView;
+    private String lastAutoPastedUrl = "";
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkClipboardForTikTokLink();
+    }
+
+    private void checkClipboardForTikTokLink() {
+        try {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            if (clipboard != null && clipboard.hasPrimaryClip()) {
+                android.content.ClipData clip = clipboard.getPrimaryClip();
+                if (clip != null && clip.getItemCount() > 0) {
+                    CharSequence text = clip.getItemAt(0).getText();
+                    if (text != null) {
+                        String str = text.toString().trim();
+                        if ((str.contains("tiktok.com/") || str.contains("douyin.com/")) && !str.equals(lastAutoPastedUrl)) {
+                            lastAutoPastedUrl = str;
+                            String safeText = str.replace("'", "\\'");
+                            if (webView != null) {
+                                webView.post(new EvaluateJsRunnable(webView, "if(window.onAutoPasteDetected) { window.onAutoPasteDetected('" + safeText + "'); }"));
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

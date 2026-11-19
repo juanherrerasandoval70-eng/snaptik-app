@@ -2650,6 +2650,17 @@
                 }
             };
 
+            window.onAutoPasteDetected = function(detectedUrl) {
+                if (detectedUrl && (detectedUrl.includes('tiktok.com') || detectedUrl.includes('douyin.com'))) {
+                    if (urlInput && urlInput.value !== detectedUrl.trim()) {
+                        urlInput.value = detectedUrl.trim();
+                        updateInputButtons();
+                        triggerHaptics(30);
+                        showHudToast('Enlace detectado desde TikTok');
+                    }
+                }
+            };
+
             const defaultCreatorSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIHJ4PSIxNiIgZmlsbD0iIzE4MTgxQiIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMzEiIHI9IjEzIiBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0xOCA2NmMwLTExIDEwLTE5IDIyLTE5czIyIDggMjIgMTkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=";
 
             function makeFileName(data, suffix, ext) {
@@ -2947,16 +2958,18 @@
                         triggerHaptics(40);
                         const b64List = data.images_preview || [];
                         data.images.forEach((imgUrl, idx) => {
-                            const fname = makeFileName(data, `foto_${idx + 1}`, 'jpg');
-                            const targetSrc = (b64List[idx] && b64List[idx].startsWith('data:')) ? b64List[idx] : imgUrl;
-                            if (window.AndroidApp) {
-                                window.AndroidApp.download(targetSrc, fname);
-                            } else {
-                                window.open(imgUrl, '_blank');
-                            }
+                            setTimeout(() => {
+                                const fname = makeFileName(data, `foto_${idx + 1}`, 'jpg');
+                                const targetSrc = (b64List[idx] && b64List[idx].startsWith('data:')) ? b64List[idx] : imgUrl;
+                                if (window.AndroidApp) {
+                                    window.AndroidApp.download(targetSrc, fname);
+                                } else {
+                                    window.open(imgUrl, '_blank');
+                                }
+                            }, idx * 180);
                         });
                         saveItemToLocalLibrary(data);
-                        showHudToast(`Guardando las ${data.images.length} fotos en Galería...`);
+                        showHudToast(`Descargando las ${data.images.length} fotos a tu Galería...`);
                     };
 
                     if (btnCurrentPhoto) {
