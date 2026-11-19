@@ -43,16 +43,16 @@ public class TikTokResolver {
                 }
             }
 
-            // Motor 1 (Principal): TikWM Direct HD API (JSON completo con avatar, cover, descripción, 720p y 1080p)
-            JSONObject tikwmResult = resolveViaTikWM(cleanUrl);
-            if (tikwmResult != null && tikwmResult.optBoolean("success", false)) {
-                return tikwmResult.toString();
-            }
-
-            // Motor 2 (Respaldo): SSSTik Protocol (Actualizado a selectores .ssr-ava, .ssr-caption, ssrPreview)
+            // Motor 1 (Principal): SSSTik Protocol (CDN limpia tikcdn.io que no bloquea en Android)
             JSONObject sssResult = resolveViaSSSTik(cleanUrl);
             if (sssResult != null && sssResult.optBoolean("success", false)) {
                 return sssResult.toString();
+            }
+
+            // Motor 2 (Respaldo): TikWM Direct HD API
+            JSONObject tikwmResult = resolveViaTikWM(cleanUrl);
+            if (tikwmResult != null && tikwmResult.optBoolean("success", false)) {
+                return tikwmResult.toString();
             }
 
             res.put("success", false);
