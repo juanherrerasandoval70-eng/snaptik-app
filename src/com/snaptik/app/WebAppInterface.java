@@ -78,9 +78,9 @@ public class WebAppInterface {
                 }
             }
 
-            // Descarga directa en hilo secundario para imágenes de TikTok (evita bloqueo 403 de DownloadManager)
+            // Descarga directa en hilo secundario únicamente para imágenes de fotos/carrusel (.jpg, .png, .webp)
             String lowerName = filename.toLowerCase();
-            boolean isImage = lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg") || lowerName.endsWith(".png") || lowerName.endsWith(".webp") || fileUrl.contains("tos-");
+            boolean isImage = lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg") || lowerName.endsWith(".png") || lowerName.endsWith(".webp");
             if (isImage) {
                 downloadImageDirectly(fileUrl, filename);
                 return;
@@ -153,6 +153,13 @@ public class WebAppInterface {
 
     private void downloadViaDownloadManager(String fileUrl, String filename) {
         try {
+            try {
+                java.io.File destFile = new java.io.File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename);
+                if (destFile.exists()) {
+                    destFile.delete();
+                }
+            } catch (Exception ignored) {}
+
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(fileUrl));
             request.setTitle("SnapTik: " + filename);
             request.setDescription("Guardando en Galería...");
