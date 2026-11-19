@@ -2822,8 +2822,8 @@
                     videoPlayer.removeAttribute('poster');
                     videoPlayer.preload = 'metadata';
 
-                    const primaryStream = data.hd_url || data.preview_url || data.video_url;
-                    const backupStream = (primaryStream === data.video_url) ? data.hd_url : data.video_url;
+                    const primaryStream = data.preview_url || data.hd_url || data.video_url;
+                    const backupStream = (primaryStream === data.video_url) ? (data.hd_url || data.preview_url) : data.video_url;
 
                     videoPlayer.onloadedmetadata = function() {
                         const vw = videoPlayer.videoWidth || data.width || 0;

@@ -359,6 +359,10 @@ public class TikTokResolver {
                         if (slideObj != null) {
                             String slideUrl = slideObj.optString("url", "");
                             if (!slideUrl.isEmpty()) {
+                                if (!slideUrl.startsWith("https://tikcdn.io/")) {
+                                    String b64Img = Base64.encodeToString(slideUrl.getBytes("UTF-8"), Base64.NO_WRAP);
+                                    slideUrl = "https://tikcdn.io/ssstik/" + b64Img;
+                                }
                                 imagesArr.put(slideUrl);
                                 if (previewImagesArr.length() < 10) {
                                     String b64 = fetchImageAsDataUri(slideUrl);
@@ -370,7 +374,15 @@ public class TikTokResolver {
                         }
                     }
                     if (audioUrl.isEmpty()) {
-                        audioUrl = slidesJson.optString("music", "");
+                        String rawMusic = slidesJson.optString("music", "");
+                        if (!rawMusic.isEmpty()) {
+                            if (!rawMusic.startsWith("https://tikcdn.io/")) {
+                                String b64Music = Base64.encodeToString(rawMusic.getBytes("UTF-8"), Base64.NO_WRAP);
+                                audioUrl = "https://tikcdn.io/ssstik/m/" + b64Music;
+                            } else {
+                                audioUrl = rawMusic;
+                            }
+                        }
                     }
                 } catch (Exception ignored) {}
             }
