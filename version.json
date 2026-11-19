@@ -1,7 +1,7 @@
 {
-  "versionCode": 2,
-  "versionName": "2.0.0",
-  "apkUrl": "https://github.com/juanherrerasandoval70-eng/snaptik-app/releases/download/v2.0.0/SnapTik_PRO_v2.0.0.apk",
-  "changelog": "• Servidores CDN de alta velocidad\n• Descargas Full HD 1080p sin marca de agua\n• Sistema de actualización automática",
-  "forceUpdate": false
+  "versionCode": 3,
+  "versionName": "2.1.0",
+  "apkUrl": "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/dist/SnapTik_PRO_v1.0.apk",
+  "changelog": "• Soporte completo de carruseles de fotos con música\n• Descarga en 4K Ultra HD, 1080p, 720p y MP3 320kbps\n• Interfaz más limpia y rápida",
+  "forceUpdate": true
 }
