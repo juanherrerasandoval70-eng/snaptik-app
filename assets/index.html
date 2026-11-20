@@ -2850,6 +2850,10 @@
                         if (tag4kBadge) {
                             tag4kBadge.textContent = '4K UHD';
                         }
+                        const s4k = document.getElementById('lbl4kSubhead');
+                        if (s4k) {
+                            s4k.textContent = 'Calidad máxima original' + (data.hd_size_mb ? ' • ' + data.hd_size_mb : '');
+                        }
                         btn4k.onclick = () => {
                             triggerHaptics(40);
                             syncSelectedModeUI('4k');
@@ -2867,7 +2871,7 @@
                 if (hdUrl && (!isPhotoAlbum || isActualVideo)) {
                     btnMpHd.style.display = 'flex';
                     const titleText = isPhotoAlbum ? 'Descargar Vídeo Completo (MP4)' : 'Descargar Full HD (1080p)';
-                    const subText = isPhotoAlbum ? 'Vídeo animado con música y fotos' : 'Máxima tasa de bits 60FPS sin marca';
+                    const subText = isPhotoAlbum ? 'Vídeo animado con música y fotos' : ('Máxima tasa de bits 60FPS sin marca' + (data.hd_size_mb ? ' • ' + data.hd_size_mb : ''));
                     const hLine = btnMpHd.querySelector('.tier-headline');
                     if (hLine) hLine.textContent = titleText;
                     const sLine = document.getElementById('lbl1080pSubhead');
@@ -2886,19 +2890,24 @@
                 }
 
                 // 3. MP4 Standard Action (720p)
-                if (data.video_url && !isPhotoAlbum) {
+                const stdUrl = data.video_url || data.sd_url;
+                if (stdUrl && !isPhotoAlbum) {
                     btnMp4.style.display = 'flex';
                     if (tag720pBadge) {
                         tag720pBadge.textContent = '720p';
+                    }
+                    const sLine720 = document.getElementById('lbl720pSubhead');
+                    if (sLine720) {
+                        sLine720.textContent = 'Calidad estándar rápida' + (data.size_mb ? ' • ' + data.size_mb : '');
                     }
                     btnMp4.onclick = () => {
                         triggerHaptics(40);
                         syncSelectedModeUI('720p');
                         const fname = makeFileName(data, '720p_HD', 'mp4');
                         if (window.AndroidApp) {
-                            window.AndroidApp.download(data.video_url, fname);
+                            window.AndroidApp.download(stdUrl, fname);
                         } else {
-                            window.open(data.video_url, '_blank');
+                            window.open(stdUrl, '_blank');
                         }
                         saveItemToLocalLibrary(data);
                         showHudToast('Descarga 720p iniciada...');
