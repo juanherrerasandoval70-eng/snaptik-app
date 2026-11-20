@@ -1,6 +1,10 @@
 package com.snaptik.app;
 
 import android.app.DownloadManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +12,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.webkit.JavascriptInterface;
@@ -70,6 +75,8 @@ public class WebAppInterface {
                     fos.flush();
                     fos.close();
                     android.media.MediaScannerConnection.scanFile(context, new String[]{outFile.getAbsolutePath()}, null, null);
+                    dispatchDownloadComplete(filename, outFile.getAbsolutePath(), false);
+                    showSystemDownloadCompleteNotification(context, filename);
                     Toast.makeText(context, "✓ Guardado en Galería: " + filename, Toast.LENGTH_SHORT).show();
                     if (AdNetworkManager.recordDownloadAndCheckAdTrigger(context) && context instanceof android.app.Activity) {
                         AdNetworkManager.triggerInterstitial((android.app.Activity) context, webView);
@@ -83,6 +90,91 @@ public class WebAppInterface {
             downloadFastMediaDirectly(fileUrl, filename);
         } catch (Exception e) {
             Toast.makeText(context, "Error al descargar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void dispatchDownloadProgress(final String filename, final int percent, final long downloaded, final long total) {
+        if (webView != null) {
+            final String safeName = filename != null ? filename.replace("'", "\\'") : "";
+            final String js = "if(typeof window.onFastDownloadProgress==='function'){window.onFastDownloadProgress('" + safeName + "', " + percent + ", " + downloaded + ", " + total + ");}";
+            webView.post(new EvaluateJsRunnable(webView, js));
+        }
+    }
+
+    public void dispatchDownloadComplete(final String filename, final String filePath, final boolean isVideo) {
+        if (webView != null) {
+            final String safeName = filename != null ? filename.replace("'", "\\'") : "";
+            final String safePath = filePath != null ? filePath.replace("\\", "/").replace("'", "\\'") : "";
+            final String js = "if(typeof window.onFastDownloadComplete==='function'){window.onFastDownloadComplete('" + safeName + "', '" + safePath + "', " + isVideo + ");}";
+            webView.post(new EvaluateJsRunnable(webView, js));
+        }
+    }
+
+    public static void showSystemDownloadCompleteNotification(Context ctx, String filename) {
+        try {
+            NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
+            String channelId = "snaptik_media_dl";
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(
+                    channelId, "Descargas SnapTik PRO", NotificationManager.IMPORTANCE_DEFAULT);
+                channel.setDescription("Notificaciones de descargas multimedia finalizadas");
+                nm.createNotificationChannel(channel);
+            }
+
+            Intent openIntent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+            openIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
+                (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE) :
+                PendingIntent.FLAG_UPDATE_CURRENT;
+            PendingIntent pi = PendingIntent.getActivity(ctx, (int) (System.currentTimeMillis() % 100000), openIntent, flags);
+
+            Notification.Builder nb;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                nb = new Notification.Builder(ctx, channelId);
+            } else {
+                nb = new Notification.Builder(ctx);
+            }
+            nb.setSmallIcon(android.R.drawable.stat_sys_download_done)
+              .setContentTitle("✓ Descarga completada")
+              .setContentText(filename + " guardado en Galería")
+              .setContentIntent(pi)
+              .setAutoCancel(true);
+
+            nm.notify((int) (System.currentTimeMillis() % 100000), nb.build());
+        } catch (Exception ignored) {}
+    }
+
+    @JavascriptInterface
+    public void openDownloadedFile(String filename) {
+        vibrate(20);
+        try {
+            java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            java.io.File file = new java.io.File(dir, filename);
+            if (!file.exists()) {
+                openDownloadsFolder();
+                return;
+            }
+            try {
+                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                StrictMode.setVmPolicy(builder.build());
+            } catch (Exception ignored) {}
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            Uri uri = Uri.fromFile(file);
+            String mime = "video/mp4";
+            String lower = filename.toLowerCase();
+            if (lower.endsWith(".mp3")) mime = "audio/mpeg";
+            else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) mime = "image/jpeg";
+            else if (lower.endsWith(".png")) mime = "image/png";
+            else if (lower.endsWith(".webp")) mime = "image/webp";
+
+            intent.setDataAndType(uri, mime);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            openDownloadsFolder();
         }
     }
 
@@ -155,14 +247,27 @@ public class WebAppInterface {
                     fos = new java.io.FileOutputStream(outFile);
                     bos = new java.io.BufferedOutputStream(fos, 131072);
 
+                    long totalBytes = conn.getContentLengthLong();
+                    long downloadedBytes = 0;
                     byte[] buffer = new byte[131072]; // Búfer de 128 KB para saturación óptima de ancho de banda
                     int bytesRead;
+                    int lastReported = 0;
                     while ((bytesRead = bis.read(buffer)) != -1) {
                         bos.write(buffer, 0, bytesRead);
+                        downloadedBytes += bytesRead;
+                        if (totalBytes > 0) {
+                            int pct = (int) ((downloadedBytes * 100) / totalBytes);
+                            if (pct >= lastReported + 8 || pct == 100) {
+                                lastReported = pct;
+                                webApp.dispatchDownloadProgress(filename, pct, downloadedBytes, totalBytes);
+                            }
+                        }
                     }
                     bos.flush();
 
                     android.media.MediaScannerConnection.scanFile(ctx, new String[]{outFile.getAbsolutePath()}, null, null);
+                    webApp.dispatchDownloadComplete(filename, outFile.getAbsolutePath(), filename.toLowerCase().endsWith(".mp4"));
+                    showSystemDownloadCompleteNotification(ctx, filename);
                     webApp.showToast("✓ Guardado en Galería: " + filename);
                     webApp.vibrate(25);
 

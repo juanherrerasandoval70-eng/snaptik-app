@@ -1565,6 +1565,223 @@
         .media-player-frame { max-height: 330px !important; border-radius: 16px !important; }
         .carousel-top-counter { left: 50% !important; transform: translateX(-50%); }
         .carousel-nav-btn { width: 32px !important; height: 32px !important; }
+
+        /* Floating Active Download Bento Card */
+        .active-download-card {
+            position: fixed;
+            bottom: 84px;
+            left: 16px;
+            right: 16px;
+            z-index: 9500;
+            background: linear-gradient(180deg, rgba(24, 24, 30, 0.97) 0%, rgba(12, 12, 16, 0.98) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 13px 14px;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85), 0 0 20px rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            opacity: 0;
+            transform: translateY(24px) scale(0.96);
+            pointer-events: none;
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .active-download-card.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .dl-card-glow-line {
+            position: absolute;
+            top: 0;
+            left: 15%;
+            right: 15%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+        }
+
+        .dl-card-main-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dl-card-thumb-box {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            border-radius: 13px;
+            overflow: hidden;
+            background: #101014;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .dl-card-thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .dl-card-spinner-ring {
+            position: absolute;
+            inset: 0;
+            border: 2.5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #FFFFFF;
+            border-radius: 13px;
+            animation: dlSpinRing 0.9s linear infinite;
+        }
+
+        @keyframes dlSpinRing {
+            to { transform: rotate(360deg); }
+        }
+
+        .dl-card-success-badge {
+            position: absolute;
+            inset: 0;
+            background: rgba(16, 185, 129, 0.9);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 13px;
+            animation: popCheck 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popCheck {
+            0% { transform: scale(0.4); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .dl-card-info-col {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .dl-card-header-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .dl-card-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dl-card-pill-tag {
+            font-size: 0.60rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #FFFFFF;
+            color: #0A0A0C;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .dl-card-status-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.70rem;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .dl-card-percent-text {
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .dl-card-track {
+            width: 100%;
+            height: 5px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+            position: relative;
+            margin-top: 2px;
+        }
+
+        .dl-card-progress-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #FFFFFF 0%, #A0A5B5 100%);
+            transition: width 0.25s ease-out;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+        }
+
+        .dl-card-close {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.72rem;
+            flex-shrink: 0;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .dl-card-close:active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+        }
+
+        .dl-card-actions-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dl-card-action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.15s, opacity 0.15s;
+        }
+
+        .dl-card-action-btn:active {
+            transform: scale(0.97);
+        }
+
+        .dl-btn-white {
+            background: #FFFFFF;
+            color: #0A0A0C;
+        }
+
+        .dl-btn-graphite {
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
     </style>
 </head>
 <body>
@@ -2270,6 +2487,58 @@
         </button>
     </nav>
 
+    <!-- Floating Active Download Bento Card -->
+    <div id="activeDownloadCard" class="active-download-card">
+        <div class="dl-card-glow-line"></div>
+        <div class="dl-card-main-row">
+            <!-- Media Thumbnail with Progress Ring -->
+            <div class="dl-card-thumb-box">
+                <img id="dlCardThumb" src="" alt="" class="dl-card-thumb-img">
+                <div id="dlCardSpinnerRing" class="dl-card-spinner-ring"></div>
+                <div id="dlCardSuccessBadge" class="dl-card-success-badge" style="display: none;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Download Metadata & Progress -->
+            <div class="dl-card-info-col">
+                <div class="dl-card-header-line">
+                    <span id="dlCardTitle" class="dl-card-title">Descargando multimedia...</span>
+                    <span id="dlCardPillBadge" class="dl-card-pill-tag">1080p FHD</span>
+                </div>
+                <div class="dl-card-status-line">
+                    <span id="dlCardStatusText" class="dl-card-status-text">Iniciando descarga acelerada...</span>
+                    <span id="dlCardPercentText" class="dl-card-percent-text">0%</span>
+                </div>
+                <!-- Shimmering Progress Bar Track -->
+                <div class="dl-card-track">
+                    <div id="dlCardProgressBar" class="dl-card-progress-bar"></div>
+                </div>
+            </div>
+
+            <!-- Dismiss Button -->
+            <button type="button" id="btnDismissDlCard" class="dl-card-close" aria-label="Cerrar">✕</button>
+        </div>
+
+        <!-- Action Buttons (Shown when download is complete) -->
+        <div id="dlCardActionsRow" class="dl-card-actions-row" style="display: none;">
+            <button type="button" id="btnDlCardOpenMedia" class="dl-card-action-btn dl-btn-white">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                <span>Reproducir</span>
+            </button>
+            <button type="button" id="btnDlCardOpenFolder" class="dl-card-action-btn dl-btn-graphite">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>Ver en Galería</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Floating Monochrome HUD Toast -->
     <div id="monoToastHud" class="mono-toast-hud">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -2301,6 +2570,144 @@
                 toast.classList.add('show');
                 setTimeout(() => toast.classList.remove('show'), 2400);
             }
+
+            // Active Download Bento Card Controller
+            const activeDlCard = document.getElementById('activeDownloadCard');
+            const dlCardThumb = document.getElementById('dlCardThumb');
+            const dlCardSpinner = document.getElementById('dlCardSpinnerRing');
+            const dlCardSuccess = document.getElementById('dlCardSuccessBadge');
+            const dlCardTitle = document.getElementById('dlCardTitle');
+            const dlCardBadge = document.getElementById('dlCardPillBadge');
+            const dlCardStatus = document.getElementById('dlCardStatusText');
+            const dlCardPercent = document.getElementById('dlCardPercentText');
+            const dlCardBar = document.getElementById('dlCardProgressBar');
+            const dlCardActions = document.getElementById('dlCardActionsRow');
+            const btnDlOpenMedia = document.getElementById('btnDlCardOpenMedia');
+            const btnDlOpenFolder = document.getElementById('btnDlCardOpenFolder');
+            const btnDismissDl = document.getElementById('btnDismissDlCard');
+
+            let activeDlFilename = '';
+            let activeDlAutoCloseTimer = null;
+            let activeDlSimInterval = null;
+
+            function triggerDownloadWithCard(url, fname, qualityLabel, itemData) {
+                if (itemData) saveItemToLocalLibrary(itemData);
+                showDownloadCardUI(fname, qualityLabel, itemData);
+
+                if (window.AndroidApp) {
+                    window.AndroidApp.download(url, fname);
+                } else {
+                    window.open(url, '_blank');
+                    setTimeout(() => onDownloadFinished(fname), 1800);
+                }
+            }
+
+            function showDownloadCardUI(fname, qualityLabel, itemData) {
+                if (activeDlAutoCloseTimer) clearTimeout(activeDlAutoCloseTimer);
+                if (activeDlSimInterval) clearInterval(activeDlSimInterval);
+
+                activeDlFilename = fname;
+                const cover = (itemData && (itemData.cover_url || itemData.raw_cover_url || (itemData.images && itemData.images[0]) || (itemData.author && itemData.author.avatar))) || defaultCreatorSvg;
+                const title = (itemData && itemData.title && itemData.title.trim().length > 0) ? itemData.title : 'Vídeo sin marca de agua';
+
+                dlCardThumb.src = cover;
+                dlCardTitle.textContent = title;
+                dlCardBadge.textContent = qualityLabel || 'DESCARGA';
+                dlCardStatus.textContent = 'Descargando a 128 KB/s...';
+                dlCardPercent.textContent = '0%';
+                dlCardBar.style.width = '0%';
+                dlCardBar.style.background = 'linear-gradient(90deg, #FFFFFF 0%, #A0A5B5 100%)';
+                dlCardSpinner.style.display = 'block';
+                dlCardSuccess.style.display = 'none';
+                dlCardActions.style.display = 'none';
+
+                activeDlCard.classList.add('show');
+                triggerHaptics(30);
+
+                let currentSim = 6;
+                dlCardBar.style.width = currentSim + '%';
+                dlCardPercent.textContent = currentSim + '%';
+
+                activeDlSimInterval = setInterval(() => {
+                    if (currentSim < 92) {
+                        currentSim += Math.floor(Math.random() * 12) + 7;
+                        if (currentSim > 92) currentSim = 92;
+                        dlCardBar.style.width = currentSim + '%';
+                        dlCardPercent.textContent = currentSim + '%';
+                    }
+                }, 180);
+            }
+
+            function onDownloadProgress(fname, pct, downloaded, total) {
+                if (!activeDlCard.classList.contains('show')) return;
+                if (activeDlFilename && fname && activeDlFilename !== fname) return;
+                if (activeDlSimInterval) {
+                    clearInterval(activeDlSimInterval);
+                    activeDlSimInterval = null;
+                }
+                const p = Math.min(100, Math.max(0, pct));
+                dlCardBar.style.width = p + '%';
+                dlCardPercent.textContent = p + '%';
+                dlCardStatus.textContent = 'Descargando (' + p + '%)...';
+                if (p >= 100) {
+                    onDownloadFinished(fname);
+                }
+            }
+
+            function onDownloadFinished(fname) {
+                if (activeDlSimInterval) {
+                    clearInterval(activeDlSimInterval);
+                    activeDlSimInterval = null;
+                }
+                dlCardBar.style.width = '100%';
+                dlCardBar.style.background = '#10B981';
+                dlCardPercent.textContent = '100%';
+                dlCardStatus.textContent = '✓ Guardado en tu Galería';
+                dlCardSpinner.style.display = 'none';
+                dlCardSuccess.style.display = 'flex';
+                dlCardActions.style.display = 'flex';
+
+                triggerHaptics(40);
+
+                if (activeDlAutoCloseTimer) clearTimeout(activeDlAutoCloseTimer);
+                activeDlAutoCloseTimer = setTimeout(() => {
+                    activeDlCard.classList.remove('show');
+                }, 9000);
+            }
+
+            window.onFastDownloadProgress = function(fname, pct, down, total) {
+                onDownloadProgress(fname, pct, down, total);
+            };
+
+            window.onFastDownloadComplete = function(fname, fpath, isVideo) {
+                onDownloadFinished(fname);
+            };
+
+            btnDlOpenMedia.addEventListener('click', () => {
+                triggerHaptics(25);
+                if (window.AndroidApp && typeof window.AndroidApp.openDownloadedFile === 'function') {
+                    window.AndroidApp.openDownloadedFile(activeDlFilename);
+                } else if (window.AndroidApp && typeof window.AndroidApp.openDownloadsFolder === 'function') {
+                    window.AndroidApp.openDownloadsFolder();
+                } else {
+                    showHudToast('Guardado en Descargas');
+                }
+            });
+
+            btnDlOpenFolder.addEventListener('click', () => {
+                triggerHaptics(20);
+                if (window.AndroidApp && typeof window.AndroidApp.openDownloadsFolder === 'function') {
+                    window.AndroidApp.openDownloadsFolder();
+                } else {
+                    showHudToast('Archivos guardados en tu galería');
+                }
+            });
+
+            btnDismissDl.addEventListener('click', () => {
+                triggerHaptics(15);
+                activeDlCard.classList.remove('show');
+                if (activeDlAutoCloseTimer) clearTimeout(activeDlAutoCloseTimer);
+            });
 
             // Tabs Navigation
             const navButtons = document.querySelectorAll('.dock-nav-item');
@@ -2904,13 +3311,7 @@
                         triggerHaptics(40);
                         syncSelectedModeUI('720p');
                         const fname = makeFileName(data, '720p_HD', 'mp4');
-                        if (window.AndroidApp) {
-                            window.AndroidApp.download(stdUrl, fname);
-                        } else {
-                            window.open(stdUrl, '_blank');
-                        }
-                        saveItemToLocalLibrary(data);
-                        showHudToast('Descarga 720p iniciada...');
+                        triggerDownloadWithCard(stdUrl, fname, '720p HD', data);
                     };
                 } else {
                     btnMp4.style.display = 'none';
@@ -2924,13 +3325,7 @@
                         btnSd.onclick = () => {
                             triggerHaptics(35);
                             const fname = makeFileName(data, '480p_SD', 'mp4');
-                            if (window.AndroidApp) {
-                                window.AndroidApp.download(sdUrl, fname);
-                            } else {
-                                window.open(sdUrl, '_blank');
-                            }
-                            saveItemToLocalLibrary(data);
-                            showHudToast('Descarga ligera 480p iniciada...');
+                            triggerDownloadWithCard(sdUrl, fname, '480p SD', data);
                         };
                     } else {
                         btnSd.style.display = 'none';
@@ -2946,19 +3341,20 @@
                     btnPhotos.onclick = () => {
                         triggerHaptics(40);
                         const b64List = data.images_preview || [];
-                        data.images.forEach((imgUrl, idx) => {
+                        const firstSrc = (b64List[0] && b64List[0].startsWith('data:')) ? b64List[0] : data.images[0];
+                        const mainFname = makeFileName(data, 'foto_1', 'jpg');
+                        triggerDownloadWithCard(firstSrc, mainFname, `${data.images.length} FOTOS`, data);
+                        data.images.slice(1).forEach((imgUrl, idx) => {
                             setTimeout(() => {
-                                const fname = makeFileName(data, `foto_${idx + 1}`, 'jpg');
-                                const targetSrc = (b64List[idx] && b64List[idx].startsWith('data:')) ? b64List[idx] : imgUrl;
+                                const fname = makeFileName(data, `foto_${idx + 2}`, 'jpg');
+                                const targetSrc = (b64List[idx + 1] && b64List[idx + 1].startsWith('data:')) ? b64List[idx + 1] : imgUrl;
                                 if (window.AndroidApp) {
                                     window.AndroidApp.download(targetSrc, fname);
                                 } else {
                                     window.open(imgUrl, '_blank');
                                 }
-                            }, idx * 180);
+                            }, (idx + 1) * 200);
                         });
-                        saveItemToLocalLibrary(data);
-                        showHudToast(`Descargando las ${data.images.length} fotos a tu Galería...`);
                     };
 
                     if (btnCurrentPhoto) {
@@ -2969,13 +3365,7 @@
                             const idx = activeCarouselIdx || 0;
                             const fname = makeFileName(data, `foto_${idx + 1}`, 'jpg');
                             const targetSrc = (b64List[idx] && b64List[idx].startsWith('data:')) ? b64List[idx] : data.images[idx];
-                            if (window.AndroidApp) {
-                                window.AndroidApp.download(targetSrc, fname);
-                            } else {
-                                window.open(data.images[idx], '_blank');
-                            }
-                            saveItemToLocalLibrary(data);
-                            showHudToast(`Foto #${idx + 1} guardada en Galería`);
+                            triggerDownloadWithCard(targetSrc, fname, `FOTO #${idx + 1}`, data);
                         };
                     }
                 } else {
@@ -2997,13 +3387,7 @@
                         triggerHaptics(40);
                         if (!isPhotoAlbum) syncSelectedModeUI('audio');
                         const fname = makeFileName(data, 'AUDIO_320K', 'mp3');
-                        if (window.AndroidApp) {
-                            window.AndroidApp.download(audioStreamUrl, fname);
-                        } else {
-                            window.open(audioStreamUrl, '_blank');
-                        }
-                        saveItemToLocalLibrary(data);
-                        showHudToast('Descargando música MP3...');
+                        triggerDownloadWithCard(audioStreamUrl, fname, 'AUDIO MP3', data);
                     };
                 } else {
                     btnMp3.style.display = 'none';
@@ -3036,12 +3420,7 @@
                     const coverSrc = activeResolvedData.cover_url || activeResolvedData.raw_cover_url || (activeResolvedData.images && activeResolvedData.images[0]);
                     if (!coverSrc) return;
                     const fname = `tiktok_${activeResolvedData.id || Date.now()}_PORTADA_HD.jpg`;
-                    if (window.AndroidApp) {
-                        window.AndroidApp.download(coverSrc, fname);
-                    } else {
-                        window.open(coverSrc, '_blank');
-                    }
-                    showHudToast('Guardando portada HD en Galería...');
+                    triggerDownloadWithCard(coverSrc, fname, 'PORTADA HD', activeResolvedData);
                 });
             }
 
@@ -3249,19 +3628,11 @@
                 if (isAdultOn && window.AndroidApp && typeof window.AndroidApp.requestRewardedVideo === 'function') {
                     showHudToast(`Preparando descarga ${label}...`);
                     pendingRewardAction = () => {
-                        window.AndroidApp.download(url, fname);
-                        saveItemToLocalLibrary(itemData);
-                        showHudToast(`Descargando ${label}...`);
+                        triggerDownloadWithCard(url, fname, label, itemData);
                     };
                     window.AndroidApp.requestRewardedVideo();
                 } else {
-                    if (window.AndroidApp) {
-                        window.AndroidApp.download(url, fname);
-                    } else {
-                        window.open(url, '_blank');
-                    }
-                    saveItemToLocalLibrary(itemData);
-                    showHudToast(`Descargando ${label}...`);
+                    triggerDownloadWithCard(url, fname, label, itemData);
                 }
             }
 
