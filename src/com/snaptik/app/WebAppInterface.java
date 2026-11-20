@@ -78,31 +78,47 @@ public class WebAppInterface {
                 }
             }
 
-            // Descarga directa en hilo secundario únicamente para imágenes de fotos/carrusel (.jpg, .png, .webp)
-            String lowerName = filename.toLowerCase();
-            boolean isImage = lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg") || lowerName.endsWith(".png") || lowerName.endsWith(".webp");
-            if (isImage) {
-                downloadImageDirectly(fileUrl, filename);
-                return;
-            }
-
-            downloadViaDownloadManager(fileUrl, filename);
+            // Descarga directa acelerada en hilo secundario (Videos MP4, Audios MP3 e Imágenes)
+            // Utiliza búfer optimizado de 128 KB, conexión directa HTTP/HTTPS y fallback a DownloadManager
+            downloadFastMediaDirectly(fileUrl, filename);
         } catch (Exception e) {
             Toast.makeText(context, "Error al descargar: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
-    private void downloadImageDirectly(final String fileUrl, final String filename) {
-        new Thread(new ImageDownloader(context, fileUrl, filename, this)).start();
+    private static class TriggerInterstitialRunnable implements Runnable {
+        private final android.app.Activity activity;
+        private final WebView webView;
+
+        TriggerInterstitialRunnable(android.app.Activity activity, WebView webView) {
+            this.activity = activity;
+            this.webView = webView;
+        }
+
+        @Override
+        public void run() {
+            AdNetworkManager.triggerInterstitial(activity, webView);
+        }
     }
 
-    private static class ImageDownloader implements Runnable {
+    public void triggerInterstitialOnUi() {
+        if (context instanceof android.app.Activity) {
+            android.app.Activity act = (android.app.Activity) context;
+            act.runOnUiThread(new TriggerInterstitialRunnable(act, webView));
+        }
+    }
+
+    private void downloadFastMediaDirectly(final String fileUrl, final String filename) {
+        new Thread(new FastMediaDownloader(context, fileUrl, filename, this)).start();
+    }
+
+    private static class FastMediaDownloader implements Runnable {
         private final Context ctx;
         private final String fileUrl;
         private final String filename;
         private final WebAppInterface webApp;
 
-        ImageDownloader(Context ctx, String fileUrl, String filename, WebAppInterface webApp) {
+        FastMediaDownloader(Context ctx, String fileUrl, String filename, WebAppInterface webApp) {
             this.ctx = ctx;
             this.fileUrl = fileUrl;
             this.filename = filename;
@@ -112,14 +128,17 @@ public class WebAppInterface {
         @Override
         public void run() {
             java.io.InputStream is = null;
+            java.io.BufferedInputStream bis = null;
             java.io.FileOutputStream fos = null;
+            java.io.BufferedOutputStream bos = null;
             try {
                 java.net.URL url = new java.net.URL(fileUrl);
                 java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
                 conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-                conn.setRequestProperty("Referer", fileUrl.contains("tikcdn.io") ? "https://ssstik.io/" : "https://www.tiktok.com/");
+                String referer = (fileUrl.contains("tikcdn.io") || fileUrl.contains("ssstik")) ? "https://ssstik.io/" : "https://www.tiktok.com/";
+                conn.setRequestProperty("Referer", referer);
                 conn.setConnectTimeout(15000);
-                conn.setReadTimeout(20000);
+                conn.setReadTimeout(30000);
                 conn.setInstanceFollowRedirects(true);
 
                 int code = conn.getResponseCode();
@@ -127,26 +146,39 @@ public class WebAppInterface {
                     java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                     if (!dir.exists()) dir.mkdirs();
                     java.io.File outFile = new java.io.File(dir, filename);
+                    if (outFile.exists()) {
+                        outFile.delete();
+                    }
 
                     is = conn.getInputStream();
+                    bis = new java.io.BufferedInputStream(is, 131072);
                     fos = new java.io.FileOutputStream(outFile);
-                    byte[] buffer = new byte[16384];
+                    bos = new java.io.BufferedOutputStream(fos, 131072);
+
+                    byte[] buffer = new byte[131072]; // Búfer de 128 KB para saturación óptima de ancho de banda
                     int bytesRead;
-                    while ((bytesRead = is.read(buffer)) != -1) {
-                        fos.write(buffer, 0, bytesRead);
+                    while ((bytesRead = bis.read(buffer)) != -1) {
+                        bos.write(buffer, 0, bytesRead);
                     }
-                    fos.flush();
+                    bos.flush();
 
                     android.media.MediaScannerConnection.scanFile(ctx, new String[]{outFile.getAbsolutePath()}, null, null);
                     webApp.showToast("✓ Guardado en Galería: " + filename);
+                    webApp.vibrate(25);
+
+                    if (AdNetworkManager.recordDownloadAndCheckAdTrigger(ctx)) {
+                        webApp.triggerInterstitialOnUi();
+                    }
                 } else {
                     webApp.downloadViaDownloadManager(fileUrl, filename);
                 }
             } catch (Exception e) {
                 webApp.downloadViaDownloadManager(fileUrl, filename);
             } finally {
-                try { if (is != null) is.close(); } catch (Exception ignored) {}
+                try { if (bos != null) bos.close(); } catch (Exception ignored) {}
                 try { if (fos != null) fos.close(); } catch (Exception ignored) {}
+                try { if (bis != null) bis.close(); } catch (Exception ignored) {}
+                try { if (is != null) is.close(); } catch (Exception ignored) {}
             }
         }
     }
