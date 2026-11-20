@@ -23,7 +23,8 @@ import java.net.URL;
 
 public class AppUpdateManager {
     private static final String TAG = "AppUpdateManager";
-    public static String UPDATE_CHECK_URL = "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/version.json";
+    public static String UPDATE_CHECK_URL = "https://snaptik-backend.onrender.com/api/version";
+    public static String FALLBACK_UPDATE_CHECK_URL = "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/version.json";
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
     private static boolean isDownloading = false;
 
@@ -113,6 +114,17 @@ public class AppUpdateManager {
                 conn.setRequestProperty("User-Agent", "SnapTikPRO-Updater/2.0");
 
                 int responseCode = conn.getResponseCode();
+                if (responseCode != 200) {
+                    try { conn.disconnect(); } catch (Exception ignored) {}
+                    url = new URL(FALLBACK_UPDATE_CHECK_URL);
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setConnectTimeout(8000);
+                    conn.setReadTimeout(8000);
+                    conn.setRequestMethod("GET");
+                    conn.setRequestProperty("User-Agent", "SnapTikPRO-Updater/2.0");
+                    responseCode = conn.getResponseCode();
+                }
+
                 if (responseCode == 200) {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                     StringBuilder sb = new StringBuilder();
