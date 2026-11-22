@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Result Deck
     const resultDeck = document.getElementById('mediaResultDeck');
+    const previewStageWrapper = document.getElementById('previewStageWrapper');
+    const previewAmbientBg = document.getElementById('previewAmbientBg');
     const videoPlayer = document.getElementById('playerNativeVideo');
     const photoStage = document.getElementById('photoCarouselStage');
     const carouselImg = document.getElementById('carouselActiveImg');
@@ -26,7 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const resAuthorAvatar = document.getElementById('resAuthorAvatar');
     const resAuthorHandle = document.getElementById('resAuthorHandle');
     const badgeDetectedRes = document.getElementById('badgeDetectedRes');
+    const btnFullscreenVideo = document.getElementById('btnFullscreenVideo');
     const btnDismissDeck = document.getElementById('btnDismissDeck');
+    const resVideoCaption = document.getElementById('resVideoCaption');
+    const chipRealResolution = document.getElementById('chipRealResolution');
+    const chipAspectRatio = document.getElementById('chipAspectRatio');
+    const chipRealDuration = document.getElementById('chipRealDuration');
 
     // Action Tiles
     const btnMpHd = document.getElementById('btnActionMpHd');
@@ -344,18 +351,42 @@ document.addEventListener('DOMContentLoaded', () => {
         resAuthorAvatar.onerror = () => { resAuthorAvatar.src = defaultCreatorSvg; };
         resAuthorHandle.textContent = handle + ' ✓';
 
-        // Resolution Badge
-        const resLabel = isPhotoAlbum
-            ? `${data.images.length} Fotos • HD`
-            : (data.is_4k ? '4K • 60 FPS' : '1080p • 60 FPS') + (data.hd_size_mb ? ' • ' + data.hd_size_mb : '');
-        badgeDetectedRes.textContent = resLabel;
+        // Ambient Blurred Backdrop
+        const ambientCover = data.cover_url || data.raw_cover_url || (isPhotoAlbum && data.images[0]) || '';
+        if (previewAmbientBg) {
+            previewAmbientBg.style.backgroundImage = ambientCover ? `url("${ambientCover}")` : 'none';
+        }
 
-        // Media Preview Stage
+        // Caption & Initial Metadata Chips
+        if (resVideoCaption) {
+            resVideoCaption.textContent = (data.title && data.title.trim().length > 0)
+                ? data.title : `Vídeo sin marca de agua de ${handle}`;
+        }
+
+        // Resolution Badge (initial, updated live in onloadedmetadata)
+        const initResLabel = isPhotoAlbum
+            ? `${data.images.length} Fotos • HD`
+            : (data.is_4k ? '4K UHD' : '1080p Full HD') + (data.hd_size_mb ? ' • ' + data.hd_size_mb : '');
+        badgeDetectedRes.textContent = initResLabel;
+        if (chipRealResolution) chipRealResolution.textContent = isPhotoAlbum ? `Álbum • ${data.images.length} fotos` : initResLabel;
+        if (chipAspectRatio) chipAspectRatio.textContent = isPhotoAlbum ? 'Carrusel HD' : 'Adaptando vídeo...';
+        if (chipRealDuration) {
+            if (!isPhotoAlbum && data.duration > 0) {
+                chipRealDuration.textContent = formatDuration(data.duration);
+                chipRealDuration.style.display = 'inline-flex';
+            } else {
+                chipRealDuration.style.display = 'none';
+            }
+        }
+
+        // Media Preview Stage (100% Full-Frame Adaptive Video Player)
         if (isPhotoAlbum) {
             videoPlayer.pause();
             videoPlayer.src = '';
             videoPlayer.style.display = 'none';
+            if (btnFullscreenVideo) btnFullscreenVideo.style.display = 'none';
             photoStage.style.display = 'flex';
+            if (previewStageWrapper) previewStageWrapper.style.aspectRatio = 'auto';
             activeCarouselIdx = 0;
             renderCarouselPhoto();
             if (data.audio_url) {
@@ -365,9 +396,59 @@ document.addEventListener('DOMContentLoaded', () => {
             photoStage.style.display = 'none';
             carouselAudio.pause();
             videoPlayer.style.display = 'block';
+            if (btnFullscreenVideo) btnFullscreenVideo.style.display = 'flex';
             const primaryStream = data.preview_url || data.video_url || data.hd_url;
             const backupStream = data.video_url || data.hd_url;
-            videoPlayer.poster = data.cover_url || data.raw_cover_url || '';
+            videoPlayer.poster = ambientCover;
+
+            // Real-time adaptive framing & exact pixel resolution detection
+            videoPlayer.onloadedmetadata = () => {
+                const vw = videoPlayer.videoWidth || data.width || 0;
+                const vh = videoPlayer.videoHeight || data.height || 0;
+                const realDur = (videoPlayer.duration && isFinite(videoPlayer.duration))
+                    ? Math.round(videoPlayer.duration) : (data.duration || 0);
+
+                if (vw > 0 && vh > 0) {
+                    const ratio = vw / vh;
+                    const maxDim = Math.max(vw, vh);
+                    const minDim = Math.min(vw, vh);
+
+                    // Adapt container aspect ratio cleanly so 100% of video frame is visible
+                    if (previewStageWrapper) {
+                        if (ratio < 0.85) {
+                            // Portrait (9:16 / 3:4): let video take natural height up to 68vh
+                            previewStageWrapper.style.aspectRatio = 'auto';
+                            videoPlayer.style.maxHeight = '68vh';
+                        } else if (ratio > 1.15) {
+                            // Landscape (16:9 / 4:3): exact widescreen ratio
+                            previewStageWrapper.style.aspectRatio = `${vw} / ${vh}`;
+                            videoPlayer.style.maxHeight = '52vh';
+                        } else {
+                            // Square (1:1)
+                            previewStageWrapper.style.aspectRatio = '1 / 1';
+                            videoPlayer.style.maxHeight = '58vh';
+                        }
+                    }
+
+                    // Live resolution classification
+                    let tier = `${minDim}p`;
+                    if (maxDim >= 2560 || minDim >= 1440) tier = '4K UHD';
+                    else if (maxDim >= 1800 || minDim >= 1000) tier = '1080p FHD';
+                    else if (maxDim >= 1200 || minDim >= 700) tier = '720p HD';
+
+                    const orientLabel = ratio < 0.85 ? 'Vertical 9:16' : (ratio > 1.15 ? 'Horizontal 16:9' : 'Cuadrado 1:1');
+                    const durStr = realDur > 0 ? formatDuration(realDur) : '';
+
+                    badgeDetectedRes.textContent = `${vw}×${vh} • ${tier}` + (durStr ? ` • ${durStr}` : '');
+                    if (chipRealResolution) chipRealResolution.textContent = `${vw}×${vh} • ${tier}`;
+                    if (chipAspectRatio) chipAspectRatio.textContent = orientLabel;
+                    if (chipRealDuration && durStr) {
+                        chipRealDuration.textContent = durStr;
+                        chipRealDuration.style.display = 'inline-flex';
+                    }
+                }
+            };
+
             videoPlayer.onerror = () => {
                 if (backupStream && videoPlayer.src !== backupStream) {
                     videoPlayer.src = backupStream;
@@ -496,6 +577,21 @@ document.addEventListener('DOMContentLoaded', () => {
         activeCarouselIdx = (activeCarouselIdx + 1) % activeResolvedData.images.length;
         renderCarouselPhoto();
     });
+
+    if (btnFullscreenVideo) {
+        btnFullscreenVideo.addEventListener('click', () => {
+            triggerHaptics(20);
+            try {
+                if (videoPlayer.requestFullscreen) {
+                    videoPlayer.requestFullscreen();
+                } else if (videoPlayer.webkitEnterFullscreen) {
+                    videoPlayer.webkitEnterFullscreen();
+                } else if (previewStageWrapper && previewStageWrapper.requestFullscreen) {
+                    previewStageWrapper.requestFullscreen();
+                }
+            } catch (e) {}
+        });
+    }
 
     btnDismissDeck.addEventListener('click', () => {
         triggerHaptics(18);
