@@ -814,10 +814,48 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveItemToLocalLibrary(item) {
         if (!item) return;
         let list = getHistory();
-        list = list.filter(x => x.id !== item.id);
+        const urlKey = item.source_url || '';
+        const authorId = (item.author && item.author.unique_id) ? item.author.unique_id : '';
+        list = list.filter(x => {
+            if (x.id && item.id && String(x.id) === String(item.id)) return false;
+            if (urlKey && x.source_url && x.source_url === urlKey) return false;
+            if (authorId && item.title && x.author && x.author.unique_id === authorId && x.title === item.title) return false;
+            return true;
+        });
         list.unshift(item);
         if (list.length > 30) list.pop();
         try { localStorage.setItem('snaptik_pro_history', JSON.stringify(list)); } catch (e) {}
+    }
+
+    function isLowResAvatarCover(item, thumb) {
+        if (!thumb || thumb === defaultCreatorSvg) return true;
+        const avatar = (item.author && item.author.avatar) ? item.author.avatar : '';
+        if (avatar && thumb === avatar && !(item.raw_cover_url && item.raw_cover_url !== avatar)) return true;
+        if (thumb.includes('100x100') || thumb.includes('avt-')) return true;
+        return false;
+    }
+
+    function getRealQualityTag(item, isPhoto) {
+        if (isPhoto) return 'ÁLBUM';
+        if (item.is_4k) return '4K';
+        const w = parseInt(item.width, 10) || 0;
+        const h = parseInt(item.height, 10) || 0;
+        const maxD = Math.max(w, h);
+        const minD = Math.min(w, h);
+        if (maxD >= 2560 || minD >= 1440) return '4K';
+        if (maxD >= 1800 || minD >= 1000) return '1080p';
+        if (maxD >= 1200 || minD >= 700) return '720p';
+        if (minD > 0) return `${minD}p`;
+        return item.hd_size_mb ? item.hd_size_mb : 'HD';
+    }
+
+    function getLeftMetaPill(item, isPhoto) {
+        if (isPhoto) return `${item.images.length} fotos`;
+        const s = parseInt(item.duration, 10);
+        if (s && s > 0) return formatDuration(s);
+        if (item.hd_size_mb) return item.hd_size_mb;
+        if (item.size_mb) return item.size_mb;
+        return 'MP4';
     }
 
     function openHistoryItem(item) {
@@ -843,10 +881,12 @@ document.addEventListener('DOMContentLoaded', () => {
         list.forEach(item => {
             const card = document.createElement('div');
             card.className = 'recent-thumb-card';
-            const thumb = item.cover_url || item.raw_cover_url || (item.images && item.images[0]) || (item.author && item.author.avatar) || defaultCreatorSvg;
+            const thumb = item.raw_cover_url || item.cover_url || (item.images && item.images[0]) || (item.author && item.author.avatar) || defaultCreatorSvg;
+            const lowRes = isLowResAvatarCover(item, thumb);
             const author = (item.author && item.author.nickname) ? item.author.nickname : 'TikTok';
             card.innerHTML = `
-                <img class="recent-thumb-img" src="${thumb}" alt="" onerror="this.onerror=null;this.src='${defaultCreatorSvg}'">
+                <img class="recent-thumb-img ${lowRes ? 'lowres-blur' : ''}" src="${thumb}" alt="" onerror="this.onerror=null;this.src='${defaultCreatorSvg}'">
+                ${lowRes ? `<img class="lib-avatar-center" style="width:42px;height:42px;" src="${thumb}" alt="" onerror="this.style.display='none'">` : ''}
                 <div class="recent-thumb-scrim">
                     <span class="recent-thumb-author">${author}</span>
                 </div>
@@ -888,15 +928,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filtered.forEach(item => {
             const isPhoto = Array.isArray(item.images) && item.images.length > 0;
-            const thumb = item.cover_url || item.raw_cover_url || (isPhoto && item.images[0]) || (item.author && item.author.avatar) || defaultCreatorSvg;
+            const thumb = item.raw_cover_url || item.cover_url || (isPhoto && item.images[0]) || (item.author && item.author.avatar) || defaultCreatorSvg;
+            const lowRes = isLowResAvatarCover(item, thumb);
             const creator = (item.author && item.author.nickname) ? item.author.nickname : 'Creador';
-            const durText = isPhoto ? `${item.images.length} fotos` : formatDuration(item.duration);
-            const qualTag = isPhoto ? 'ÁLBUM' : (item.is_4k ? '4K' : '1080p');
+            const leftPill = getLeftMetaPill(item, isPhoto);
+            const qualTag = getRealQualityTag(item, isPhoto);
 
             const card = document.createElement('div');
             card.className = 'lib-media-card';
             card.innerHTML = `
-                <img class="lib-media-thumb" src="${thumb}" alt="" onerror="this.onerror=null;this.src='${defaultCreatorSvg}'">
+                <img class="lib-media-thumb ${lowRes ? 'lowres-blur' : ''}" src="${thumb}" alt="" onerror="this.onerror=null;this.src='${defaultCreatorSvg}'">
+                ${lowRes ? `<img class="lib-avatar-center" src="${thumb}" alt="" onerror="this.style.display='none'">` : ''}
                 <div class="lib-media-overlay">
                     <div class="lib-media-play-dot">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
@@ -904,8 +946,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="lib-media-bottom">
                         <div class="lib-media-creator">${creator}</div>
                         <div class="lib-media-badges">
-                            <span class="lib-micro-pill">${durText}</span>
-                            <span class="lib-micro-pill">${qualTag}</span>
+                            <span class="lib-micro-pill">${leftPill}</span>
+                            ${qualTag !== leftPill ? `<span class="lib-micro-pill">${qualTag}</span>` : ''}
                         </div>
                     </div>
                 </div>
