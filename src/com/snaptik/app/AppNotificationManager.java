@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import org.json.JSONObject;
@@ -77,7 +79,34 @@ public class AppNotificationManager {
         }
     }
 
+    private static Bitmap downloadBannerBitmap(String imageUrl) {
+        if (imageUrl == null || !imageUrl.startsWith("http")) return null;
+        HttpURLConnection conn = null;
+        try {
+            URL u = new URL(imageUrl);
+            conn = (HttpURLConnection) u.openConnection(java.net.Proxy.NO_PROXY);
+            conn.setConnectTimeout(7000);
+            conn.setReadTimeout(7000);
+            conn.setInstanceFollowRedirects(true);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.3");
+            if (conn.getResponseCode() == 200) {
+                InputStream is = conn.getInputStream();
+                Bitmap bmp = BitmapFactory.decodeStream(is);
+                is.close();
+                return bmp;
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
+        return null;
+    }
+
     public static void showNotification(Context ctx, String channelId, int notifId, String title, String message, String openUrl) {
+        showNotificationWithBanner(ctx, channelId, notifId, title, message, "", openUrl);
+    }
+
+    public static void showNotificationWithBanner(Context ctx, String channelId, int notifId, String title, String message, String imageUrl, String openUrl) {
         if (!isNotificationsEnabled(ctx)) return;
         ensureChannels(ctx);
         try {
@@ -102,12 +131,32 @@ public class AppNotificationManager {
                     ? new Notification.Builder(ctx, channelId)
                     : new Notification.Builder(ctx);
 
+            Bitmap appIconBmp = null;
+            try {
+                appIconBmp = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_launcher);
+            } catch (Exception ignored) {}
+
+            Bitmap bannerBmp = downloadBannerBitmap(imageUrl);
+
             nb.setSmallIcon(R.drawable.ic_launcher)
               .setContentTitle(title)
               .setContentText(message)
-              .setStyle(new Notification.BigTextStyle().bigText(message))
               .setContentIntent(pi)
               .setAutoCancel(true);
+
+            if (appIconBmp != null) {
+                nb.setLargeIcon(appIconBmp);
+            }
+
+            if (bannerBmp != null) {
+                Notification.BigPictureStyle style = new Notification.BigPictureStyle()
+                        .bigPicture(bannerBmp)
+                        .setBigContentTitle(title)
+                        .setSummaryText(message);
+                nb.setStyle(style);
+            } else {
+                nb.setStyle(new Notification.BigTextStyle().bigText(message));
+            }
 
             nm.notify(notifId, nb.build());
         } catch (Exception ignored) {}
@@ -138,7 +187,7 @@ public class AppNotificationManager {
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(8000);
             conn.setReadTimeout(8000);
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.2");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.3");
             if (conn.getResponseCode() == 200) {
                 InputStream is = conn.getInputStream();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
@@ -152,6 +201,7 @@ public class AppNotificationManager {
                 String id = obj.optString("id", "");
                 String title = obj.optString("title", "");
                 String body = obj.optString("body", "");
+                String imageUrl = obj.optString("image_url", "");
                 String actionUrl = obj.optString("url", "");
 
                 if (active && !id.isEmpty() && !title.isEmpty() && !body.isEmpty()) {
@@ -159,7 +209,7 @@ public class AppNotificationManager {
                     String lastId = sp.getString(KEY_LAST_ANNOUNCEMENT_ID, "");
                     if (!id.equals(lastId)) {
                         sp.edit().putString(KEY_LAST_ANNOUNCEMENT_ID, id).apply();
-                        showNotification(ctx, CHANNEL_ALERTS, 7701, title, body, actionUrl);
+                        showNotificationWithBanner(ctx, CHANNEL_ALERTS, 7701, title, body, imageUrl, actionUrl);
                     }
                 }
             }

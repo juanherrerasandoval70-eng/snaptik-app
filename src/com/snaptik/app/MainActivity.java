@@ -18,6 +18,12 @@ public class MainActivity extends Activity {
     private String lastAutoPastedUrl = "";
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        AppNotificationManager.checkRemoteAnnouncements(this);
+    }
+
+    @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
