@@ -144,6 +144,14 @@ public class AdNetworkManager {
 
     public static void triggerAdsterraReward(Activity activity, WebView webView) {
         if (activity == null) return;
+        // Prioridad 1: Video Reward nativo de Start.io (funciona fuera de Play Store)
+        if (StartIoRewardManager.isConfigured()) {
+            boolean shown = StartIoRewardManager.showRewardedVideo(activity, webView);
+            if (shown) {
+                return;
+            }
+        }
+        // Respaldo: Adsterra Smartlink si modo +18 está activo
         if (isAdult18PlusEnabled(activity)) {
             openDirectSponsorUrl(activity, null);
         } else {

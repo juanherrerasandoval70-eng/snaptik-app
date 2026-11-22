@@ -1,8 +1,8 @@
 {
-  "versionCode": 7,
-  "versionName": "3.2.0",
+  "versionCode": 8,
+  "versionName": "3.3.0",
   "backendUrl": "https://snaptik-backend.onrender.com/api/extract",
   "apkUrl": "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/dist/SnapTik_PRO_v1.0.apk",
-  "changelog": "• Corrección de miniaturas borrosas y tarjetas duplicadas en Biblioteca\n• Etiquetas reales de duración, peso y resolución en cada tarjeta\n• Inicio renovado con nuevos micro-íconos en el selector de calidad\n• Backend asíncrono 5× más rápido y estable",
+  "changelog": "• Integración nativa de Start.io Video Reward para descargas 4K y 1080p Full HD\n• Verificación oficial de app-ads.txt activa en el servidor\n• Mejoras de estabilidad y precarga instantánea de anuncios",
   "forceUpdate": false
 }

@@ -1004,8 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function triggerRewardedDownload(url, fname, qualityTag, itemData) {
-        const isAdultOn = localStorage.getItem('snaptik_adult_18_plus_v2') === 'true';
-        if (isAdultOn && window.AndroidApp && typeof window.AndroidApp.requestRewardedVideo === 'function') {
+        if (window.AndroidApp && typeof window.AndroidApp.requestRewardedVideo === 'function') {
             pendingRewardAction = () => triggerDownloadWithCard(url, fname, qualityTag, itemData);
             window.AndroidApp.requestRewardedVideo();
         } else {

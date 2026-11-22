@@ -100,6 +100,9 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(webAppInterface, "AndroidApp");
         webView.loadUrl("file:///android_asset/index.html");
 
+        // Inicializar Start.io Video Reward SDK (si el App ID está configurado)
+        StartIoRewardManager.init(this);
+
         // Comprobación silenciosa de actualizaciones OTA en segundo plano
         webView.postDelayed(new AutoCheckUpdateRunnable(this), 3000);
     }
