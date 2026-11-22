@@ -66,10 +66,12 @@ with zipfile.ZipFile(r'build\base.apk', 'r') as zin, zipfile.ZipFile(r'build\una
 
 # 6. Alinear y Firmar con Release Keystore Privada (25 años)
 $alignedApk = "build\SnapTik_PRO_store_aligned.apk"
-$finalStoreApk = "$KIT_DIR\SnapTik_PRO_STORE_v3.6.0_RELEASE.apk"
+$finalStoreApk = "$KIT_DIR\SnapTik_PRO_STORE_v3.7.0_RELEASE.apk"
+$legacyStoreApk = "$KIT_DIR\SnapTik_PRO_STORE_v3.6.0_RELEASE.apk"
 
 & $ZIPALIGN -f -p 4 build\unaligned_store.apk $alignedApk
 & cmd.exe /c "$APKSIGNER sign --ks `"$KEYSTORE`" --ks-pass `"pass:$KEY_PASS`" --ks-key-alias $KEY_ALIAS --key-pass `"pass:$KEY_PASS`" --out `"$finalStoreApk`" `"$alignedApk`""
+Copy-Item -Force $finalStoreApk $legacyStoreApk
 & cmd.exe /c "$APKSIGNER verify --verbose `"$finalStoreApk`""
 
 Write-Host "`n[EXITO] APK RELEASE PARA TIENDAS LISTO: $finalStoreApk" -ForegroundColor Green

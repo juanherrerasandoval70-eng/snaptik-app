@@ -13,68 +13,67 @@
         <!-- Top Header -->
         <header class="top-header">
             <div class="brand-lockup">
-                <div class="brand-glyph" style="padding: 0; overflow: hidden;">
-                    <img src="app_icon.png" alt="SnapTik PRO" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                <div class="brand-glyph">
+                    <img src="app_icon.png" alt="SnapTik PRO">
                 </div>
                 <span class="brand-title">SnapTik<span class="brand-pro">PRO</span></span>
             </div>
-            <div class="status-pill" id="headerStatusPill">
-                <span class="status-dot" id="headerStatusDot"></span>
-                <span id="headerStatusText">En línea</span>
+            <div class="header-right-actions">
+                <button type="button" id="btnOpenHowTo" class="btn-howto-pill">
+                    <span>Cómo usar (?)</span>
+                </button>
             </div>
         </header>
 
         <!-- =====================================================
-             VISTA 1: INICIO / EXTRACTOR
+             VISTA 1: INICIO / DESCARGADOR
              ===================================================== -->
         <section id="sectionDownload" class="section-view active">
-            <div class="hero-eyebrow">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="#00E5FF"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <span>Motor Directo • Sin Marca</span>
+            <div class="hero-block">
+                <h1 class="hero-headline">Tus vídeos favoritos,<br>sin marca de agua.</h1>
+                <p class="hero-subline">Guarda en calidad original 4K, 1080p o<br>audio MP3 directo en tu galería.</p>
             </div>
-            <h1 class="hero-headline">Guarda en<br>calidad real.</h1>
 
-            <!-- Liquid Glass Dropzone Card -->
+            <!-- Unified Liquid Glass Control Card (Exactly as approved, WITHOUT bottom paste button) -->
             <div class="dropzone-card">
                 <div class="input-pill-row">
-                    <input type="url" id="tiktokUrlInput" class="url-input" placeholder="Pega el enlace de TikTok..." autocomplete="off" spellcheck="false">
+                    <svg class="input-link-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                    <input type="url" id="tiktokUrlInput" class="url-input" placeholder="Pega aquí el enlace del vídeo..." autocomplete="off" spellcheck="false">
                     <button type="button" id="btnClearInput" class="btn-clear-input" aria-label="Borrar">✕</button>
                     <button type="button" id="btnPasteUrl" class="btn-paste-pill">Pegar</button>
                 </div>
-                <button type="button" id="btnClipboardChip" class="clipboard-chip">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+
+                <!-- Segmented Format Capsule inside unified card -->
+                <div class="quality-capsule" role="tablist">
+                    <button type="button" class="quality-seg-btn" data-mode="4k">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span>4K UHD</span>
+                    </button>
+                    <button type="button" class="quality-seg-btn active" data-mode="1080p">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="2" y="4" width="20" height="16" rx="3"/><polygon points="10 9 15 12 10 15 10 9" fill="currentColor" stroke="none"/></svg>
+                        <span>1080p HD</span>
+                    </button>
+                    <button type="button" class="quality-seg-btn" data-mode="720p">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>720p</span>
+                    </button>
+                    <button type="button" class="quality-seg-btn" data-mode="audio">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        <span>Audio MP3</span>
+                    </button>
+                </div>
+
+                <!-- Luminous Pearl White CTA inside unified card -->
+                <button type="button" id="btnSubmitExtract" class="btn-extract-cta">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    <span id="txtClipboardChip">Toca para pegar enlace del portapapeles</span>
+                    <span id="ctaLabel">Obtener Vídeo Ahora</span>
+                    <span id="ctaSpinner" class="cta-spinner"></span>
                 </button>
             </div>
-
-            <!-- Segmented Quality Capsule with Crisp Icons -->
-            <div class="quality-capsule" role="tablist">
-                <button type="button" class="quality-seg-btn" data-mode="4k">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    <span>4K</span>
-                </button>
-                <button type="button" class="quality-seg-btn active" data-mode="1080p">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="2" y="4" width="20" height="16" rx="3"/><polygon points="10 9 15 12 10 15 10 9" fill="currentColor" stroke="none"/></svg>
-                    <span>1080p</span>
-                </button>
-                <button type="button" class="quality-seg-btn" data-mode="720p">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    <span>720p</span>
-                </button>
-                <button type="button" class="quality-seg-btn" data-mode="audio">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                    <span>MP3</span>
-                </button>
-            </div>
-
-            <!-- Primary CTA -->
-            <button type="button" id="btnSubmitExtract" class="btn-extract-cta">
-                <span id="ctaLabel">Extraer Vídeo</span>
-                <span id="ctaSpinner" class="cta-spinner"></span>
-            </button>
 
             <!-- Error Banner -->
             <div id="errorNoticeBox" class="error-banner">
@@ -85,7 +84,7 @@
             </div>
 
             <!-- =====================================================
-                 RESULTADO EXTRAÍDO (PREVIEW + BENTO 2x2)
+                 SECCIÓN 2: RESULTADO EXTRAÍDO (REPRODUCTOR + BENTO 2x2)
                  ===================================================== -->
             <div id="mediaResultDeck" class="media-result-deck">
                 <div class="preview-stage-wrapper" id="previewStageWrapper">
@@ -97,7 +96,7 @@
                         </div>
                         <div class="preview-top-actions">
                             <button type="button" id="btnFullscreenVideo" class="btn-dismiss-glass" aria-label="Pantalla completa" title="Pantalla completa">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
                                 </svg>
                             </button>
@@ -120,31 +119,31 @@
 
                 <!-- Live Adaptive Metadata Strip -->
                 <div class="video-meta-strip" id="videoMetaStrip">
-                    <div id="resVideoCaption" class="video-meta-caption">Vídeo listo para descargar sin marca de agua</div>
+                    <div id="resVideoCaption" class="video-meta-caption">Vídeo listo para guardar sin marca de agua</div>
                     <div class="video-meta-chips">
-                        <span id="chipRealResolution" class="meta-live-chip accent">HD</span>
-                        <span id="chipAspectRatio" class="meta-live-chip">Adaptable</span>
+                        <span id="chipRealResolution" class="meta-live-chip accent">1080p HD</span>
+                        <span id="chipAspectRatio" class="meta-live-chip">Vertical 9:16</span>
                         <span id="chipRealDuration" class="meta-live-chip" style="display: none;">0:00</span>
                     </div>
                 </div>
 
                 <!-- 2x2 Bento Download Grid -->
                 <div class="bento-download-grid">
-                    <!-- 1. Full HD 1080p (Hero Pearl White) -->
+                    <!-- 1. Full HD 1080p -->
                     <button type="button" id="btnActionMpHd" class="bento-dl-tile hero-pearl">
                         <div class="bento-tile-top">
                             <span class="bento-micro-tag">RECOMENDADO</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                             </svg>
                         </div>
                         <div>
-                            <div class="bento-tile-title" id="lbl1080pHeadline">Full HD 1080p</div>
+                            <div class="bento-tile-title" id="lbl1080pHeadline">1080p Full HD</div>
                             <div class="bento-tile-sub" id="lbl1080pSubhead">Sin marca • 60 FPS</div>
                         </div>
                     </button>
 
-                    <!-- 2. 4K Master -->
+                    <!-- 2. 4K UHD -->
                     <button type="button" id="btnAction4k" class="bento-dl-tile">
                         <div class="bento-tile-top">
                             <span class="bento-micro-tag">ORIGINAL</span>
@@ -153,22 +152,22 @@
                             </svg>
                         </div>
                         <div>
-                            <div class="bento-tile-title">4K Master</div>
+                            <div class="bento-tile-title">4K Ultra HD</div>
                             <div class="bento-tile-sub" id="lbl4kSubhead">Calidad original</div>
                         </div>
                     </button>
 
-                    <!-- 3. Estándar 720p -->
+                    <!-- 3. 720p HD -->
                     <button type="button" id="btnActionMp4" class="bento-dl-tile">
                         <div class="bento-tile-top">
-                            <span class="bento-micro-tag">RÁPIDO</span>
+                            <span class="bento-micro-tag">LIGERO</span>
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                             </svg>
                         </div>
                         <div>
-                            <div class="bento-tile-title">Estándar 720p</div>
-                            <div class="bento-tile-sub" id="lbl720pSubhead">Rápido y ligero</div>
+                            <div class="bento-tile-title">720p Rápido</div>
+                            <div class="bento-tile-sub" id="lbl720pSubhead">Ahorra espacio</div>
                         </div>
                     </button>
 
@@ -182,17 +181,17 @@
                         </div>
                         <div>
                             <div class="bento-tile-title" id="lblMp3Headline">Audio MP3</div>
-                            <div class="bento-tile-sub" id="lblMp3Subhead">320 kbps original</div>
+                            <div class="bento-tile-sub" id="lblMp3Subhead">Sonido original</div>
                         </div>
                     </button>
 
                     <!-- 5. Álbum Completo (Fotos) -->
                     <button type="button" id="btnActionPhotos" class="bento-dl-tile hero-pearl span-2" style="display: none;">
                         <div>
-                            <div class="bento-tile-title" id="lblPhotosHeadline">Descargar Álbum Completo</div>
-                            <div class="bento-tile-sub">Todas las fotos en calidad original</div>
+                            <div class="bento-tile-title" id="lblPhotosHeadline">Guardar Álbum Completo</div>
+                            <div class="bento-tile-sub">Todas las fotos en alta resolución</div>
                         </div>
-                        <svg class="bento-tile-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                        <svg class="bento-tile-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
                             <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                         </svg>
                     </button>
@@ -212,71 +211,86 @@
                 <!-- Quick Secondary Tools -->
                 <div class="quick-tools-row">
                     <button type="button" id="btnActionCover" class="btn-quick-tool">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         <span>Portada</span>
                     </button>
                     <button type="button" id="btnCopyDesc" class="btn-quick-tool">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                         <span>Texto</span>
                     </button>
                     <button type="button" id="btnActionShare" class="btn-quick-tool">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                         <span>Compartir</span>
                     </button>
                     <button type="button" id="btnCopyLink" class="btn-quick-tool">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                         <span>Enlace</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Start.io Native Ad Card (Liquid Glass) -->
+            <!-- Start.io Native Ad Card -->
             <div id="startIoNativeCard" class="startio-native-card" role="button" tabindex="0">
                 <img id="nativeAdIcon" class="startio-native-icon" src="" alt="">
                 <div class="startio-native-body">
-                    <span class="startio-native-tag">Anuncio</span>
+                    <span class="startio-native-tag">Patrocinado</span>
                     <div id="nativeAdTitle" class="startio-native-title"></div>
                     <div id="nativeAdDesc" class="startio-native-desc"></div>
                 </div>
                 <span id="nativeAdCta" class="startio-native-cta">Abrir</span>
             </div>
 
-            <!-- Recientes Strip -->
+            <!-- Descargas Recientes Strip -->
             <div class="recents-section" id="recentsSection">
                 <div class="section-micro-header">
-                    <span class="section-micro-title">Recientes</span>
-                    <button type="button" id="btnSeeAllRecents" class="section-micro-link">Ver biblioteca →</button>
+                    <span class="section-micro-title">Descargas Recientes</span>
+                    <button type="button" id="btnSeeAllRecents" class="section-micro-link">Ver todas →</button>
                 </div>
                 <div id="recentsStripTarget" class="recents-strip"></div>
             </div>
         </section>
 
         <!-- =====================================================
-             VISTA 2: BIBLIOTECA VISUAL (GALERÍA 2 COLUMNAS)
+             VISTA 3: BIBLIOTECA VISUAL
              ===================================================== -->
         <section id="sectionLibrary" class="section-view">
             <div class="library-top-header">
-                <h2 class="library-heading">Biblioteca</h2>
-                <div class="storage-ring-widget" title="Historial guardado">
-                    <svg class="storage-ring-svg" viewBox="0 0 46 46">
-                        <circle cx="23" cy="23" r="19" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
-                        <circle id="storageRingArc" cx="23" cy="23" r="19" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="90"/>
+                <div>
+                    <h2 class="library-heading">Biblioteca</h2>
+                    <p class="section-subtitle">Tus vídeos, fotos y audios guardados</p>
+                </div>
+                <div class="storage-ring-widget" title="Espacio en galería">
+                    <svg class="storage-ring-svg" viewBox="0 0 50 50">
+                        <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3.5"/>
+                        <circle id="storageRingArc" cx="25" cy="25" r="20" fill="none" stroke="#38EFEE" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="95"/>
                     </svg>
                     <span id="storageRingLabel" class="storage-ring-label">0 MB</span>
                 </div>
             </div>
 
-            <div class="filter-pills-row" id="libraryFilterRow">
-                <button type="button" class="filter-pill-btn active" data-filter="all">Todos</button>
-                <button type="button" class="filter-pill-btn" data-filter="video">Vídeos</button>
-                <button type="button" class="filter-pill-btn" data-filter="photo">Fotos</button>
-                <button type="button" class="filter-pill-btn" data-filter="audio">MP3</button>
+            <!-- Unified Search + Filters Glass Card -->
+            <div class="lib-controls-card">
+                <div class="lib-search-box">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.48)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="inputLibrarySearch" class="lib-search-input" placeholder="Buscar por creador o título...">
+                    <button type="button" id="btnClearLibSearch" class="btn-clear-input" aria-label="Limpiar búsqueda">✕</button>
+                </div>
+
+                <div class="filter-pills-row" id="libraryFilterRow">
+                    <button type="button" class="filter-pill-btn active" data-filter="all">Todos</button>
+                    <button type="button" class="filter-pill-btn" data-filter="video">Vídeos</button>
+                    <button type="button" class="filter-pill-btn" data-filter="photo">Fotos</button>
+                    <button type="button" class="filter-pill-btn" data-filter="audio">Audio MP3</button>
+                </div>
             </div>
 
+            <!-- Action Bar -->
             <div class="library-actions-bar">
                 <button type="button" id="btnOpenDownloadsFolder" class="btn-lib-bar">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                    <span>Abrir Carpeta de Descargas</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    <span>Abrir Galería del Teléfono</span>
                 </button>
                 <button type="button" id="btnClearLibraryHistory" class="btn-lib-bar danger">Vaciar</button>
             </div>
@@ -284,29 +298,48 @@
             <div id="libraryRowsTarget" class="library-visual-grid"></div>
 
             <div id="placeholderNoDownloads" class="library-empty-state">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                <div style="font-weight: 700; color: #FFFFFF; font-size: 0.9rem;">Tu biblioteca está vacía</div>
-                <div style="font-size: 0.76rem;">Los vídeos y álbumes que descargues aparecerán aquí.</div>
+                <div class="empty-icon-circle">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <div class="empty-state-title">Tu biblioteca está vacía</div>
+                <div class="empty-state-sub">Los vídeos, álbumes y audios que descargues aparecerán organizados aquí.</div>
             </div>
         </section>
 
         <!-- =====================================================
-             VISTA 3: AJUSTES
+             VISTA 4: AJUSTES DEL CLIENTE
              ===================================================== -->
         <section id="sectionSettings" class="section-view">
-            <h2 class="library-heading" style="margin-bottom: 6px;">Ajustes</h2>
-            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px;">SnapTik PRO v3.6.0 • Liquid Glass Edition</p>
+            <div class="settings-header-block">
+                <h2 class="library-heading">Ajustes</h2>
+                <p class="section-subtitle">Personaliza tus descargas y almacenamiento</p>
+            </div>
 
-            <div class="settings-group-title">Preferencias</div>
+            <div class="settings-group-title">Preferencias de Descarga</div>
             <div class="settings-glass-card">
+                <!-- 1. Calidad Predeterminada -->
+                <div class="settings-row" id="rowDefaultQuality" style="cursor: pointer;">
+                    <div class="settings-row-left">
+                        <div class="settings-icon-box">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
+                        <div>
+                            <div class="settings-row-title">Calidad Predeterminada</div>
+                            <div class="settings-row-sub" id="lblDefaultQualitySub">1080p Full HD • Sin marca de agua</div>
+                        </div>
+                    </div>
+                    <button type="button" id="btnCycleDefaultQuality" class="settings-pill-btn">1080p HD</button>
+                </div>
+
+                <!-- 2. Detección Automática al Abrir -->
                 <div class="settings-row">
                     <div class="settings-row-left">
                         <div class="settings-icon-box">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                         </div>
                         <div>
-                            <div class="settings-row-title">Detección de Portapapeles</div>
-                            <div class="settings-row-sub">Detectar enlaces de TikTok al volver</div>
+                            <div class="settings-row-title">Pegado Inteligente al Abrir</div>
+                            <div class="settings-row-sub">Autocompletar enlace copiado de TikTok</div>
                         </div>
                     </div>
                     <label class="ios-switch">
@@ -315,14 +348,15 @@
                     </label>
                 </div>
 
+                <!-- 3. Respuesta Táctil -->
                 <div class="settings-row">
                     <div class="settings-row-left">
                         <div class="settings-icon-box">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8v8"/><path d="M18 8v8"/><rect x="9" y="5" width="6" height="14" rx="1"/></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8v8"/><path d="M18 8v8"/><rect x="9" y="5" width="6" height="14" rx="1"/></svg>
                         </div>
                         <div>
                             <div class="settings-row-title">Vibración Háptica</div>
-                            <div class="settings-row-sub">Respuesta táctil en controles</div>
+                            <div class="settings-row-sub">Respuesta táctil suave al tocar controles</div>
                         </div>
                     </div>
                     <label class="ios-switch">
@@ -330,63 +364,95 @@
                         <span class="ios-slider"></span>
                     </label>
                 </div>
+            </div>
 
+            <div class="settings-group-title">Galería y Almacenamiento</div>
+            <div class="settings-glass-card">
+                <!-- 4. Carpeta de Descargas -->
                 <div class="settings-row">
                     <div class="settings-row-left">
                         <div class="settings-icon-box">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                         </div>
                         <div>
-                            <div class="settings-row-title">Anuncios Patrocinados (+18)</div>
-                            <div class="settings-row-sub" id="lblAdultSub">Modo seguro activo por defecto</div>
+                            <div class="settings-row-title">Ubicación de Guardado</div>
+                            <div class="settings-row-sub">Galería / Carpeta Descargas</div>
                         </div>
                     </div>
-                    <label class="ios-switch">
-                        <input type="checkbox" id="prefAdult18Plus">
-                        <span class="ios-slider"></span>
-                    </label>
+                    <button type="button" id="btnSettingsOpenFolder" class="settings-pill-btn subtle">Abrir ↗</button>
+                </div>
+
+                <!-- 5. Limpiar Caché Temporal -->
+                <div class="settings-row">
+                    <div class="settings-row-left">
+                        <div class="settings-icon-box">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </div>
+                        <div>
+                            <div class="settings-row-title">Caché Temporal</div>
+                            <div class="settings-row-sub" id="lblCacheStatusSub">Miniaturas y vistas previas temporales</div>
+                        </div>
+                    </div>
+                    <button type="button" id="btnClearTempCache" class="settings-pill-btn subtle">Limpiar</button>
                 </div>
             </div>
 
-            <div class="settings-group-title">Sistema y Nube</div>
+            <div class="settings-group-title">Ayuda e Información</div>
             <div class="settings-glass-card">
-                <div class="settings-row" id="rowPingServer" style="cursor: pointer;">
-                    <div class="settings-row-left">
-                        <div class="settings-icon-box">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                        <div>
-                            <div class="settings-row-title">Servidor Privado 24/7</div>
-                            <div class="settings-row-sub" id="lblServerStatusSub">Extracción paralela en Render</div>
-                        </div>
-                    </div>
-                    <span id="lblServerStatusBadge" class="settings-pill-badge">ONLINE</span>
-                </div>
-
+                <!-- 6. Guía de Uso -->
                 <div class="settings-row">
                     <div class="settings-row-left">
                         <div class="settings-icon-box">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                         </div>
                         <div>
-                            <div class="settings-row-title">Start.io Ads (ID: 210251211)</div>
-                            <div class="settings-row-sub" id="lblStartIoDiag">Comprobando estado...</div>
+                            <div class="settings-row-title">Cómo Usar SnapTik PRO</div>
+                            <div class="settings-row-sub">Guía rápida en 3 pasos</div>
                         </div>
                     </div>
-                    <button type="button" id="btnTestStartIoAd" class="settings-pill-btn">Probar</button>
+                    <button type="button" id="btnSettingsHowTo" class="settings-pill-btn subtle">Ver guía</button>
                 </div>
 
+                <!-- 7. Compartir Aplicación -->
                 <div class="settings-row">
                     <div class="settings-row-left">
                         <div class="settings-icon-box">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                         </div>
                         <div>
-                            <div class="settings-row-title">Actualizaciones OTA</div>
-                            <div class="settings-row-sub" id="lblOtaStatusSub">Versión instalada: 3.6.0</div>
+                            <div class="settings-row-title">Compartir Aplicación</div>
+                            <div class="settings-row-sub">Recomendar SnapTik PRO a tus amigos</div>
                         </div>
                     </div>
-                    <button type="button" id="btnCheckUpdatesManual" class="settings-pill-btn">Buscar</button>
+                    <button type="button" id="btnShareApp" class="settings-pill-btn subtle">Compartir</button>
+                </div>
+
+                <!-- 8. Buscar Actualización -->
+                <div class="settings-row">
+                    <div class="settings-row-left">
+                        <div class="settings-icon-box">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </div>
+                        <div>
+                            <div class="settings-row-title">Actualizaciones</div>
+                            <div class="settings-row-sub" id="lblOtaStatusSub">Versión oficial v3.8.0 instalada</div>
+                        </div>
+                    </div>
+                    <button type="button" id="btnCheckUpdatesManual" class="settings-pill-btn subtle">Comprobar</button>
+                </div>
+
+                <!-- 9. Política de Privacidad -->
+                <div class="settings-row">
+                    <div class="settings-row-left">
+                        <div class="settings-icon-box">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div>
+                            <div class="settings-row-title">Política de Privacidad</div>
+                            <div class="settings-row-sub">Seguridad de datos y términos oficiales</div>
+                        </div>
+                    </div>
+                    <button type="button" id="btnOpenPrivacyPolicy" class="settings-pill-btn subtle">Leer ↗</button>
                 </div>
             </div>
         </section>
@@ -408,7 +474,7 @@
             </div>
 
             <div class="dl-island-body">
-                <div id="dlCardTitle" class="dl-island-title">Descargando...</div>
+                <div id="dlCardTitle" class="dl-island-title">Guardando en Galería...</div>
                 <div id="dlCardMeta" class="dl-island-meta">1080p FHD • Iniciando...</div>
                 <div class="dl-island-progress-wrap">
                     <div class="dl-island-track">
@@ -428,7 +494,7 @@
         </div>
     </div>
 
-    <!-- Floating Liquid Glass Bottom Pill Dock -->
+    <!-- Floating Bottom Dock (Exact Reference Layout) -->
     <nav class="floating-pill-dock">
         <button type="button" class="dock-nav-item active" data-view="sectionDownload">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -438,7 +504,7 @@
         </button>
         <button type="button" class="dock-nav-item" data-view="sectionLibrary">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
             </svg>
             <span>Biblioteca</span>
         </button>
@@ -452,8 +518,46 @@
 
     <!-- Floating HUD Toast -->
     <div id="monoToastHud" class="mono-toast-hud">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38EFEE" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         <span id="monoToastText"></span>
+    </div>
+
+    <!-- Consumer Quick Guide Modal -->
+    <div id="modalHowToGuide" class="glass-modal-backdrop">
+        <div class="glass-modal-card">
+            <div class="modal-top-row">
+                <span class="modal-tag">Cómo usar SnapTik PRO</span>
+                <button type="button" id="btnCloseHowTo" class="btn-island-close">✕</button>
+            </div>
+            <div class="modal-title">Descarga en 3 pasos</div>
+            <div class="modal-sub">Guarda cualquier vídeo, carrusel de fotos o audio sin marca de agua.</div>
+            <div class="howto-steps-list">
+                <div class="howto-step-item">
+                    <span class="howto-step-num">1</span>
+                    <div>
+                        <div class="howto-step-title">Copia el enlace en TikTok</div>
+                        <div class="howto-step-desc">Toca "Compartir" en tu vídeo favorito y selecciona "Copiar enlace".</div>
+                    </div>
+                </div>
+                <div class="howto-step-item">
+                    <span class="howto-step-num">2</span>
+                    <div>
+                        <div class="howto-step-title">Toca "Pegar"</div>
+                        <div class="howto-step-desc">Pega el enlace en la barra superior y elige tu formato (4K, 1080p o MP3).</div>
+                    </div>
+                </div>
+                <div class="howto-step-item">
+                    <span class="howto-step-num">3</span>
+                    <div>
+                        <div class="howto-step-title">Obtén tu vídeo</div>
+                        <div class="howto-step-desc">Pulsa "Obtener Vídeo Ahora" para previsualizarlo y guardarlo en tu galería.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-btn-row">
+                <button type="button" id="btnGotItHowTo" class="modal-btn-pri">Entendido</button>
+            </div>
+        </div>
     </div>
 
     <!-- OTA Update Modal -->
@@ -461,14 +565,14 @@
         <div class="glass-modal-card">
             <div class="modal-top-row">
                 <span class="modal-tag">Actualización Disponible</span>
-                <span id="badgeNewVersion" class="modal-ver-pill">3.0.0</span>
+                <span id="badgeNewVersion" class="modal-ver-pill">3.8.0</span>
             </div>
             <div class="modal-title">Nueva versión lista</div>
-            <div class="modal-sub">Descarga e instala directamente sin perder tus datos.</div>
+            <div class="modal-sub">Actualiza ahora sin perder tu biblioteca ni tus descargas.</div>
             <div id="txtUpdateChangelog" class="modal-changelog-box"></div>
             <div id="boxUpdateProgress" style="display: none; margin-bottom: 14px;">
                 <div style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 6px;">
-                    <span>Descargando paquete...</span>
+                    <span>Descargando actualización...</span>
                     <span id="txtUpdatePercent">0%</span>
                 </div>
                 <div class="dl-island-track">
@@ -489,10 +593,10 @@
                 <span class="modal-tag">Patrocinado</span>
                 <button type="button" id="btnCloseAdModal" class="btn-island-close">✕</button>
             </div>
-            <div class="modal-title">Apoya el servidor 24/7</div>
-            <div class="modal-sub">Tu descarga continúa a máxima velocidad en segundo plano.</div>
+            <div class="modal-title">Descarga en progreso</div>
+            <div class="modal-sub">Tu vídeo se está guardando a máxima velocidad en tu galería.</div>
             <div class="modal-btn-row">
-                <button type="button" id="btnOpenAdOffer" class="modal-btn-pri">Ver Oferta ↗</button>
+                <button type="button" id="btnOpenAdOffer" class="modal-btn-pri">Ver Recomendación ↗</button>
             </div>
         </div>
     </div>

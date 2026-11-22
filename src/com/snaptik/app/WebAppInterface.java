@@ -555,6 +555,32 @@ public class WebAppInterface {
     }
 
     @JavascriptInterface
+    public void openExternalUrl(String url) {
+        vibrate(20);
+        try {
+            if (url == null || url.trim().isEmpty()) return;
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(context, "No se pudo abrir el enlace", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @JavascriptInterface
+    public void clearTempCache() {
+        vibrate(25);
+        try {
+            java.io.File cacheDir = context.getCacheDir();
+            if (cacheDir != null && cacheDir.isDirectory()) {
+                for (java.io.File f : cacheDir.listFiles()) {
+                    try { f.delete(); } catch (Exception ignored) {}
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    @JavascriptInterface
     public void showToast(final String message) {
         new android.os.Handler(android.os.Looper.getMainLooper()).post(new ToastRunnable(context, message));
     }

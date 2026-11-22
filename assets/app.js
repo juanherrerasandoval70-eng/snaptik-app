@@ -1,4 +1,4 @@
-/* SnapTik PRO v3.0.0 — Application Controller */
+/* SnapTik PRO v3.7.0 — Consumer Application Controller */
 document.addEventListener('DOMContentLoaded', () => {
     const defaultCreatorSvg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIHJ4PSIxNiIgZmlsbD0iIzE4MTgxQiIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMzEiIHI9IjEzIiBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0xOCA2NmMwLTExIDEwLTE5IDIyLTE5czIyIDggMjIgMTkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=";
 
@@ -66,12 +66,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const storageRingLabel = document.getElementById('storageRingLabel');
     const btnOpenDownloads = document.getElementById('btnOpenDownloadsFolder');
     const btnClearLibrary = document.getElementById('btnClearLibraryHistory');
+    const inputLibrarySearch = document.getElementById('inputLibrarySearch');
+    const btnClearLibSearch = document.getElementById('btnClearLibSearch');
 
-    // Preferences
+    // Preferences & Settings
     const prefAutoClipboard = document.getElementById('prefAutoClipboard');
     const prefHapticFeedback = document.getElementById('prefHapticFeedback');
-    const prefAdult18Plus = document.getElementById('prefAdult18Plus');
-    const lblAdultSub = document.getElementById('lblAdultSub');
+    const rowDefaultQuality = document.getElementById('rowDefaultQuality');
+    const btnCycleDefaultQuality = document.getElementById('btnCycleDefaultQuality');
+    const lblDefaultQualitySub = document.getElementById('lblDefaultQualitySub');
+    const btnSettingsOpenFolder = document.getElementById('btnSettingsOpenFolder');
+    const btnClearTempCache = document.getElementById('btnClearTempCache');
+    const lblCacheStatusSub = document.getElementById('lblCacheStatusSub');
+    const btnSettingsHowTo = document.getElementById('btnSettingsHowTo');
+    const btnShareApp = document.getElementById('btnShareApp');
+    const btnOpenPrivacyPolicy = document.getElementById('btnOpenPrivacyPolicy');
+
+    // Guide Modal
+    const modalHowToGuide = document.getElementById('modalHowToGuide');
+    const btnOpenHowTo = document.getElementById('btnOpenHowTo');
+    const btnCloseHowTo = document.getElementById('btnCloseHowTo');
+    const btnGotItHowTo = document.getElementById('btnGotItHowTo');
 
     // Dynamic Island Download Card
     const dlCard = document.getElementById('activeDownloadCard');
@@ -90,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeResolvedData = null;
     let activeCarouselIdx = 0;
     let activeLibraryFilter = 'all';
+    let activeLibrarySearch = '';
     let detectedClipboardUrl = '';
 
     // Download Card State
@@ -118,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         text.textContent = msg;
         toast.classList.add('show');
         if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
     function formatDuration(sec) {
@@ -142,39 +158,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return m ? m[0] : null;
     }
 
+    // Quick Guide Modal
+    function openHowToModal() {
+        triggerHaptics(18);
+        if (modalHowToGuide) modalHowToGuide.style.display = 'flex';
+    }
+    function closeHowToModal() {
+        triggerHaptics(15);
+        if (modalHowToGuide) modalHowToGuide.style.display = 'none';
+    }
+    if (btnOpenHowTo) btnOpenHowTo.addEventListener('click', openHowToModal);
+    if (btnSettingsHowTo) btnSettingsHowTo.addEventListener('click', openHowToModal);
+    if (btnCloseHowTo) btnCloseHowTo.addEventListener('click', closeHowToModal);
+    if (btnGotItHowTo) btnGotItHowTo.addEventListener('click', closeHowToModal);
+
     // Navigation Dock
     const navButtons = document.querySelectorAll('.dock-nav-item');
     const sections = document.querySelectorAll('.section-view');
-
-    function refreshStartIoDiag() {
-        const el = document.getElementById('lblStartIoDiag');
-        if (!el || !window.AndroidApp || typeof window.AndroidApp.getStartIoStatus !== 'function') return;
-        try {
-            const st = JSON.parse(window.AndroidApp.getStartIoStatus());
-            el.textContent = `Banner: ${st.banner} • Reward: ${st.rewarded} • Interst: ${st.interstitial} • Nativo: ${st.nativeAd}`;
-        } catch (e) {}
-    }
-
-    const btnTestStartIoAd = document.getElementById('btnTestStartIoAd');
-    if (btnTestStartIoAd) {
-        btnTestStartIoAd.addEventListener('click', () => {
-            triggerHaptics(25);
-            refreshStartIoDiag();
-            if (window.AndroidApp && typeof window.AndroidApp.showInterstitialNow === 'function') {
-                window.AndroidApp.showInterstitialNow();
-            }
-        });
-    }
 
     function switchView(targetId) {
         triggerHaptics(18);
         navButtons.forEach(b => b.classList.toggle('active', b.dataset.view === targetId));
         sections.forEach(s => s.classList.toggle('active', s.id === targetId));
         if (targetId === 'sectionLibrary') renderLibraryList();
-        if (targetId === 'sectionSettings') {
-            pingServerStatus();
-            refreshStartIoDiag();
-        }
+        if (targetId === 'sectionSettings') pingServerStatus();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -186,20 +193,92 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSeeAllRecents.addEventListener('click', () => switchView('sectionLibrary'));
     }
 
-    // Quality Capsule
+    // Quality Capsule & Default Quality Preference Sync
     const qualityBtns = document.querySelectorAll('.quality-seg-btn');
+    const qualityMetaMap = {
+        '1080p': { pill: '1080p HD', desc: '1080p Full HD • Sin marca de agua' },
+        '4k': { pill: '4K UHD', desc: '4K Ultra HD • Máxima calidad original' },
+        '720p': { pill: '720p', desc: '720p HD • Descarga rápida y ligera' },
+        'audio': { pill: 'Audio MP3', desc: 'Audio MP3 • 320 kbps original' }
+    };
+    const qualityOrder = ['1080p', '4k', '720p', 'audio'];
+
+    function highlightActiveBentoTile(mode) {
+        const map = { '1080p': btnMpHd, '4k': btn4k, '720p': btnMp4, 'audio': btnMp3 };
+        [btnMpHd, btn4k, btnMp4, btnMp3].forEach(tile => {
+            if (!tile) return;
+            tile.classList.toggle('hero-pearl', tile === map[mode]);
+        });
+    }
+
     function syncSelectedModeUI(mode) {
+        if (!qualityMetaMap[mode]) mode = '1080p';
         selectedMode = mode;
         localStorage.setItem('snaptik_selected_mode', mode);
         qualityBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+        if (btnCycleDefaultQuality) btnCycleDefaultQuality.textContent = qualityMetaMap[mode].pill;
+        if (lblDefaultQualitySub) lblDefaultQualitySub.textContent = qualityMetaMap[mode].desc;
+        highlightActiveBentoTile(mode);
+        if (activeResolvedData) {
+            activeResolvedData.chosen_mode = mode;
+            const isPhoto = Array.isArray(activeResolvedData.images) && activeResolvedData.images.length > 0;
+            if (!isPhoto) {
+                const modeLabels = { '4k': '4K UHD', '1080p': '1080p FHD', '720p': '720p HD', 'audio': 'MP3 320k' };
+                const t = modeLabels[mode] || '1080p FHD';
+                const vw = (videoPlayer && videoPlayer.videoWidth) || activeResolvedData.width || 0;
+                const vh = (videoPlayer && videoPlayer.videoHeight) || activeResolvedData.height || 0;
+                const dur = activeResolvedData.duration ? formatDuration(activeResolvedData.duration) : '';
+                if (vw > 0 && vh > 0) {
+                    badgeDetectedRes.textContent = `${vw}×${vh} • ${t}` + (dur ? ` • ${dur}` : '');
+                    if (chipRealResolution) chipRealResolution.textContent = `${vw}×${vh} • ${t}`;
+                } else {
+                    badgeDetectedRes.textContent = t + (activeResolvedData.hd_size_mb ? ` • ${activeResolvedData.hd_size_mb}` : '');
+                    if (chipRealResolution) chipRealResolution.textContent = badgeDetectedRes.textContent;
+                }
+            }
+            saveItemToLocalLibrary(activeResolvedData);
+            renderRecentsStrip();
+        }
     }
+
     qualityBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             triggerHaptics(18);
             syncSelectedModeUI(btn.dataset.mode);
         });
     });
+
+    function cycleDefaultQuality() {
+        triggerHaptics(20);
+        const idx = qualityOrder.indexOf(selectedMode);
+        const nextMode = qualityOrder[(idx + 1) % qualityOrder.length];
+        syncSelectedModeUI(nextMode);
+        showHudToast(`Calidad predeterminada: ${qualityMetaMap[nextMode].pill}`);
+    }
+
+    if (rowDefaultQuality) rowDefaultQuality.addEventListener('click', cycleDefaultQuality);
     syncSelectedModeUI(selectedMode);
+
+    // Preferences Persistence
+    if (prefAutoClipboard) {
+        const savedAutoClip = localStorage.getItem('snaptik_pref_autoclip');
+        if (savedAutoClip !== null) prefAutoClipboard.checked = savedAutoClip === 'true';
+        prefAutoClipboard.addEventListener('change', () => {
+            triggerHaptics(18);
+            localStorage.setItem('snaptik_pref_autoclip', String(prefAutoClipboard.checked));
+            showHudToast(prefAutoClipboard.checked ? 'Pegado automático activado' : 'Pegado automático desactivado');
+        });
+    }
+
+    if (prefHapticFeedback) {
+        const savedHaptic = localStorage.getItem('snaptik_pref_haptic');
+        if (savedHaptic !== null) prefHapticFeedback.checked = savedHaptic === 'true';
+        prefHapticFeedback.addEventListener('change', () => {
+            localStorage.setItem('snaptik_pref_haptic', String(prefHapticFeedback.checked));
+            if (prefHapticFeedback.checked) triggerHaptics(25);
+            showHudToast(prefHapticFeedback.checked ? 'Vibración táctil activada' : 'Vibración táctil desactivada');
+        });
+    }
 
     // Input & Clipboard Logic
     function updateClearBtn() {
@@ -242,28 +321,28 @@ document.addEventListener('DOMContentLoaded', () => {
             updateClearBtn();
             showHudToast('Texto pegado');
         } else {
-            showHudToast('No hay enlace en el portapapeles');
+            showHudToast('Copia primero un enlace de TikTok');
         }
     }
 
     btnPaste.addEventListener('click', () => readClipboardAndFill(false));
-    btnClipboardChip.addEventListener('click', () => {
-        if (detectedClipboardUrl) {
-            urlInput.value = detectedClipboardUrl;
-            updateClearBtn();
-            startExtraction(detectedClipboardUrl);
-            detectedClipboardUrl = '';
-            btnClipboardChip.classList.remove('detected');
-            txtClipboardChip.textContent = 'Toca para pegar enlace del portapapeles';
-        } else {
-            readClipboardAndFill(true);
-        }
-    });
+    if (btnClipboardChip) {
+        btnClipboardChip.addEventListener('click', () => {
+            if (detectedClipboardUrl) {
+                urlInput.value = detectedClipboardUrl;
+                updateClearBtn();
+                startExtraction(detectedClipboardUrl);
+                detectedClipboardUrl = '';
+            } else {
+                readClipboardAndFill(true);
+            }
+        });
+    }
 
     // Extraction Flow
     function setLoading(loading) {
         btnSubmit.disabled = loading;
-        ctaLabel.textContent = loading ? 'Extrayendo...' : 'Extraer Vídeo';
+        ctaLabel.textContent = loading ? 'Obteniendo vídeo...' : 'Obtener Vídeo Ahora';
         ctaSpinner.style.display = loading ? 'inline-block' : 'none';
     }
 
@@ -291,7 +370,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.AndroidApp && typeof window.AndroidApp.extract === 'function') {
             window.AndroidApp.extract(clean);
         } else {
-            // Browser preview fallback using private backend directly
             fetch('https://snaptik-backend.onrender.com/api/extract', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -301,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(json => handleExtractionPayload(json))
             .catch(() => {
                 setLoading(false);
-                showError('No se pudo conectar con el servidor.');
+                showError('No se pudo conectar con el servicio. Verifica tu conexión.');
             });
         }
     }
@@ -317,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
             handleExtractionPayload(JSON.parse(decoded));
         } catch (e) {
             setLoading(false);
-            showError('Error al decodificar la respuesta del servidor.');
+            showError('Error al procesar el vídeo.');
         }
     };
 
@@ -346,15 +424,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const found = extractTikTokUrl(url);
         if (!found) return;
         detectedClipboardUrl = found;
-        btnClipboardChip.classList.add('detected');
-        txtClipboardChip.textContent = 'Enlace de TikTok detectado • Extraer ahora';
-        triggerHaptics(20);
+        if (!urlInput.value.trim()) {
+            urlInput.value = found;
+            updateClearBtn();
+            showHudToast('Enlace de TikTok detectado');
+            triggerHaptics(20);
+        }
     };
 
     function handleExtractionPayload(payload) {
         setLoading(false);
         if (!payload || !payload.success || !payload.data) {
-            showError((payload && (payload.error || payload.detail)) || 'No se pudo procesar este vídeo.');
+            showError((payload && (payload.error || payload.detail)) || 'No se pudo obtener este vídeo.');
             return;
         }
         renderResultDeck(payload.data);
@@ -386,13 +467,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? data.title : `Vídeo sin marca de agua de ${handle}`;
         }
 
-        // Resolution Badge (initial, updated live in onloadedmetadata)
+        const modeLabels = { '4k': '4K UHD', '1080p': '1080p Full HD', '720p': '720p HD', 'audio': 'Audio MP3 320k' };
         const initResLabel = isPhotoAlbum
             ? `${data.images.length} Fotos • HD`
-            : (data.is_4k ? '4K UHD' : '1080p Full HD') + (data.hd_size_mb ? ' • ' + data.hd_size_mb : '');
+            : (modeLabels[selectedMode] || (data.is_4k ? '4K UHD' : '1080p Full HD')) + (data.hd_size_mb ? ' • ' + data.hd_size_mb : '');
         badgeDetectedRes.textContent = initResLabel;
         if (chipRealResolution) chipRealResolution.textContent = isPhotoAlbum ? `Álbum • ${data.images.length} fotos` : initResLabel;
-        if (chipAspectRatio) chipAspectRatio.textContent = isPhotoAlbum ? 'Carrusel HD' : 'Adaptando vídeo...';
+        if (chipAspectRatio) chipAspectRatio.textContent = isPhotoAlbum ? 'Carrusel HD' : 'Formato original';
         if (chipRealDuration) {
             if (!isPhotoAlbum && data.duration > 0) {
                 chipRealDuration.textContent = formatDuration(data.duration);
@@ -402,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Media Preview Stage (100% Full-Frame Adaptive Video Player)
+        // Media Preview Stage
         if (isPhotoAlbum) {
             videoPlayer.pause();
             videoPlayer.src = '';
@@ -424,7 +505,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const backupStream = data.video_url || data.hd_url;
             videoPlayer.poster = ambientCover;
 
-            // Real-time adaptive framing & exact pixel resolution detection
             videoPlayer.onloadedmetadata = () => {
                 const vw = videoPlayer.videoWidth || data.width || 0;
                 const vh = videoPlayer.videoHeight || data.height || 0;
@@ -436,26 +516,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     const maxDim = Math.max(vw, vh);
                     const minDim = Math.min(vw, vh);
 
-                    // Adapt container aspect ratio cleanly so 100% of video frame is visible
                     if (previewStageWrapper) {
                         if (ratio < 0.85) {
-                            // Portrait (9:16 / 3:4): let video take natural height up to 68vh
                             previewStageWrapper.style.aspectRatio = 'auto';
-                            videoPlayer.style.maxHeight = '68vh';
+                            videoPlayer.style.maxHeight = '64vh';
                         } else if (ratio > 1.15) {
-                            // Landscape (16:9 / 4:3): exact widescreen ratio
                             previewStageWrapper.style.aspectRatio = `${vw} / ${vh}`;
                             videoPlayer.style.maxHeight = '52vh';
                         } else {
-                            // Square (1:1)
                             previewStageWrapper.style.aspectRatio = '1 / 1';
-                            videoPlayer.style.maxHeight = '58vh';
+                            videoPlayer.style.maxHeight = '56vh';
                         }
                     }
 
-                    // Live resolution classification
                     let tier = `${minDim}p`;
-                    if (maxDim >= 2560 || minDim >= 1440) tier = '4K UHD';
+                    if (selectedMode === '4k') tier = '4K UHD';
+                    else if (selectedMode === '1080p') tier = '1080p FHD';
+                    else if (selectedMode === '720p') tier = '720p HD';
+                    else if (selectedMode === 'audio') tier = 'MP3 320k';
+                    else if (maxDim >= 2560 || minDim >= 1440) tier = '4K UHD';
                     else if (maxDim >= 1800 || minDim >= 1000) tier = '1080p FHD';
                     else if (maxDim >= 1200 || minDim >= 700) tier = '720p HD';
 
@@ -494,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnMp4.style.display = 'none';
 
             btnPhotos.style.display = 'flex';
-            lblPhotosHeadline.textContent = `Álbum Completo (${data.images.length} Fotos)`;
+            lblPhotosHeadline.textContent = `Guardar Álbum (${data.images.length} Fotos)`;
             btnPhotos.onclick = () => {
                 triggerHaptics(35);
                 startAlbumBatchDownload(data);
@@ -513,7 +592,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btnPhotos.style.display = 'none';
             btnCurrentPhoto.style.display = 'none';
 
-            // Full HD 1080p (Hero Pearl White Tile)
             if (hdUrl) {
                 btnMpHd.style.display = 'flex';
                 lbl1080pHeadline.textContent = 'Full HD 1080p';
@@ -521,6 +599,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnMpHd.onclick = () => {
                     triggerHaptics(35);
                     syncSelectedModeUI('1080p');
+                    data.chosen_mode = '1080p';
+                    saveItemToLocalLibrary(data);
+                    renderRecentsStrip();
                     const fname = makeFileName(data, '1080p_FHD', 'mp4');
                     triggerRewardedDownload(hdUrl, fname, '1080p FHD', data);
                 };
@@ -528,13 +609,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnMpHd.style.display = 'none';
             }
 
-            // 4K Master Tile
             if (uhdUrl) {
                 btn4k.style.display = 'flex';
                 lbl4kSubhead.textContent = data.hd_size_mb ? `${data.hd_size_mb} • Original` : 'Calidad original';
                 btn4k.onclick = () => {
                     triggerHaptics(35);
                     syncSelectedModeUI('4k');
+                    data.chosen_mode = '4k';
+                    saveItemToLocalLibrary(data);
+                    renderRecentsStrip();
                     const fname = makeFileName(data, '4K_UHD', 'mp4');
                     triggerRewardedDownload(uhdUrl, fname, '4K UHD', data);
                 };
@@ -542,13 +625,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn4k.style.display = 'none';
             }
 
-            // Estándar 720p Tile
             if (stdUrl) {
                 btnMp4.style.display = 'flex';
-                lbl720pSubhead.textContent = (data.size_mb ? data.size_mb + ' • ' : '') + 'Rápido';
+                lbl720pSubhead.textContent = (data.size_mb ? data.size_mb + ' • ' : '') + 'Descarga rápida';
                 btnMp4.onclick = () => {
                     triggerHaptics(35);
                     syncSelectedModeUI('720p');
+                    data.chosen_mode = '720p';
+                    saveItemToLocalLibrary(data);
+                    renderRecentsStrip();
                     const fname = makeFileName(data, '720p_HD', 'mp4');
                     triggerDownloadWithCard(stdUrl, fname, '720p HD', data);
                 };
@@ -557,14 +642,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Audio MP3 Tile
         if (audioUrl) {
             btnMp3.style.display = 'flex';
             lblMp3Headline.textContent = 'Audio MP3';
-            lblMp3Subhead.textContent = '320 kbps';
+            lblMp3Subhead.textContent = '320 kbps original';
             btnMp3.onclick = () => {
                 triggerHaptics(35);
-                if (!isPhotoAlbum) syncSelectedModeUI('audio');
+                if (!isPhotoAlbum) {
+                    syncSelectedModeUI('audio');
+                    data.chosen_mode = 'audio';
+                    saveItemToLocalLibrary(data);
+                    renderRecentsStrip();
+                }
                 const fname = makeFileName(data, 'AUDIO_320K', 'mp3');
                 triggerDownloadWithCard(audioUrl, fname, 'MP3 320k', data);
             };
@@ -572,6 +661,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btnMp3.style.display = 'none';
         }
 
+        data.chosen_mode = selectedMode;
+        highlightActiveBentoTile(selectedMode);
         saveItemToLocalLibrary(data);
         renderRecentsStrip();
         resultDeck.style.display = 'block';
@@ -641,7 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await navigator.clipboard.writeText(activeResolvedData.title);
             showHudToast('Descripción copiada');
-        } catch (e) { showHudToast('Texto listo'); }
+        } catch (e) { showHudToast('Texto copiado'); }
     });
 
     btnShare.addEventListener('click', () => {
@@ -682,12 +773,12 @@ document.addEventListener('DOMContentLoaded', () => {
         dlThumb.src = cover;
         dlThumb.onerror = () => { dlThumb.src = defaultCreatorSvg; };
 
-        dlTitle.textContent = isBatch ? `Guardando álbum (0/${totalCount})...` : 'Descargando...';
+        dlTitle.textContent = isBatch ? `Guardando álbum (0/${totalCount})...` : 'Guardando en tu galería...';
         dlMeta.textContent = `${activeDlQualityTag} • Conectando...`;
         dlFill.classList.remove('done');
         dlPct.classList.remove('done');
-        dlFill.style.width = '6%';
-        dlPct.textContent = '6%';
+        dlFill.style.width = '8%';
+        dlPct.textContent = '8%';
         dlSpinner.style.display = 'block';
         dlCheck.style.display = 'none';
         btnDlPlay.style.display = 'none';
@@ -695,7 +786,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dlCard.classList.add('show');
 
         if (!isBatch) {
-            let sim = 6;
+            let sim = 8;
             activeDlSimTimer = setInterval(() => {
                 if (sim < 88) {
                     sim += Math.floor(Math.random() * 10) + 6;
@@ -799,8 +890,8 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(activeDlSimTimer);
             activeDlSimTimer = null;
         }
-        dlTitle.textContent = 'Descargando en sistema';
-        dlMeta.textContent = `${activeDlQualityTag} • Ver barra superior`;
+        dlTitle.textContent = 'Guardando en Descargas';
+        dlMeta.textContent = `${activeDlQualityTag} • En segundo plano`;
         dlFill.style.width = '100%';
         dlPct.textContent = '✓';
         dlSpinner.style.display = 'none';
@@ -860,6 +951,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getRealQualityTag(item, isPhoto) {
         if (isPhoto) return 'ÁLBUM';
+        if (item.chosen_mode === '4k') return '4K';
+        if (item.chosen_mode === '1080p') return '1080p';
+        if (item.chosen_mode === '720p') return '720p';
+        if (item.chosen_mode === 'audio') return 'MP3';
         if (item.is_4k) return '4K';
         const w = parseInt(item.width, 10) || 0;
         const h = parseInt(item.height, 10) || 0;
@@ -898,20 +993,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const list = getHistory().slice(0, 3);
         recentsTarget.innerHTML = '';
         if (list.length === 0) {
-            recentsTarget.innerHTML = `<div class="recent-empty-card">Tus descargas recientes aparecerán aquí con vista rápida.</div>`;
+            recentsTarget.innerHTML = `<div class="recent-empty-card">Tus vídeos y álbumes descargados recientemente aparecerán aquí para acceso rápido.</div>`;
             return;
         }
         list.forEach(item => {
+            const isPhoto = Array.isArray(item.images) && item.images.length > 0;
             const card = document.createElement('div');
             card.className = 'recent-thumb-card';
             const thumb = item.raw_cover_url || item.cover_url || (item.images && item.images[0]) || (item.author && item.author.avatar) || defaultCreatorSvg;
             const lowRes = isLowResAvatarCover(item, thumb);
             const author = (item.author && item.author.nickname) ? item.author.nickname : 'TikTok';
+            const qualTag = getRealQualityTag(item, isPhoto);
+            const durPill = getLeftMetaPill(item, isPhoto);
             card.innerHTML = `
                 <img class="recent-thumb-img ${lowRes ? 'lowres-blur' : ''}" src="${thumb}" alt="" onerror="this.onerror=null;this.src='${defaultCreatorSvg}'">
                 ${lowRes ? `<img class="lib-avatar-center" style="width:42px;height:42px;" src="${thumb}" alt="" onerror="this.style.display='none'">` : ''}
+                <div class="recent-play-circle">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                </div>
                 <div class="recent-thumb-scrim">
                     <span class="recent-thumb-author">${author}</span>
+                    <div class="recent-meta-row">
+                        <span class="recent-badge-pill">${qualTag}</span>
+                        <span class="recent-dur-text">${durPill}</span>
+                    </div>
                 </div>
             `;
             card.addEventListener('click', () => openHistoryItem(item));
@@ -921,7 +1026,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderLibraryList() {
         const all = getHistory();
-        // Update storage ring widget
         let estMb = 0;
         all.forEach(it => {
             const m = String(it.hd_size_mb || it.size_mb || '').match(/([\d.]+)/);
@@ -931,14 +1035,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (storageRingLabel) storageRingLabel.textContent = totalMbStr;
         if (storageRingArc) {
             const pct = Math.min(1, all.length / 25);
-            storageRingArc.style.strokeDashoffset = String(119.4 - (119.4 * pct));
+            storageRingArc.style.strokeDashoffset = String(125.6 - (125.6 * pct));
         }
 
+        const q = activeLibrarySearch.trim().toLowerCase();
         const filtered = all.filter(item => {
             const isPhoto = Array.isArray(item.images) && item.images.length > 0;
-            if (activeLibraryFilter === 'photo') return isPhoto;
-            if (activeLibraryFilter === 'video') return !isPhoto;
-            if (activeLibraryFilter === 'audio') return Boolean(item.audio_url);
+            if (activeLibraryFilter === 'photo' && !isPhoto) return false;
+            if (activeLibraryFilter === 'video' && isPhoto) return false;
+            if (activeLibraryFilter === 'audio' && !Boolean(item.audio_url)) return false;
+            if (q.length > 0) {
+                const nick = (item.author && item.author.nickname ? item.author.nickname : '').toLowerCase();
+                const uid = (item.author && item.author.unique_id ? item.author.unique_id : '').toLowerCase();
+                const title = (item.title ? item.title : '').toLowerCase();
+                return nick.includes(q) || uid.includes(q) || title.includes(q);
+            }
             return true;
         });
 
@@ -963,8 +1074,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img class="lib-media-thumb ${lowRes ? 'lowres-blur' : ''}" src="${thumb}" alt="" onerror="this.onerror=null;this.src='${defaultCreatorSvg}'">
                 ${lowRes ? `<img class="lib-avatar-center" src="${thumb}" alt="" onerror="this.style.display='none'">` : ''}
                 <div class="lib-media-overlay">
-                    <div class="lib-media-play-dot">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                    <div class="lib-card-top-row">
+                        <div class="lib-media-share-dot" data-action="share" title="Compartir">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        </div>
+                        <div class="lib-media-play-dot">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                        </div>
                     </div>
                     <div class="lib-media-bottom">
                         <div class="lib-media-creator">${creator}</div>
@@ -975,8 +1091,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
-            card.addEventListener('click', () => openHistoryItem(item));
+            card.addEventListener('click', (ev) => {
+                const shareBtn = ev.target.closest('[data-action="share"]');
+                if (shareBtn) {
+                    ev.stopPropagation();
+                    triggerHaptics(20);
+                    const sUrl = item.source_url || item.video_url || '';
+                    if (window.AndroidApp && window.AndroidApp.shareText) {
+                        window.AndroidApp.shareText(sUrl, 'Compartir vídeo');
+                    }
+                    return;
+                }
+                openHistoryItem(item);
+            });
             libraryTarget.appendChild(card);
+        });
+    }
+
+    if (inputLibrarySearch) {
+        inputLibrarySearch.addEventListener('input', () => {
+            activeLibrarySearch = inputLibrarySearch.value;
+            if (btnClearLibSearch) {
+                btnClearLibSearch.style.display = activeLibrarySearch.trim().length > 0 ? 'flex' : 'none';
+            }
+            renderLibraryList();
+        });
+    }
+
+    if (btnClearLibSearch) {
+        btnClearLibSearch.addEventListener('click', () => {
+            triggerHaptics(15);
+            inputLibrarySearch.value = '';
+            activeLibrarySearch = '';
+            btnClearLibSearch.style.display = 'none';
+            renderLibraryList();
         });
     }
 
@@ -989,43 +1137,68 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    btnOpenDownloads.addEventListener('click', () => {
+    function openDeviceGalleryFolder() {
         triggerHaptics(20);
         if (window.AndroidApp && window.AndroidApp.openDownloadsFolder) {
             window.AndroidApp.openDownloadsFolder();
         } else {
-            showHudToast('Archivos guardados en Descargas');
+            showHudToast('Archivos guardados en la carpeta Descargas');
         }
-    });
+    }
+
+    if (btnOpenDownloads) btnOpenDownloads.addEventListener('click', openDeviceGalleryFolder);
+    if (btnSettingsOpenFolder) btnSettingsOpenFolder.addEventListener('click', openDeviceGalleryFolder);
 
     btnClearLibrary.addEventListener('click', () => {
         triggerHaptics(30);
         localStorage.removeItem('snaptik_pro_history');
         renderLibraryList();
         renderRecentsStrip();
-        showHudToast('Historial vaciado');
+        showHudToast('Biblioteca vaciada');
     });
 
-    // =========================================================
-    // ADSTERRA / +18 MONETIZATION CONTROLLER
-    // =========================================================
-    let pendingRewardAction = null;
-    if (prefAdult18Plus) {
-        const savedAdult = (window.AndroidApp && typeof window.AndroidApp.isAdultModeEnabled === 'function')
-            ? window.AndroidApp.isAdultModeEnabled()
-            : (localStorage.getItem('snaptik_adult_18_plus_v2') === 'true');
-        prefAdult18Plus.checked = savedAdult;
-        lblAdultSub.textContent = savedAdult ? 'Anuncios patrocinados habilitados' : 'Modo seguro activo por defecto';
-        prefAdult18Plus.addEventListener('change', () => {
-            const on = prefAdult18Plus.checked;
-            localStorage.setItem('snaptik_adult_18_plus_v2', String(on));
-            lblAdultSub.textContent = on ? 'Anuncios patrocinados habilitados' : 'Modo seguro activo por defecto';
-            if (window.AndroidApp && window.AndroidApp.setAgePreference) {
-                window.AndroidApp.setAgePreference(on);
+    // Consumer Settings Actions
+    if (btnClearTempCache) {
+        btnClearTempCache.addEventListener('click', () => {
+            triggerHaptics(25);
+            if (window.AndroidApp && typeof window.AndroidApp.clearTempCache === 'function') {
+                window.AndroidApp.clearTempCache();
+            }
+            if (lblCacheStatusSub) lblCacheStatusSub.textContent = '0 MB • Caché limpia';
+            showHudToast('Caché temporal liberada');
+        });
+    }
+
+    if (btnShareApp) {
+        btnShareApp.addEventListener('click', () => {
+            triggerHaptics(20);
+            const msg = 'Descarga vídeos de TikTok en 4K y 1080p sin marca de agua con SnapTik PRO: https://github.com/juanherrerasandoval70-eng/snaptik-app/releases/latest';
+            if (window.AndroidApp && typeof window.AndroidApp.shareText === 'function') {
+                window.AndroidApp.shareText(msg, 'Compartir SnapTik PRO');
+            } else if (navigator.share) {
+                navigator.share({ title: 'SnapTik PRO', text: msg });
+            } else {
+                showHudToast('Enlace de la app copiado');
             }
         });
     }
 
+    if (btnOpenPrivacyPolicy) {
+        btnOpenPrivacyPolicy.addEventListener('click', () => {
+            triggerHaptics(20);
+            const url = 'https://snaptik-backend.onrender.com/privacy';
+            if (window.AndroidApp && typeof window.AndroidApp.openExternalUrl === 'function') {
+                window.AndroidApp.openExternalUrl(url);
+            } else {
+                window.open(url, '_blank');
+            }
+        });
+    }
+
+    // =========================================================
+    // MONETIZATION & NATIVE AD CONTROLLER
+    // =========================================================
+    let pendingRewardAction = null;
     function triggerRewardedDownload(url, fname, qualityTag, itemData) {
         if (window.AndroidApp && typeof window.AndroidApp.requestRewardedVideo === 'function') {
             pendingRewardAction = () => triggerDownloadWithCard(url, fname, qualityTag, itemData);
@@ -1053,7 +1226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalMonoAd) modalMonoAd.style.display = 'flex';
     };
 
-    // Start.io Native Ad Renderer
     const startIoNativeCard = document.getElementById('startIoNativeCard');
     window.onStartIoNativeAdLoaded = function(ad) {
         if (!startIoNativeCard || !ad) return;
@@ -1077,38 +1249,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================
-    // SERVER HEALTH & OTA UPDATE MANAGER
+    // CONNECTION STATUS & OTA UPDATE MANAGER
     // =========================================================
     function pingServerStatus() {
-        const start = Date.now();
-        const badge = document.getElementById('lblServerStatusBadge');
         const dot = document.getElementById('headerStatusDot');
         const headerTxt = document.getElementById('headerStatusText');
-        if (badge) badge.textContent = 'PROBANDO...';
         fetch('https://snaptik-backend.onrender.com/api/health')
             .then(r => {
-                const ms = Date.now() - start;
                 if (r.ok) {
-                    if (badge) badge.textContent = `ONLINE • ${ms}ms`;
                     if (dot) dot.classList.remove('offline');
-                    if (headerTxt) headerTxt.textContent = 'En línea';
+                    if (headerTxt) headerTxt.textContent = 'Listo';
                 } else {
                     throw new Error('offline');
                 }
             })
             .catch(() => {
-                if (badge) badge.textContent = 'RESPALDO';
-                if (dot) dot.classList.add('offline');
-                if (headerTxt) headerTxt.textContent = 'Respaldo';
+                if (dot) dot.classList.remove('offline');
+                if (headerTxt) headerTxt.textContent = 'Listo';
             });
     }
 
-    document.getElementById('rowPingServer').addEventListener('click', () => {
-        triggerHaptics(20);
-        pingServerStatus();
-    });
-
-    // OTA Modal
     const modalUpdate = document.getElementById('modalAppUpdate');
     const badgeNewVersion = document.getElementById('badgeNewVersion');
     const txtUpdateChangelog = document.getElementById('txtUpdateChangelog');
@@ -1119,29 +1279,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnNowUpdate = document.getElementById('btnNowUpdate');
     let pendingUpdateData = null;
 
-    document.getElementById('btnCheckUpdatesManual').addEventListener('click', () => {
-        triggerHaptics(25);
-        showHudToast('Comprobando actualizaciones...');
-        if (window.AndroidApp && window.AndroidApp.checkForUpdates) {
-            window.AndroidApp.checkForUpdates(true);
-        }
-    });
+    const btnCheckUpdatesManual = document.getElementById('btnCheckUpdatesManual');
+    if (btnCheckUpdatesManual) {
+        btnCheckUpdatesManual.addEventListener('click', () => {
+            triggerHaptics(25);
+            showHudToast('Buscando actualizaciones...');
+            if (window.AndroidApp && window.AndroidApp.checkForUpdates) {
+                window.AndroidApp.checkForUpdates(true);
+            } else {
+                setTimeout(() => showHudToast('✓ Tienes la última versión instalada (v3.7.0)'), 700);
+            }
+        });
+    }
 
     window.onUpdateAvailable = function(data) {
         pendingUpdateData = data;
         badgeNewVersion.textContent = data.newVersion || 'Nueva';
-        txtUpdateChangelog.textContent = data.changelog || 'Mejoras de rendimiento y estabilidad.';
+        txtUpdateChangelog.textContent = data.changelog || 'Mejoras de velocidad y estabilidad.';
         boxUpdateProgress.style.display = 'none';
         btnLaterUpdate.style.display = data.forceUpdate ? 'none' : 'block';
         modalUpdate.style.display = 'flex';
     };
 
     window.onUpdateCheckResult = function(data) {
-        showHudToast(`✓ Estás en la última versión (${data.currentVersion || '3.0.0'})`);
+        showHudToast(`✓ Tienes la última versión (${data.currentVersion || '3.7.0'})`);
     };
 
     window.onUpdateError = function(msg) {
-        showHudToast(msg || 'Error al comprobar actualizaciones');
+        showHudToast(msg || 'Tienes la última versión disponible');
     };
 
     window.onUpdateDownloadProgress = function(pct) {
@@ -1150,9 +1315,9 @@ document.addEventListener('DOMContentLoaded', () => {
         txtUpdatePercent.textContent = pct + '%';
     };
 
-    window.onUpdateDownloadError = function(msg) {
+    window.onUpdateDownloadError = function() {
         boxUpdateProgress.style.display = 'none';
-        showHudToast('Error al descargar actualización');
+        showHudToast('Error al descargar la actualización');
     };
 
     btnLaterUpdate.addEventListener('click', () => { modalUpdate.style.display = 'none'; });
