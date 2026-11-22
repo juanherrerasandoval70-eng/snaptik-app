@@ -109,6 +109,10 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(webAppInterface, "AndroidApp");
         webView.loadUrl("file:///android_asset/index.html");
 
+        // Solicitar permiso de notificaciones (Android 13+) y crear canales oficiales
+        AppNotificationManager.requestPermissionIfNeeded(this);
+        AppNotificationManager.checkRemoteAnnouncements(this);
+
         // Inicializar Start.io (Banner + Native + Interstitial + Video Reward + Return Ads)
         android.view.ViewGroup bannerContainer = findViewById(R.id.startIoBannerContainer);
         StartIoRewardManager.init(this, bannerContainer, webView);

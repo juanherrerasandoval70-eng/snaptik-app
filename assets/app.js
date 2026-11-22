@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Preferences & Settings
     const prefAutoClipboard = document.getElementById('prefAutoClipboard');
     const prefHapticFeedback = document.getElementById('prefHapticFeedback');
+    const prefNotifications = document.getElementById('prefNotifications');
     const rowDefaultQuality = document.getElementById('rowDefaultQuality');
     const btnCycleDefaultQuality = document.getElementById('btnCycleDefaultQuality');
     const lblDefaultQualitySub = document.getElementById('lblDefaultQualitySub');
@@ -269,6 +270,21 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('snaptik_pref_haptic', String(prefHapticFeedback.checked));
             if (prefHapticFeedback.checked) triggerHaptics(25);
             showHudToast(prefHapticFeedback.checked ? 'Vibración táctil activada' : 'Vibración táctil desactivada');
+        });
+    }
+
+    if (prefNotifications) {
+        const nativeEnabled = (window.AndroidApp && typeof window.AndroidApp.isNotificationsEnabled === 'function')
+            ? window.AndroidApp.isNotificationsEnabled()
+            : (localStorage.getItem('snaptik_pref_notifs') !== 'false');
+        prefNotifications.checked = nativeEnabled;
+        prefNotifications.addEventListener('change', () => {
+            const on = prefNotifications.checked;
+            localStorage.setItem('snaptik_pref_notifs', String(on));
+            if (window.AndroidApp && typeof window.AndroidApp.setNotificationsEnabled === 'function') {
+                window.AndroidApp.setNotificationsEnabled(on);
+            }
+            showHudToast(on ? 'Notificaciones activadas' : 'Notificaciones silenciadas');
         });
     }
 

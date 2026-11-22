@@ -163,16 +163,12 @@ public class WebAppInterface {
     }
 
     public static void showSystemDownloadCompleteNotification(Context ctx, String filename) {
+        if (!AppNotificationManager.isNotificationsEnabled(ctx)) return;
+        AppNotificationManager.ensureChannels(ctx);
         try {
             NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm == null) return;
-            String channelId = "snaptik_media_dl";
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(
-                    channelId, "Descargas SnapTik PRO", NotificationManager.IMPORTANCE_DEFAULT);
-                channel.setDescription("Notificaciones de descargas multimedia finalizadas");
-                nm.createNotificationChannel(channel);
-            }
+            String channelId = AppNotificationManager.CHANNEL_DOWNLOADS;
 
             Intent openIntent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
             openIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -187,9 +183,9 @@ public class WebAppInterface {
             } else {
                 nb = new Notification.Builder(ctx);
             }
-            nb.setSmallIcon(android.R.drawable.stat_sys_download_done)
+            nb.setSmallIcon(R.drawable.ic_launcher)
               .setContentTitle("✓ Descarga completada")
-              .setContentText(filename + " guardado en Galería")
+              .setContentText(filename + " guardado en tu Galería")
               .setContentIntent(pi)
               .setAutoCancel(true);
 
@@ -582,6 +578,28 @@ public class WebAppInterface {
                 }
             }
         } catch (Exception ignored) {}
+    }
+
+    @JavascriptInterface
+    public boolean isNotificationsEnabled() {
+        return AppNotificationManager.isNotificationsEnabled(context);
+    }
+
+    @JavascriptInterface
+    public void setNotificationsEnabled(boolean enabled) {
+        vibrate(20);
+        AppNotificationManager.setNotificationsEnabled(context, enabled);
+        if (enabled && context instanceof android.app.Activity) {
+            AppNotificationManager.requestPermissionIfNeeded((android.app.Activity) context);
+            AppNotificationManager.showNotification(
+                context,
+                AppNotificationManager.CHANNEL_ALERTS,
+                7702,
+                "SnapTik PRO",
+                "Notificaciones activadas: te avisaremos cuando tus descargas estén listas.",
+                ""
+            );
+        }
     }
 
     @JavascriptInterface

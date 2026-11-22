@@ -1,8 +1,8 @@
 {
-  "versionCode": 19,
-  "versionName": "3.9.0",
+  "versionCode": 20,
+  "versionName": "3.9.1",
   "backendUrl": "https://snaptik-backend.onrender.com/api/extract",
   "apkUrl": "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/dist/SnapTik_PRO_v1.0.apk",
-  "changelog": "• Blindaje máximo Anti-Crack, Anti-MITM (Proxy.NO_PROXY + networkSecurityConfig) y Anti-Replay con Nonce\n• Protección Anti-Bot y Auto-Ban de 30 min en el servidor\n• Integridad verificada al arranque (anti-repackaging y anti-Frida)",
+  "changelog": "• Notificaciones nativas conectadas para Android 13/14/15 con solicitud de permiso automática\n• Switch de Notificaciones en Ajustes y canal remoto de avisos desde tu servidor\n• Icono oficial de SnapTik PRO en las notificaciones de descarga",
   "forceUpdate": false
 }
