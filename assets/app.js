@@ -548,6 +548,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         chipRealDuration.textContent = durStr;
                         chipRealDuration.style.display = 'inline-flex';
                     }
+
+                    // Auto-upgrade cover if current thumbnail is a low-res avatar
+                    autoUpgradeHistoryCovers();
                 }
             };
 
@@ -665,6 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
         highlightActiveBentoTile(selectedMode);
         saveItemToLocalLibrary(data);
         renderRecentsStrip();
+        autoUpgradeHistoryCovers();
         resultDeck.style.display = 'block';
         resultDeck.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -941,12 +945,66 @@ document.addEventListener('DOMContentLoaded', () => {
         try { localStorage.setItem('snaptik_pro_history', JSON.stringify(list)); } catch (e) {}
     }
 
+    function getBestCoverUrl(item) {
+        if (!item) return defaultCreatorSvg;
+        if (item.cover_url && item.cover_url.startsWith('data:')) return item.cover_url;
+        if (item.raw_cover_url && item.raw_cover_url.length > 6) return item.raw_cover_url;
+        if (item.cover_url && item.cover_url.length > 6) return item.cover_url;
+        if (item.images_preview && item.images_preview[0]) return item.images_preview[0];
+        if (item.images && item.images[0]) return item.images[0];
+        if (item.author && item.author.avatar) return item.author.avatar;
+        return defaultCreatorSvg;
+    }
+
     function isLowResAvatarCover(item, thumb) {
         if (!thumb || thumb === defaultCreatorSvg) return true;
+        if (thumb.startsWith('data:') && item.raw_cover_url && !item.raw_cover_url.includes('100x100') && !item.raw_cover_url.includes('avt-')) {
+            return false;
+        }
         const avatar = (item.author && item.author.avatar) ? item.author.avatar : '';
         if (avatar && thumb === avatar && !(item.raw_cover_url && item.raw_cover_url !== avatar)) return true;
         if (thumb.includes('100x100') || thumb.includes('avt-')) return true;
         return false;
+    }
+
+    const upgradingCoverIds = new Set();
+    function autoUpgradeHistoryCovers() {
+        const list = getHistory();
+        let changed = false;
+        list.forEach(item => {
+            const thumb = getBestCoverUrl(item);
+            if (!isLowResAvatarCover(item, thumb)) return;
+            const srcUrl = item.source_url || (item.id && /^\d{15,}$/.test(String(item.id)) ? `https://www.tiktok.com/@tiktok/video/${item.id}` : '');
+            if (!srcUrl || upgradingCoverIds.has(srcUrl)) return;
+            upgradingCoverIds.add(srcUrl);
+            fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(srcUrl)}`)
+                .then(r => r.json())
+                .then(js => {
+                    if (js && js.code === 0 && js.data) {
+                        let hd = js.data.origin_cover || js.data.ai_dynamic_cover || js.data.cover || '';
+                        if (hd.startsWith('//')) hd = 'https:' + hd;
+                        else if (hd.startsWith('/')) hd = 'https://www.tikwm.com' + hd;
+                        if (hd && !hd.includes('100x100')) {
+                            const currentList = getHistory();
+                            let updated = false;
+                            currentList.forEach(x => {
+                                if ((x.source_url && x.source_url === item.source_url) || (x.id && x.id === item.id)) {
+                                    x.raw_cover_url = hd;
+                                    x.cover_url = hd;
+                                    if (js.data.duration && !x.duration) x.duration = js.data.duration;
+                                    updated = true;
+                                }
+                            });
+                            if (updated) {
+                                try { localStorage.setItem('snaptik_pro_history', JSON.stringify(currentList)); } catch (e) {}
+                                renderRecentsStrip();
+                                renderLibraryList();
+                            }
+                        }
+                    }
+                })
+                .catch(() => {});
+        });
     }
 
     function getRealQualityTag(item, isPhoto) {
@@ -1000,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isPhoto = Array.isArray(item.images) && item.images.length > 0;
             const card = document.createElement('div');
             card.className = 'recent-thumb-card';
-            const thumb = item.raw_cover_url || item.cover_url || (item.images && item.images[0]) || (item.author && item.author.avatar) || defaultCreatorSvg;
+            const thumb = getBestCoverUrl(item);
             const lowRes = isLowResAvatarCover(item, thumb);
             const author = (item.author && item.author.nickname) ? item.author.nickname : 'TikTok';
             const qualTag = getRealQualityTag(item, isPhoto);
@@ -1062,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filtered.forEach(item => {
             const isPhoto = Array.isArray(item.images) && item.images.length > 0;
-            const thumb = item.raw_cover_url || item.cover_url || (isPhoto && item.images[0]) || (item.author && item.author.avatar) || defaultCreatorSvg;
+            const thumb = getBestCoverUrl(item);
             const lowRes = isLowResAvatarCover(item, thumb);
             const creator = (item.author && item.author.nickname) ? item.author.nickname : 'Creador';
             const leftPill = getLeftMetaPill(item, isPhoto);
@@ -1331,5 +1389,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init
     renderRecentsStrip();
+    autoUpgradeHistoryCovers();
     pingServerStatus();
 });

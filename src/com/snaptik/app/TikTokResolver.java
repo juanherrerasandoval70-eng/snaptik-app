@@ -39,6 +39,26 @@ public class TikTokResolver {
             if (PRIVATE_BACKEND_URL != null && !PRIVATE_BACKEND_URL.isEmpty()) {
                 JSONObject backendResult = resolveViaPrivateBackend(cleanUrl);
                 if (backendResult != null && backendResult.optBoolean("success", false)) {
+                    JSONObject bData = backendResult.optJSONObject("data");
+                    if (bData != null) {
+                        String bCover = bData.optString("raw_cover_url", bData.optString("cover_url", ""));
+                        String bAva = (bData.optJSONObject("author") != null) ? bData.optJSONObject("author").optString("avatar", "") : "";
+                        // Si el backend devolvió el avatar como cover_url, obtener el origin_cover HD real desde TikWM o convertir a Base64 HD
+                        if (bCover.isEmpty() || bCover.equals(bAva) || bCover.contains("100x100") || bCover.contains("avt-")) {
+                            String hdCover = fetchRealHdCoverFromTikWM(cleanUrl);
+                            if (hdCover != null && !hdCover.isEmpty()) {
+                                String b64Cover = fetchImageAsDataUri(hdCover);
+                                bData.put("raw_cover_url", hdCover);
+                                bData.put("cover_url", (b64Cover != null && !b64Cover.isEmpty()) ? b64Cover : hdCover);
+                            }
+                        } else if (!bCover.startsWith("data:")) {
+                            String b64Cover = fetchImageAsDataUri(bCover);
+                            if (b64Cover != null && b64Cover.startsWith("data:")) {
+                                bData.put("raw_cover_url", bCover);
+                                bData.put("cover_url", b64Cover);
+                            }
+                        }
+                    }
                     return backendResult.toString();
                 }
             }
@@ -449,11 +469,17 @@ public class TikTokResolver {
                 rawAvatar = avatarMatcher.group(1);
             }
 
-            // Poster de portada (.ssr-poster background-image)
+            // Poster de portada (.ssr-poster background-image) o fallback a origin_cover HD de TikWM
             String rawCover = "";
             Matcher coverMatcher = Pattern.compile("url\\(['\"]?(https?://tikcdn\\.io/ssstik/p/[^'\"\\)]+)['\"]?\\)").matcher(postHtml);
             if (coverMatcher.find()) {
                 rawCover = coverMatcher.group(1);
+            }
+            if (rawCover.isEmpty()) {
+                String hdFromTwm = fetchRealHdCoverFromTikWM(cleanUrl);
+                if (hdFromTwm != null && !hdFromTwm.isEmpty()) {
+                    rawCover = hdFromTwm;
+                }
             }
 
             // Soportar tanto el nuevo selector .ssr-caption como .maintext
@@ -531,6 +557,26 @@ public class TikTokResolver {
         }
     }
 
+    private static String fetchRealHdCoverFromTikWM(String cleanUrl) {
+        try {
+            String apiUrl = "https://www.tikwm.com/api/?url=" + URLEncoder.encode(cleanUrl, "UTF-8");
+            String jsonResp = fetchUrl(apiUrl, "GET", null, null);
+            JSONObject root = new JSONObject(jsonResp);
+            if (root.optInt("code", -1) == 0) {
+                JSONObject d = root.optJSONObject("data");
+                if (d != null) {
+                    String oc = ensureAbsoluteTikWmUrl(d.optString("origin_cover", ""));
+                    if (!oc.isEmpty()) return oc;
+                    String dc = ensureAbsoluteTikWmUrl(d.optString("ai_dynamic_cover", ""));
+                    if (!dc.isEmpty()) return dc;
+                    String c = ensureAbsoluteTikWmUrl(d.optString("cover", ""));
+                    if (!c.isEmpty()) return c;
+                }
+            }
+        } catch (Exception ignored) {}
+        return "";
+    }
+
     private static String fetchImageAsDataUri(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty() || !imageUrl.startsWith("http")) {
             return null;
@@ -559,8 +605,8 @@ public class TikTokResolver {
                 int total = 0;
                 while ((n = is.read(buf)) != -1) {
                     total += n;
-                    if (total > 350000) {
-                        // Si supera 350KB, usar URL directa para no sobrecargar JSON
+                    if (total > 1200000) {
+                        // Permitir hasta 1.2 MB para portadas 1080p Full HD sin pérdida de nitidez
                         is.close();
                         return imageUrl;
                     }
