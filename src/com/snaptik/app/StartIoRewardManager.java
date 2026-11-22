@@ -28,8 +28,10 @@ import java.util.ArrayList;
 public class StartIoRewardManager {
     private static final String TAG = "StartIoAllAds";
 
-    // App ID oficial de Start.io (portal.start.io)
-    public static String STARTIO_APP_ID = "208514697";
+    // Account ID y App ID oficiales de Start.io (portal.start.io)
+    public static String STARTIO_ACCOUNT_ID = "185386978";
+    public static String STARTIO_APP_ID = "210251211";
+    public static boolean testAdsEnabled = false;
 
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static boolean initialized = false;
@@ -69,11 +71,13 @@ public class StartIoRewardManager {
         if (activity == null || !isConfigured()) return;
         try {
             if (!initialized) {
+                StartAppSDK.setTestAdsEnabled(testAdsEnabled);
                 StartAppSDK.setUserConsent(activity, "pas", System.currentTimeMillis(), true);
-                StartAppSDK.init(activity, STARTIO_APP_ID.trim(), true);
+                StartAppSDK.init(activity, STARTIO_ACCOUNT_ID, STARTIO_APP_ID.trim(), true);
                 StartAppSDK.enableReturnAds(true);
                 initialized = true;
-                Log.d(TAG, "Start.io SDK " + StartAppSDK.getVersion() + " inicializado con App ID: " + STARTIO_APP_ID);
+                Log.d(TAG, "Start.io SDK " + StartAppSDK.getVersion() + " inicializado Account=" + STARTIO_ACCOUNT_ID + " App=" + STARTIO_APP_ID + " testMode=" + testAdsEnabled);
+                logGaidAsync(activity);
             }
             // Montar banner y precargar anuncios con espera breve para que metadata sincronice
             attachBanner(activity, bannerContainer);
@@ -81,6 +85,25 @@ public class StartIoRewardManager {
         } catch (Exception e) {
             bannerStatus = "ERR: " + e.getMessage();
             Log.e(TAG, "Error inicializando Start.io: " + e.getMessage());
+        }
+    }
+
+    private static void logGaidAsync(final Activity activity) {
+        new Thread(new GaidCheckRunnable(activity)).start();
+    }
+
+    private static class GaidCheckRunnable implements Runnable {
+        private final Activity activity;
+        GaidCheckRunnable(Activity activity) { this.activity = activity; }
+        @Override
+        public void run() {
+            try {
+                com.google.android.gms.ads.identifier.AdvertisingIdClient.Info info =
+                    com.google.android.gms.ads.identifier.AdvertisingIdClient.getAdvertisingIdInfo(activity.getApplicationContext());
+                Log.d(TAG, "GAID OK: id=" + info.getId() + " limitAdTracking=" + info.isLimitAdTrackingEnabled());
+            } catch (Throwable t) {
+                Log.e(TAG, "GAID ERROR: " + t.getClass().getSimpleName() + ": " + t.getMessage());
+            }
         }
     }
 
