@@ -146,12 +146,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const navButtons = document.querySelectorAll('.dock-nav-item');
     const sections = document.querySelectorAll('.section-view');
 
+    function refreshStartIoDiag() {
+        const el = document.getElementById('lblStartIoDiag');
+        if (!el || !window.AndroidApp || typeof window.AndroidApp.getStartIoStatus !== 'function') return;
+        try {
+            const st = JSON.parse(window.AndroidApp.getStartIoStatus());
+            el.textContent = `Banner: ${st.banner} • Reward: ${st.rewarded} • Interst: ${st.interstitial} • Nativo: ${st.nativeAd}`;
+        } catch (e) {}
+    }
+
+    const btnTestStartIoAd = document.getElementById('btnTestStartIoAd');
+    if (btnTestStartIoAd) {
+        btnTestStartIoAd.addEventListener('click', () => {
+            triggerHaptics(25);
+            refreshStartIoDiag();
+            if (window.AndroidApp && typeof window.AndroidApp.showInterstitialNow === 'function') {
+                window.AndroidApp.showInterstitialNow();
+            }
+        });
+    }
+
     function switchView(targetId) {
         triggerHaptics(18);
         navButtons.forEach(b => b.classList.toggle('active', b.dataset.view === targetId));
         sections.forEach(s => s.classList.toggle('active', s.id === targetId));
         if (targetId === 'sectionLibrary') renderLibraryList();
-        if (targetId === 'sectionSettings') pingServerStatus();
+        if (targetId === 'sectionSettings') {
+            pingServerStatus();
+            refreshStartIoDiag();
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 

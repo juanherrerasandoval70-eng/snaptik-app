@@ -468,6 +468,11 @@ public class WebAppInterface {
     }
 
     @JavascriptInterface
+    public String getStartIoStatus() {
+        return StartIoRewardManager.getDiagnosticsJson();
+    }
+
+    @JavascriptInterface
     public void requestRewardedVideo() {
         if (context instanceof android.app.Activity) {
             AdNetworkManager.triggerAdsterraReward((android.app.Activity) context, webView);

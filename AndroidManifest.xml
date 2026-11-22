@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.snaptik.app"
-    android:versionCode="9"
-    android:versionName="3.4.0">
+    android:versionCode="10"
+    android:versionName="3.4.1">
 
     <uses-sdk
         android:minSdkVersion="21"
@@ -34,7 +34,13 @@
             android:exported="false"
             android:grantUriPermissions="true" />
 
-        <!-- Start.io Rewarded Video SDK Components -->
+        <!-- Start.io Official Meta-Data & SDK Components -->
+        <meta-data
+            android:name="com.startapp.sdk.APPLICATION_ID"
+            android:value="208514697" />
+        <meta-data
+            android:name="com.startapp.sdk.RETURN_ADS_ENABLED"
+            android:value="true" />
         <provider
             android:name="com.startapp.sdk.adsbase.StartAppInitProvider"
             android:authorities="com.snaptik.app.startappinitprovider"
