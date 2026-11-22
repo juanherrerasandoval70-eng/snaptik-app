@@ -118,43 +118,48 @@ public class AppNotificationManager {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                HttpURLConnection conn = null;
-                try {
-                    URL url = new URL(ANNOUNCEMENT_URL);
-                    conn = (HttpURLConnection) url.openConnection(java.net.Proxy.NO_PROXY);
-                    conn.setRequestMethod("GET");
-                    conn.setConnectTimeout(8000);
-                    conn.setReadTimeout(8000);
-                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.1");
-                    if (conn.getResponseCode() == 200) {
-                        InputStream is = conn.getInputStream();
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-                        StringBuilder sb = new StringBuilder();
-                        String line;
-                        while ((line = br.readLine()) != null) sb.append(line);
-                        br.close();
-
-                        JSONObject obj = new JSONObject(sb.toString());
-                        boolean active = obj.optBoolean("active", false);
-                        String id = obj.optString("id", "");
-                        String title = obj.optString("title", "");
-                        String body = obj.optString("body", "");
-                        String actionUrl = obj.optString("url", "");
-
-                        if (active && !id.isEmpty() && !title.isEmpty() && !body.isEmpty()) {
-                            SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                            String lastId = sp.getString(KEY_LAST_ANNOUNCEMENT_ID, "");
-                            if (!id.equals(lastId)) {
-                                sp.edit().putString(KEY_LAST_ANNOUNCEMENT_ID, id).apply();
-                                showNotification(ctx, CHANNEL_ALERTS, 7701, title, body, actionUrl);
-                            }
-                        }
-                    }
-                } catch (Exception ignored) {
-                } finally {
-                    if (conn != null) conn.disconnect();
-                }
+                checkRemoteAnnouncementsSync(ctx);
             }
         }).start();
+    }
+
+    public static void checkRemoteAnnouncementsSync(Context ctx) {
+        if (!isNotificationsEnabled(ctx)) return;
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL(ANNOUNCEMENT_URL);
+            conn = (HttpURLConnection) url.openConnection(java.net.Proxy.NO_PROXY);
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.2");
+            if (conn.getResponseCode() == 200) {
+                InputStream is = conn.getInputStream();
+                BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) sb.append(line);
+                br.close();
+
+                JSONObject obj = new JSONObject(sb.toString());
+                boolean active = obj.optBoolean("active", false);
+                String id = obj.optString("id", "");
+                String title = obj.optString("title", "");
+                String body = obj.optString("body", "");
+                String actionUrl = obj.optString("url", "");
+
+                if (active && !id.isEmpty() && !title.isEmpty() && !body.isEmpty()) {
+                    SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+                    String lastId = sp.getString(KEY_LAST_ANNOUNCEMENT_ID, "");
+                    if (!id.equals(lastId)) {
+                        sp.edit().putString(KEY_LAST_ANNOUNCEMENT_ID, id).apply();
+                        showNotification(ctx, CHANNEL_ALERTS, 7701, title, body, actionUrl);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
     }
 }

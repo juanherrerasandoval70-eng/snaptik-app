@@ -1,8 +1,8 @@
 {
-  "versionCode": 20,
-  "versionName": "3.9.1",
+  "versionCode": 21,
+  "versionName": "3.9.2",
   "backendUrl": "https://snaptik-backend.onrender.com/api/extract",
   "apkUrl": "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/dist/SnapTik_PRO_v1.0.apk",
-  "changelog": "• Notificaciones nativas conectadas para Android 13/14/15 con solicitud de permiso automática\n• Switch de Notificaciones en Ajustes y canal remoto de avisos desde tu servidor\n• Icono oficial de SnapTik PRO en las notificaciones de descarga",
+  "changelog": "• Recepción automática de notificaciones online incluso con la app cerrada (cada 15 min)\n• Panel web privado para enviar avisos en vivo a todos los usuarios\n• Notificaciones nativas Android 13/14/15 con interruptor en Ajustes",
   "forceUpdate": false
 }
