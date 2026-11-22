@@ -94,12 +94,14 @@ public class TikTokResolver {
             JSONObject body = new JSONObject();
             body.put("url", cleanUrl);
             String ts = String.valueOf(System.currentTimeMillis() / 1000L);
-            String sig = AppSecurityGuard.computeRequestSignature(ts, cleanUrl);
+            String nonce = AppSecurityGuard.generateNonce();
+            String sig = AppSecurityGuard.computeRequestSignature(ts, nonce, cleanUrl);
             String[] headers = new String[]{
                 "Content-Type", "application/json; charset=UTF-8",
                 "Accept", "application/json",
                 "X-App-Client", "com.snaptik.app",
                 "X-App-Timestamp", ts,
+                "X-App-Nonce", nonce,
                 "X-App-Signature", sig
             };
             String resp = fetchUrl(PRIVATE_BACKEND_URL, "POST", body.toString(), headers);
@@ -641,7 +643,8 @@ public class TikTokResolver {
 
     private static String fetchUrl(String targetUrl, String method, String body, String[] headers) throws Exception {
         URL url = new URL(targetUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        // Proxy.NO_PROXY: Bloquea intercepción MITM (Burp / Charles / HTTP Toolkit / Fiddler)
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection(java.net.Proxy.NO_PROXY);
         conn.setRequestMethod(method);
         conn.setConnectTimeout(15000);
         conn.setReadTimeout(15000);

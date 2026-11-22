@@ -28,7 +28,8 @@ foreach ($d in $dirs) {
 # Generar AndroidManifest limpio para tiendas con Package ID único libre de conflictos (com.snaptikpro.hd.app)
 $manifestRaw = Get-Content "AndroidManifest.xml" -Raw
 $storeManifest = $manifestRaw -replace '<uses-permission android:name="android\.permission\.REQUEST_INSTALL_PACKAGES"\s*/>', ''
-$storeManifest = $storeManifest -replace 'android:usesCleartextTraffic="true"', 'android:usesCleartextTraffic="false" android:debuggable="false"'
+$storeManifest = $storeManifest -replace 'android:usesCleartextTraffic="true"', 'android:usesCleartextTraffic="false" android:debuggable="false" android:networkSecurityConfig="@xml/network_security_config"'
+$storeManifest = $storeManifest -replace 'android:allowBackup="true"', 'android:allowBackup="false"'
 $storeManifest = $storeManifest -replace 'package="com\.snaptik\.app"', 'package="com.snaptikpro.hd.app"'
 $storeManifest = $storeManifest -replace 'android:authorities="com\.snaptik\.app\.', 'android:authorities="com.snaptikpro.hd.app.'
 $storeManifest = $storeManifest -replace 'android:name="\.MainActivity"', 'android:name="com.snaptik.app.MainActivity"'

@@ -1,8 +1,8 @@
 {
-  "versionCode": 18,
-  "versionName": "3.8.4",
+  "versionCode": 19,
+  "versionName": "3.9.0",
   "backendUrl": "https://snaptik-backend.onrender.com/api/extract",
   "apkUrl": "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/dist/SnapTik_PRO_v1.0.apk",
-  "changelog": "• Reproductor encuadrado al 100% sin desbordamiento lateral en vídeos panorámicos\n• Eliminadas las dimensiones técnicas crudas (1702×720) de las etiquetas\n• Miniaturas HD 1080p reales en Biblioteca y Recientes",
+  "changelog": "• Blindaje máximo Anti-Crack, Anti-MITM (Proxy.NO_PROXY + networkSecurityConfig) y Anti-Replay con Nonce\n• Protección Anti-Bot y Auto-Ban de 30 min en el servidor\n• Integridad verificada al arranque (anti-repackaging y anti-Frida)",
   "forceUpdate": false
 }

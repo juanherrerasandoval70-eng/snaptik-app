@@ -66,6 +66,10 @@ public class WebAppInterface {
             showToast("Depuración detectada: Extracción denegada.");
             return;
         }
+        if (AppSecurityGuard.isMitmProxyActive()) {
+            showToast("Red interceptada (Proxy) detectada: Extracción bloqueada.");
+            return;
+        }
         new Thread(new ExtractTaskRunnable(webView, tiktokUrl)).start();
     }
 

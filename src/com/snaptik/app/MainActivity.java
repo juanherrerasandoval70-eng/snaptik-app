@@ -51,6 +51,15 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Blindaje en el arranque: bloquear APK repackaged/modificado o inyectado con Frida/Debugger
+        if (!AppSecurityGuard.verifySignature(this)
+                || AppSecurityGuard.isFridaOrHookingDetected()
+                || AppSecurityGuard.isDebuggerActive()) {
+            android.widget.Toast.makeText(this, "Integridad de aplicación no verificada.", android.widget.Toast.LENGTH_LONG).show();
+            finishAffinity();
+            return;
+        }
+
         // Barra de estado y navegación en negro puro OLED (#000000)
         Window window = getWindow();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

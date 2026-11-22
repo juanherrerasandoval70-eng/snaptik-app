@@ -39,13 +39,15 @@ public class AppSecurityGuard {
         return xorDecrypt(BACKEND_URL_XOR, 0x3D);
     }
 
-    public static String computeRequestSignature(String timestamp, String targetUrl) {
+    public static String computeRequestSignature(String timestamp, String nonce, String targetUrl) {
         try {
             String secret = xorDecrypt(HMAC_KEY_XOR, 0x5A);
             javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
             javax.crypto.spec.SecretKeySpec keySpec = new javax.crypto.spec.SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256");
             mac.init(keySpec);
-            String payload = timestamp + ":" + targetUrl;
+            String payload = (nonce != null && !nonce.isEmpty())
+                ? (timestamp + ":" + nonce + ":" + targetUrl)
+                : (timestamp + ":" + targetUrl);
             byte[] raw = mac.doFinal(payload.getBytes("UTF-8"));
             StringBuilder sb = new StringBuilder();
             for (byte b : raw) {
@@ -55,6 +57,63 @@ public class AppSecurityGuard {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    public static String computeRequestSignature(String timestamp, String targetUrl) {
+        return computeRequestSignature(timestamp, "", targetUrl);
+    }
+
+    public static String generateNonce() {
+        byte[] b = new byte[12];
+        new java.security.SecureRandom().nextBytes(b);
+        StringBuilder sb = new StringBuilder();
+        for (byte x : b) {
+            sb.append(String.format("%02x", x));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Capa 1B: Detección de entornos de modificación/clonado (Lucky Patcher, MT Manager, Virtual Spaces)
+     */
+    public static boolean isTamperOrClonerEnvironment(Context context) {
+        try {
+            String filesDir = context.getFilesDir().getAbsolutePath().toLowerCase();
+            if (filesDir.contains("virtual") || filesDir.contains("parallel")
+                    || filesDir.contains("dualspace") || filesDir.contains("clone")
+                    || filesDir.contains("lbe")) {
+                return true;
+            }
+            android.content.pm.PackageManager pm = context.getPackageManager();
+            String[] badPkgs = new String[]{
+                "com.chelpus.lackypatch",
+                "com.dimonvideo.luckypatcher",
+                "com.forpda.lp",
+                "bin.mt.plus",
+                "bin.mt.plus.canary"
+            };
+            for (String bp : badPkgs) {
+                try {
+                    pm.getPackageInfo(bp, 0);
+                    return true;
+                } catch (Exception ignored) {}
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    /**
+     * Capa 1C: Detección de Proxy MITM (Burp Suite / Charles / HTTP Toolkit / Fiddler)
+     */
+    public static boolean isMitmProxyActive() {
+        try {
+            String proxyHost = System.getProperty("http.proxyHost");
+            String proxyPort = System.getProperty("http.proxyPort");
+            if (proxyHost != null && !proxyHost.trim().isEmpty() && proxyPort != null && !proxyPort.trim().isEmpty()) {
+                return true;
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
 
     // Rutas comunes de binarios root / su
