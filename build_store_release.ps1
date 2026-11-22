@@ -25,18 +25,22 @@ foreach ($d in $dirs) {
     New-Item -ItemType Directory -Force -Path $d | Out-Null
 }
 
-# Generar AndroidManifest limpio para tiendas (sin REQUEST_INSTALL_PACKAGES, debuggable=false, HTTPS estricto)
+# Generar AndroidManifest limpio para tiendas con Package ID único libre de conflictos (com.snaptikpro.hd.app)
 $manifestRaw = Get-Content "AndroidManifest.xml" -Raw
 $storeManifest = $manifestRaw -replace '<uses-permission android:name="android\.permission\.REQUEST_INSTALL_PACKAGES"\s*/>', ''
 $storeManifest = $storeManifest -replace 'android:usesCleartextTraffic="true"', 'android:usesCleartextTraffic="false" android:debuggable="false"'
+$storeManifest = $storeManifest -replace 'package="com\.snaptik\.app"', 'package="com.snaptikpro.hd.app"'
+$storeManifest = $storeManifest -replace 'android:authorities="com\.snaptik\.app\.', 'android:authorities="com.snaptikpro.hd.app.'
+$storeManifest = $storeManifest -replace 'android:name="\.MainActivity"', 'android:name="com.snaptik.app.MainActivity"'
+$storeManifest = $storeManifest -replace 'android:name="\.AppUpdateFileProvider"', 'android:name="com.snaptik.app.AppUpdateFileProvider"'
 $storeManifestPath = "build\AndroidManifest_store.xml"
 Set-Content -Path $storeManifestPath -Value $storeManifest -Encoding UTF8
 
 # 1. Compilar recursos
 & $AAPT2 compile --dir res -o build\compiled_res.zip
 
-# 2. Enlazar con manifest limpio de tiendas
-& $AAPT2 link -I $ANDROID_JAR --manifest $storeManifestPath --java gen -o build\base.apk build\compiled_res.zip --auto-add-overlay
+# 2. Enlazar con manifest limpio de tiendas (--custom-package com.snaptik.app para mantener R.java intacto)
+& $AAPT2 link -I $ANDROID_JAR --manifest $storeManifestPath --custom-package com.snaptik.app --java gen -o build\base.apk build\compiled_res.zip --auto-add-overlay
 
 # 3. Compilar Java sin símbolos de depuración (-g:none anti-ingeniería inversa)
 $javaFiles = (Get-ChildItem -Path "gen\*.java", "src\*.java" -Recurse).FullName

@@ -20,6 +20,7 @@ public class AppSecurityGuard {
     private static final String AUTHORIZED_SIG_RELEASE = "6EB4AC5B90BA42D1C7EF6C62C4A4913508479571B7197868622F19C956B54367";
     private static final String AUTHORIZED_SIG_SHA256 = "4667B9A28B282298880809F4C7429D63DB9E6C499DD8CC91C37ECD2E562426F6";
     private static final String AUTHORIZED_PACKAGE = "com.snaptik.app";
+    private static final String AUTHORIZED_PACKAGE_STORE = "com.snaptikpro.hd.app";
 
     // Clave HMAC-SHA256 ofuscada por XOR (nunca en texto plano en classes.dex)
     private static final int[] HMAC_KEY_XOR = new int[]{
@@ -75,7 +76,7 @@ public class AppSecurityGuard {
     public static boolean verifySignature(Context context) {
         try {
             String packageName = context.getPackageName();
-            if (!AUTHORIZED_PACKAGE.equals(packageName)) {
+            if (!AUTHORIZED_PACKAGE.equals(packageName) && !AUTHORIZED_PACKAGE_STORE.equals(packageName)) {
                 return false; // Bloquea clones con paquete renombrado
             }
             PackageManager pm = context.getPackageManager();
