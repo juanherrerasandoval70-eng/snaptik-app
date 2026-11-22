@@ -113,14 +113,20 @@ public class AppNotificationManager {
         } catch (Exception ignored) {}
     }
 
-    public static void checkRemoteAnnouncements(final Context ctx) {
+    private static class CheckAnnouncementRunnable implements Runnable {
+        private final Context ctx;
+        CheckAnnouncementRunnable(Context ctx) {
+            this.ctx = ctx;
+        }
+        @Override
+        public void run() {
+            checkRemoteAnnouncementsSync(ctx);
+        }
+    }
+
+    public static void checkRemoteAnnouncements(Context ctx) {
         if (!isNotificationsEnabled(ctx)) return;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                checkRemoteAnnouncementsSync(ctx);
-            }
-        }).start();
+        new Thread(new CheckAnnouncementRunnable(ctx.getApplicationContext())).start();
     }
 
     public static void checkRemoteAnnouncementsSync(Context ctx) {

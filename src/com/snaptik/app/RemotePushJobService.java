@@ -20,25 +20,35 @@ public class RemotePushJobService extends JobService {
             ComponentName cn = new ComponentName(ctx, RemotePushJobService.class);
             JobInfo info = new JobInfo.Builder(JOB_ID, cn)
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setPeriodic(15 * 60 * 1000L) // Cada 15 minutos en segundo plano
+                    .setPeriodic(15 * 60 * 1000L)
                     .setPersisted(false)
                     .build();
             js.schedule(info);
         } catch (Exception ignored) {}
     }
 
-    @Override
-    public boolean onStartJob(final JobParameters params) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    AppNotificationManager.checkRemoteAnnouncementsSync(getApplicationContext());
-                } finally {
-                    jobFinished(params, false);
-                }
+    private static class PushCheckWorker implements Runnable {
+        private final RemotePushJobService service;
+        private final JobParameters params;
+
+        PushCheckWorker(RemotePushJobService service, JobParameters params) {
+            this.service = service;
+            this.params = params;
+        }
+
+        @Override
+        public void run() {
+            try {
+                AppNotificationManager.checkRemoteAnnouncementsSync(service.getApplicationContext());
+            } finally {
+                service.jobFinished(params, false);
             }
-        }).start();
+        }
+    }
+
+    @Override
+    public boolean onStartJob(JobParameters params) {
+        new Thread(new PushCheckWorker(this, params)).start();
         return true;
     }
 
