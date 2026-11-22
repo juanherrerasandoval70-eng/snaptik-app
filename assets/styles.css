@@ -423,6 +423,75 @@ html, body {
     margin-bottom: 16px;
 }
 
+/* Start.io Native Ad Liquid Glass Card */
+.startio-native-card {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(28, 28, 36, 0.85) 0%, rgba(16, 16, 22, 0.94) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    margin-bottom: 16px;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+}
+
+.startio-native-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #14141B;
+    flex-shrink: 0;
+}
+
+.startio-native-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.startio-native-tag {
+    display: inline-block;
+    font-size: 0.56rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: rgba(0, 229, 255, 0.14);
+    color: #7DF3FF;
+    margin-bottom: 3px;
+}
+
+.startio-native-title {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.startio-native-desc {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.startio-native-cta {
+    padding: 8px 13px;
+    border-radius: var(--radius-pill);
+    background: #FFFFFF;
+    color: #060608;
+    font-size: 0.74rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
 /* Recientes Horizontal Strip */
 .recents-section {
     margin-top: 8px;

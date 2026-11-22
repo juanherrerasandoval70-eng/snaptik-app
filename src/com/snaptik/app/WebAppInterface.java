@@ -454,6 +454,20 @@ public class WebAppInterface {
     }
 
     @JavascriptInterface
+    public void clickNativeAd() {
+        if (context instanceof android.app.Activity) {
+            StartIoRewardManager.clickNativeAd((android.app.Activity) context);
+        }
+    }
+
+    @JavascriptInterface
+    public void showInterstitialNow() {
+        if (context instanceof android.app.Activity) {
+            StartIoRewardManager.showInterstitial((android.app.Activity) context);
+        }
+    }
+
+    @JavascriptInterface
     public void requestRewardedVideo() {
         if (context instanceof android.app.Activity) {
             AdNetworkManager.triggerAdsterraReward((android.app.Activity) context, webView);

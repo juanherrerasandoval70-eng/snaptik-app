@@ -1030,6 +1030,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalMonoAd) modalMonoAd.style.display = 'flex';
     };
 
+    // Start.io Native Ad Renderer
+    const startIoNativeCard = document.getElementById('startIoNativeCard');
+    window.onStartIoNativeAdLoaded = function(ad) {
+        if (!startIoNativeCard || !ad) return;
+        const iconEl = document.getElementById('nativeAdIcon');
+        const titleEl = document.getElementById('nativeAdTitle');
+        const descEl = document.getElementById('nativeAdDesc');
+        const ctaEl = document.getElementById('nativeAdCta');
+        if (iconEl) iconEl.src = ad.iconUrl || ad.imageUrl || defaultCreatorSvg;
+        if (titleEl) titleEl.textContent = ad.title || 'Recomendado';
+        if (descEl) descEl.textContent = ad.description || 'Contenido patrocinado';
+        if (ctaEl) ctaEl.textContent = ad.cta || 'Abrir';
+        startIoNativeCard.style.display = 'flex';
+    };
+    if (startIoNativeCard) {
+        startIoNativeCard.addEventListener('click', () => {
+            triggerHaptics(20);
+            if (window.AndroidApp && typeof window.AndroidApp.clickNativeAd === 'function') {
+                window.AndroidApp.clickNativeAd();
+            }
+        });
+    }
+
     // =========================================================
     // SERVER HEALTH & OTA UPDATE MANAGER
     // =========================================================

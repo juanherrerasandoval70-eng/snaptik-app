@@ -116,10 +116,13 @@ public class AdNetworkManager {
     }
 
     public static synchronized boolean recordDownloadAndCheckAdTrigger(Context context) {
+        downloadCount++;
+        if (StartIoRewardManager.isConfigured()) {
+            return true; // Mostrar interstitial Start.io tras cada descarga completada
+        }
         if (!isAdult18PlusEnabled(context)) {
             return false;
         }
-        downloadCount++;
         return (downloadCount % INTERSTITIAL_FREQUENCY == 0);
     }
 
@@ -164,6 +167,10 @@ public class AdNetworkManager {
 
     public static void triggerInterstitial(Activity activity, WebView webView) {
         if (activity == null || webView == null) return;
+        if (StartIoRewardManager.isConfigured()) {
+            StartIoRewardManager.showInterstitial(activity);
+            return;
+        }
         if (!isAdult18PlusEnabled(activity)) return;
         activity.runOnUiThread(new EvaluateJsRunnable(webView, "if(window.showMonochromeInterstitial) window.showMonochromeInterstitial();"));
     }

@@ -100,8 +100,9 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(webAppInterface, "AndroidApp");
         webView.loadUrl("file:///android_asset/index.html");
 
-        // Inicializar Start.io Video Reward SDK (si el App ID está configurado)
-        StartIoRewardManager.init(this);
+        // Inicializar Start.io (Banner + Native + Interstitial + Video Reward + Return Ads)
+        android.view.ViewGroup bannerContainer = findViewById(R.id.startIoBannerContainer);
+        StartIoRewardManager.init(this, bannerContainer, webView);
 
         // Comprobación silenciosa de actualizaciones OTA en segundo plano
         webView.postDelayed(new AutoCheckUpdateRunnable(this), 3000);
