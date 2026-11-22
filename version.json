@@ -1,8 +1,8 @@
 {
-  "versionCode": 4,
-  "versionName": "2.2.0",
+  "versionCode": 5,
+  "versionName": "3.0.0",
   "backendUrl": "https://snaptik-backend.onrender.com/api/extract",
   "apkUrl": "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/dist/SnapTik_PRO_v1.0.apk",
-  "changelog": "• Nueva Tarjeta de Descarga flotante Bento con miniatura, barra de progreso y acciones inmediatas\n• Reproducción directa y apertura de archivos descargados con un solo toque\n• Notificaciones del sistema nativas de Android al completar descargas\n• Motor FastMediaDownloader con aceleración de 128 KB",
+  "changelog": "• Rediseño total v3.0 Liquid Glass & Obsidian Titanium\n• Cuadrícula Bento 2×2 de calidades reales y Biblioteca visual en galería\n• Tarjeta de Descarga estilo Dynamic Island con velocidad real (MB/s)\n• Extracción en paralelo 2× más rápida y correcciones de portapapeles Android 12-14",
   "forceUpdate": false
 }

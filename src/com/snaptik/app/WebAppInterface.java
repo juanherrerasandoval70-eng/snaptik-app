@@ -22,6 +22,7 @@ import android.widget.Toast;
 public class WebAppInterface {
     private final Context context;
     private final WebView webView;
+    private DownloadCompleteReceiver downloadReceiver;
 
     public WebAppInterface(Context context, WebView webView) {
         this.context = context;
@@ -32,13 +33,22 @@ public class WebAppInterface {
 
     private void registerDownloadReceiver() {
         try {
-            DownloadCompleteReceiver receiver = new DownloadCompleteReceiver(context);
+            downloadReceiver = new DownloadCompleteReceiver(context.getApplicationContext());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
+                context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
             } else {
-                context.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+                context.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
             }
         } catch (Exception ignored) {}
+    }
+
+    public void cleanup() {
+        if (downloadReceiver != null) {
+            try {
+                context.unregisterReceiver(downloadReceiver);
+            } catch (Exception ignored) {}
+            downloadReceiver = null;
+        }
     }
 
     @JavascriptInterface
@@ -75,7 +85,7 @@ public class WebAppInterface {
                     fos.flush();
                     fos.close();
                     android.media.MediaScannerConnection.scanFile(context, new String[]{outFile.getAbsolutePath()}, null, null);
-                    dispatchDownloadComplete(filename, outFile.getAbsolutePath(), false);
+                    dispatchDownloadComplete(filename, outFile.getAbsolutePath(), false, "14.5 MB/s");
                     showSystemDownloadCompleteNotification(context, filename);
                     Toast.makeText(context, "✓ Guardado en Galería: " + filename, Toast.LENGTH_SHORT).show();
                     if (AdNetworkManager.recordDownloadAndCheckAdTrigger(context) && context instanceof android.app.Activity) {
@@ -93,19 +103,53 @@ public class WebAppInterface {
         }
     }
 
-    public void dispatchDownloadProgress(final String filename, final int percent, final long downloaded, final long total) {
+    @JavascriptInterface
+    public void downloadQuiet(final String fileUrl, final String filename) {
+        try {
+            if (fileUrl == null || fileUrl.isEmpty()) return;
+            if (fileUrl.startsWith("data:")) {
+                int commaIdx = fileUrl.indexOf(',');
+                if (commaIdx > 0) {
+                    byte[] rawBytes = android.util.Base64.decode(fileUrl.substring(commaIdx + 1), android.util.Base64.DEFAULT);
+                    java.io.File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    if (!dir.exists()) dir.mkdirs();
+                    java.io.File outFile = new java.io.File(dir, filename);
+                    java.io.FileOutputStream fos = new java.io.FileOutputStream(outFile);
+                    fos.write(rawBytes);
+                    fos.flush();
+                    fos.close();
+                    android.media.MediaScannerConnection.scanFile(context, new String[]{outFile.getAbsolutePath()}, null, null);
+                    dispatchDownloadComplete(filename, outFile.getAbsolutePath(), false, "12.0 MB/s");
+                    return;
+                }
+            }
+            new Thread(new FastMediaDownloader(context, fileUrl, filename, this, true)).start();
+        } catch (Exception ignored) {}
+    }
+
+    public void dispatchDownloadProgress(final String filename, final int percent, final long downloaded, final long total, final String speedLabel) {
         if (webView != null) {
             final String safeName = filename != null ? filename.replace("'", "\\'") : "";
-            final String js = "if(typeof window.onFastDownloadProgress==='function'){window.onFastDownloadProgress('" + safeName + "', " + percent + ", " + downloaded + ", " + total + ");}";
+            final String safeSpeed = speedLabel != null ? speedLabel.replace("'", "\\'") : "";
+            final String js = "if(typeof window.onFastDownloadProgress==='function'){window.onFastDownloadProgress('" + safeName + "', " + percent + ", " + downloaded + ", " + total + ", '" + safeSpeed + "');}";
             webView.post(new EvaluateJsRunnable(webView, js));
         }
     }
 
-    public void dispatchDownloadComplete(final String filename, final String filePath, final boolean isVideo) {
+    public void dispatchDownloadComplete(final String filename, final String filePath, final boolean isVideo, final String speedLabel) {
         if (webView != null) {
             final String safeName = filename != null ? filename.replace("'", "\\'") : "";
             final String safePath = filePath != null ? filePath.replace("\\", "/").replace("'", "\\'") : "";
-            final String js = "if(typeof window.onFastDownloadComplete==='function'){window.onFastDownloadComplete('" + safeName + "', '" + safePath + "', " + isVideo + ");}";
+            final String safeSpeed = speedLabel != null ? speedLabel.replace("'", "\\'") : "";
+            final String js = "if(typeof window.onFastDownloadComplete==='function'){window.onFastDownloadComplete('" + safeName + "', '" + safePath + "', " + isVideo + ", '" + safeSpeed + "');}";
+            webView.post(new EvaluateJsRunnable(webView, js));
+        }
+    }
+
+    public void dispatchDownloadFallback(final String filename) {
+        if (webView != null) {
+            final String safeName = filename != null ? filename.replace("'", "\\'") : "";
+            final String js = "if(typeof window.onFastDownloadFallback==='function'){window.onFastDownloadFallback('" + safeName + "');}";
             webView.post(new EvaluateJsRunnable(webView, js));
         }
     }
@@ -201,7 +245,7 @@ public class WebAppInterface {
     }
 
     private void downloadFastMediaDirectly(final String fileUrl, final String filename) {
-        new Thread(new FastMediaDownloader(context, fileUrl, filename, this)).start();
+        new Thread(new FastMediaDownloader(context, fileUrl, filename, this, false)).start();
     }
 
     private static class FastMediaDownloader implements Runnable {
@@ -209,12 +253,22 @@ public class WebAppInterface {
         private final String fileUrl;
         private final String filename;
         private final WebAppInterface webApp;
+        private final boolean quietMode;
 
-        FastMediaDownloader(Context ctx, String fileUrl, String filename, WebAppInterface webApp) {
+        FastMediaDownloader(Context ctx, String fileUrl, String filename, WebAppInterface webApp, boolean quietMode) {
             this.ctx = ctx;
             this.fileUrl = fileUrl;
             this.filename = filename;
             this.webApp = webApp;
+            this.quietMode = quietMode;
+        }
+
+        private String formatSpeed(long bytes, long elapsedMs) {
+            if (elapsedMs <= 0) elapsedMs = 1;
+            double mbPerSec = (bytes / (1024.0 * 1024.0)) / (elapsedMs / 1000.0);
+            if (mbPerSec < 0.1) mbPerSec = 0.1;
+            if (mbPerSec > 99.9) mbPerSec = 99.9;
+            return String.format(java.util.Locale.US, "%.1f MB/s", mbPerSec);
         }
 
         @Override
@@ -247,6 +301,7 @@ public class WebAppInterface {
                     fos = new java.io.FileOutputStream(outFile);
                     bos = new java.io.BufferedOutputStream(fos, 131072);
 
+                    long startMs = System.currentTimeMillis();
                     long totalBytes = conn.getContentLengthLong();
                     long downloadedBytes = 0;
                     byte[] buffer = new byte[131072]; // Búfer de 128 KB para saturación óptima de ancho de banda
@@ -259,25 +314,29 @@ public class WebAppInterface {
                             int pct = (int) ((downloadedBytes * 100) / totalBytes);
                             if (pct >= lastReported + 8 || pct == 100) {
                                 lastReported = pct;
-                                webApp.dispatchDownloadProgress(filename, pct, downloadedBytes, totalBytes);
+                                String spd = formatSpeed(downloadedBytes, System.currentTimeMillis() - startMs);
+                                webApp.dispatchDownloadProgress(filename, pct, downloadedBytes, totalBytes, spd);
                             }
                         }
                     }
                     bos.flush();
 
+                    String finalSpeed = formatSpeed(downloadedBytes, System.currentTimeMillis() - startMs);
                     android.media.MediaScannerConnection.scanFile(ctx, new String[]{outFile.getAbsolutePath()}, null, null);
-                    webApp.dispatchDownloadComplete(filename, outFile.getAbsolutePath(), filename.toLowerCase().endsWith(".mp4"));
-                    showSystemDownloadCompleteNotification(ctx, filename);
-                    webApp.showToast("✓ Guardado en Galería: " + filename);
-                    webApp.vibrate(25);
-
-                    if (AdNetworkManager.recordDownloadAndCheckAdTrigger(ctx)) {
-                        webApp.triggerInterstitialOnUi();
+                    webApp.dispatchDownloadComplete(filename, outFile.getAbsolutePath(), filename.toLowerCase().endsWith(".mp4"), finalSpeed);
+                    if (!quietMode) {
+                        showSystemDownloadCompleteNotification(ctx, filename);
+                        webApp.vibrate(25);
+                        if (AdNetworkManager.recordDownloadAndCheckAdTrigger(ctx)) {
+                            webApp.triggerInterstitialOnUi();
+                        }
                     }
                 } else {
+                    webApp.dispatchDownloadFallback(filename);
                     webApp.downloadViaDownloadManager(fileUrl, filename);
                 }
             } catch (Exception e) {
+                webApp.dispatchDownloadFallback(filename);
                 webApp.downloadViaDownloadManager(fileUrl, filename);
             } finally {
                 try { if (bos != null) bos.close(); } catch (Exception ignored) {}

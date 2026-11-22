@@ -14,12 +14,15 @@ import android.webkit.WebView;
 public class MainActivity extends Activity {
 
     public WebView webView;
+    private WebAppInterface webAppInterface;
     private String lastAutoPastedUrl = "";
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        checkClipboardForTikTokLink();
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            checkClipboardForTikTokLink();
+        }
     }
 
     private void checkClipboardForTikTokLink() {
@@ -93,16 +96,20 @@ public class MainActivity extends Activity {
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
         webView.setWebViewClient(new AppWebViewClient(this));
-        webView.addJavascriptInterface(new WebAppInterface(this, webView), "AndroidApp");
+        webAppInterface = new WebAppInterface(this, webView);
+        webView.addJavascriptInterface(webAppInterface, "AndroidApp");
         webView.loadUrl("file:///android_asset/index.html");
-
-        // Red publicitaria: Adsterra Smartlinks (Activación directa)
 
         // Comprobación silenciosa de actualizaciones OTA en segundo plano
         webView.postDelayed(new AutoCheckUpdateRunnable(this), 3000);
+    }
 
-        // Procesar intent de compartir recibido
-        handleIncomingIntent(getIntent());
+    @Override
+    protected void onDestroy() {
+        if (webAppInterface != null) {
+            webAppInterface.cleanup();
+        }
+        super.onDestroy();
     }
 
     private static class AutoCheckUpdateRunnable implements Runnable {
@@ -129,8 +136,11 @@ public class MainActivity extends Activity {
         if (intent != null && Intent.ACTION_SEND.equals(intent.getAction())) {
             String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
             if (sharedText != null && !sharedText.isEmpty()) {
-                String safeText = sharedText.replace("'", "\\'");
-                webView.post(new EvaluateJsRunnable(webView, "window.onSharedLinkReceived('" + safeText + "');"));
+                String safeText = sharedText.replace("\\", "\\\\").replace("'", "\\'").replace("\n", " ").replace("\r", " ");
+                setIntent(new Intent());
+                if (webView != null) {
+                    webView.post(new EvaluateJsRunnable(webView, "if(window.onSharedLinkReceived){window.onSharedLinkReceived('" + safeText + "');}"));
+                }
             }
         }
     }

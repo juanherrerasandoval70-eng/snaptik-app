@@ -242,7 +242,9 @@ public class AppUpdateManager {
             } catch (Exception e) {
                 isDownloading = false;
                 Log.e(TAG, "Download error: " + e.getMessage());
-                dispatchJs(webView, "if(window.onUpdateDownloadError) { window.onUpdateDownloadError('" + e.getMessage() + "'); }");
+                String safeMsg = (e.getMessage() != null ? e.getMessage() : "Error desconocido")
+                        .replace("\\", "\\\\").replace("'", "\\'").replace("\n", " ").replace("\r", " ");
+                dispatchJs(webView, "if(window.onUpdateDownloadError) { window.onUpdateDownloadError('" + safeMsg + "'); }");
             }
         }
     }
