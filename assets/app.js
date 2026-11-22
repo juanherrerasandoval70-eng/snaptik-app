@@ -223,18 +223,10 @@ document.addEventListener('DOMContentLoaded', () => {
             activeResolvedData.chosen_mode = mode;
             const isPhoto = Array.isArray(activeResolvedData.images) && activeResolvedData.images.length > 0;
             if (!isPhoto) {
-                const modeLabels = { '4k': '4K UHD', '1080p': '1080p FHD', '720p': '720p HD', 'audio': 'MP3 320k' };
-                const t = modeLabels[mode] || '1080p FHD';
-                const vw = (videoPlayer && videoPlayer.videoWidth) || activeResolvedData.width || 0;
-                const vh = (videoPlayer && videoPlayer.videoHeight) || activeResolvedData.height || 0;
-                const dur = activeResolvedData.duration ? formatDuration(activeResolvedData.duration) : '';
-                if (vw > 0 && vh > 0) {
-                    badgeDetectedRes.textContent = `${vw}×${vh} • ${t}` + (dur ? ` • ${dur}` : '');
-                    if (chipRealResolution) chipRealResolution.textContent = `${vw}×${vh} • ${t}`;
-                } else {
-                    badgeDetectedRes.textContent = t + (activeResolvedData.hd_size_mb ? ` • ${activeResolvedData.hd_size_mb}` : '');
-                    if (chipRealResolution) chipRealResolution.textContent = badgeDetectedRes.textContent;
-                }
+                const modeLabels = { '4k': '4K Ultra HD', '1080p': '1080p Full HD', '720p': '720p HD', 'audio': 'Audio MP3 320k' };
+                const t = modeLabels[mode] || '1080p Full HD';
+                if (badgeDetectedRes) badgeDetectedRes.textContent = t;
+                if (chipRealResolution) chipRealResolution.textContent = t;
             }
             saveItemToLocalLibrary(activeResolvedData);
             renderRecentsStrip();
@@ -467,11 +459,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? data.title : `Vídeo sin marca de agua de ${handle}`;
         }
 
-        const modeLabels = { '4k': '4K UHD', '1080p': '1080p Full HD', '720p': '720p HD', 'audio': 'Audio MP3 320k' };
+        const modeLabels = { '4k': '4K Ultra HD', '1080p': '1080p Full HD', '720p': '720p HD', 'audio': 'Audio MP3 320k' };
         const initResLabel = isPhotoAlbum
             ? `${data.images.length} Fotos • HD`
-            : (modeLabels[selectedMode] || (data.is_4k ? '4K UHD' : '1080p Full HD')) + (data.hd_size_mb ? ' • ' + data.hd_size_mb : '');
-        badgeDetectedRes.textContent = initResLabel;
+            : (modeLabels[selectedMode] || (data.is_4k ? '4K Ultra HD' : '1080p Full HD'));
+        if (badgeDetectedRes) badgeDetectedRes.textContent = initResLabel;
         if (chipRealResolution) chipRealResolution.textContent = isPhotoAlbum ? `Álbum • ${data.images.length} fotos` : initResLabel;
         if (chipAspectRatio) chipAspectRatio.textContent = isPhotoAlbum ? 'Carrusel HD' : 'Formato original';
         if (chipRealDuration) {
@@ -517,32 +509,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     const minDim = Math.min(vw, vh);
 
                     if (previewStageWrapper) {
+                        previewStageWrapper.style.aspectRatio = 'auto';
                         if (ratio < 0.85) {
-                            previewStageWrapper.style.aspectRatio = 'auto';
-                            videoPlayer.style.maxHeight = '64vh';
+                            videoPlayer.style.maxHeight = '62vh';
                         } else if (ratio > 1.15) {
-                            previewStageWrapper.style.aspectRatio = `${vw} / ${vh}`;
-                            videoPlayer.style.maxHeight = '52vh';
+                            videoPlayer.style.maxHeight = '48vh';
                         } else {
-                            previewStageWrapper.style.aspectRatio = '1 / 1';
-                            videoPlayer.style.maxHeight = '56vh';
+                            videoPlayer.style.maxHeight = '54vh';
                         }
                     }
 
-                    let tier = `${minDim}p`;
-                    if (selectedMode === '4k') tier = '4K UHD';
-                    else if (selectedMode === '1080p') tier = '1080p FHD';
+                    let tier = '1080p Full HD';
+                    if (selectedMode === '4k') tier = '4K Ultra HD';
+                    else if (selectedMode === '1080p') tier = '1080p Full HD';
                     else if (selectedMode === '720p') tier = '720p HD';
-                    else if (selectedMode === 'audio') tier = 'MP3 320k';
-                    else if (maxDim >= 2560 || minDim >= 1440) tier = '4K UHD';
-                    else if (maxDim >= 1800 || minDim >= 1000) tier = '1080p FHD';
+                    else if (selectedMode === 'audio') tier = 'Audio MP3 320k';
+                    else if (maxDim >= 2560 || minDim >= 1440) tier = '4K Ultra HD';
+                    else if (maxDim >= 1800 || minDim >= 1000) tier = '1080p Full HD';
                     else if (maxDim >= 1200 || minDim >= 700) tier = '720p HD';
 
                     const orientLabel = ratio < 0.85 ? 'Vertical 9:16' : (ratio > 1.15 ? 'Horizontal 16:9' : 'Cuadrado 1:1');
                     const durStr = realDur > 0 ? formatDuration(realDur) : '';
 
-                    badgeDetectedRes.textContent = `${vw}×${vh} • ${tier}` + (durStr ? ` • ${durStr}` : '');
-                    if (chipRealResolution) chipRealResolution.textContent = `${vw}×${vh} • ${tier}`;
+                    if (badgeDetectedRes) badgeDetectedRes.textContent = tier;
+                    if (chipRealResolution) chipRealResolution.textContent = tier;
                     if (chipAspectRatio) chipAspectRatio.textContent = orientLabel;
                     if (chipRealDuration && durStr) {
                         chipRealDuration.textContent = durStr;
