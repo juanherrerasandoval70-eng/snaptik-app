@@ -16,8 +16,45 @@ import java.security.MessageDigest;
 
 public class AppSecurityGuard {
 
-    // Huella SHA-256 autorizada del certificado de firma del APK
+    // Huellas SHA-256 autorizadas: Certificado de Producción Tiendas + Certificado OTA Directo
+    private static final String AUTHORIZED_SIG_RELEASE = "6EB4AC5B90BA42D1C7EF6C62C4A4913508479571B7197868622F19C956B54367";
     private static final String AUTHORIZED_SIG_SHA256 = "4667B9A28B282298880809F4C7429D63DB9E6C499DD8CC91C37ECD2E562426F6";
+    private static final String AUTHORIZED_PACKAGE = "com.snaptik.app";
+
+    // Clave HMAC-SHA256 ofuscada por XOR (nunca en texto plano en classes.dex)
+    private static final int[] HMAC_KEY_XOR = new int[]{
+        9, 14, 10, 8, 21, 5, 104, 106, 104, 108, 5, 17, 99, 34, 12, 121,
+        55, 11, 109, 42, 22, 104, 52, 8, 98, 45, 0, 110, 48, 28, 108, 56
+    };
+
+    // URL base del backend ofuscada por XOR
+    private static final int[] BACKEND_URL_XOR = new int[]{
+        85, 73, 73, 77, 78, 7, 18, 18, 78, 83, 92, 77, 73, 84, 86, 16,
+        95, 92, 94, 86, 88, 83, 89, 19, 82, 83, 79, 88, 83, 89, 88, 79,
+        19, 94, 82, 80, 18, 92, 77, 84, 18, 88, 69, 73, 79, 92, 94, 73
+    };
+
+    public static String getProtectedBackendUrl() {
+        return xorDecrypt(BACKEND_URL_XOR, 0x3D);
+    }
+
+    public static String computeRequestSignature(String timestamp, String targetUrl) {
+        try {
+            String secret = xorDecrypt(HMAC_KEY_XOR, 0x5A);
+            javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
+            javax.crypto.spec.SecretKeySpec keySpec = new javax.crypto.spec.SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256");
+            mac.init(keySpec);
+            String payload = timestamp + ":" + targetUrl;
+            byte[] raw = mac.doFinal(payload.getBytes("UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : raw) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
 
     // Rutas comunes de binarios root / su
     private static final String[] SU_PATHS = new String[]{
@@ -37,8 +74,11 @@ public class AppSecurityGuard {
      */
     public static boolean verifySignature(Context context) {
         try {
-            PackageManager pm = context.getPackageManager();
             String packageName = context.getPackageName();
+            if (!AUTHORIZED_PACKAGE.equals(packageName)) {
+                return false; // Bloquea clones con paquete renombrado
+            }
+            PackageManager pm = context.getPackageManager();
             PackageInfo pi;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 pi = pm.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES);
@@ -55,7 +95,7 @@ public class AppSecurityGuard {
                 }
             }
         } catch (Exception ignored) {}
-        return true; // En entornos restringidos no bloquear falsos positivos
+        return false;
     }
 
     private static boolean checkSignatureBytes(byte[] certBytes) {
@@ -67,9 +107,10 @@ public class AppSecurityGuard {
                 sb.append(String.format("%02X", b));
             }
             String currentHash = sb.toString();
-            return AUTHORIZED_SIG_SHA256.equalsIgnoreCase(currentHash);
+            return AUTHORIZED_SIG_RELEASE.equalsIgnoreCase(currentHash)
+                || AUTHORIZED_SIG_SHA256.equalsIgnoreCase(currentHash);
         } catch (Exception e) {
-            return true;
+            return false;
         }
     }
 

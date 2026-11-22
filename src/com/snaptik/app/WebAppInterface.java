@@ -55,7 +55,11 @@ public class WebAppInterface {
     public void extract(String tiktokUrl) {
         vibrate(30);
         if (!AppSecurityGuard.verifySignature(context)) {
-            showToast("Alerta de seguridad: Firma del APK alterada.");
+            showToast("Alerta de seguridad: APK modificado o firma inválida.");
+            return;
+        }
+        if (AppSecurityGuard.isFridaOrHookingDetected()) {
+            showToast("Entorno no autorizado detectado.");
             return;
         }
         if (AppSecurityGuard.isDebuggerActive()) {

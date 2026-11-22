@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class TikTokResolver {
 
     private static final String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-    public static String PRIVATE_BACKEND_URL = "https://snaptik-backend.onrender.com/api/extract";
+    public static String PRIVATE_BACKEND_URL = AppSecurityGuard.getProtectedBackendUrl();
 
     public static void setCustomBackendUrl(String url) {
         if (url != null && !url.trim().isEmpty()) {
@@ -73,9 +73,14 @@ public class TikTokResolver {
         try {
             JSONObject body = new JSONObject();
             body.put("url", cleanUrl);
+            String ts = String.valueOf(System.currentTimeMillis() / 1000L);
+            String sig = AppSecurityGuard.computeRequestSignature(ts, cleanUrl);
             String[] headers = new String[]{
                 "Content-Type", "application/json; charset=UTF-8",
-                "Accept", "application/json"
+                "Accept", "application/json",
+                "X-App-Client", "com.snaptik.app",
+                "X-App-Timestamp", ts,
+                "X-App-Signature", sig
             };
             String resp = fetchUrl(PRIVATE_BACKEND_URL, "POST", body.toString(), headers);
             if (resp != null && !resp.trim().isEmpty()) {
