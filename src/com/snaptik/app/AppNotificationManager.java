@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 import org.json.JSONObject;
@@ -23,11 +24,22 @@ import java.net.URL;
 public class AppNotificationManager {
 
     public static final String CHANNEL_DOWNLOADS = "snaptik_media_dl";
-    public static final String CHANNEL_ALERTS = "snaptik_alerts_v1";
+    public static final String CHANNEL_ALERTS = "snaptik_alerts_chaching_v2";
     private static final String PREFS = "snaptik_notif_prefs";
     private static final String KEY_ENABLED = "notifs_enabled";
     private static final String KEY_LAST_ANNOUNCEMENT_ID = "last_announcement_id";
     private static final String ANNOUNCEMENT_URL = "https://snaptik-backend.onrender.com/api/notifications";
+    private static final long[] CHACHING_VIBRATION = new long[]{0, 110, 65, 160};
+
+    private static Uri getChaChingSoundUri(Context ctx) {
+        try {
+            int resId = ctx.getResources().getIdentifier("chaching", "raw", ctx.getPackageName());
+            if (resId != 0) {
+                return Uri.parse("android.resource://" + ctx.getPackageName() + "/" + resId);
+            }
+        } catch (Exception ignored) {}
+        return android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION);
+    }
 
     public static void ensureChannels(Context ctx) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -45,10 +57,20 @@ public class AppNotificationManager {
 
                 NotificationChannel alerts = new NotificationChannel(
                         CHANNEL_ALERTS,
-                        "Novedades y Avisos de SnapTik PRO",
+                        "Promociones y Avisos SnapTik PRO",
                         NotificationManager.IMPORTANCE_HIGH
                 );
-                alerts.setDescription("Actualizaciones importantes, mejoras de calidad y avisos del equipo.");
+                alerts.setDescription("Notificaciones flotantes con banner y sonido Cha-Ching.");
+                alerts.enableVibration(true);
+                alerts.setVibrationPattern(CHACHING_VIBRATION);
+                alerts.enableLights(true);
+                alerts.setLightColor(0xFFFF6D00);
+                alerts.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                AudioAttributes aa = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build();
+                alerts.setSound(getChaChingSoundUri(ctx), aa);
                 nm.createNotificationChannel(alerts);
             } catch (Exception ignored) {}
         }
@@ -142,19 +164,31 @@ public class AppNotificationManager {
               .setContentTitle(title)
               .setContentText(message)
               .setContentIntent(pi)
-              .setAutoCancel(true);
+              .setAutoCancel(true)
+              .setColor(0xFFFF5500)
+              .setPriority(Notification.PRIORITY_MAX)
+              .setCategory(Notification.CATEGORY_PROMO)
+              .setVisibility(Notification.VISIBILITY_PUBLIC);
 
-            if (appIconBmp != null) {
-                nb.setLargeIcon(appIconBmp);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                nb.setSound(getChaChingSoundUri(ctx));
+                nb.setVibrate(CHACHING_VIBRATION);
             }
 
             if (bannerBmp != null) {
+                nb.setLargeIcon(bannerBmp);
                 Notification.BigPictureStyle style = new Notification.BigPictureStyle()
                         .bigPicture(bannerBmp)
                         .setBigContentTitle(title)
                         .setSummaryText(message);
+                if (appIconBmp != null) {
+                    style.bigLargeIcon(appIconBmp);
+                }
                 nb.setStyle(style);
             } else {
+                if (appIconBmp != null) {
+                    nb.setLargeIcon(appIconBmp);
+                }
                 nb.setStyle(new Notification.BigTextStyle().bigText(message));
             }
 
