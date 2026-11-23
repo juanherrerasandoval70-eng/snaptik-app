@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,11 +18,42 @@ public class MainActivity extends Activity {
     public WebView webView;
     private WebAppInterface webAppInterface;
     private String lastAutoPastedUrl = "";
+    private Handler notifPollHandler;
+    private NotifPollRunnable notifPollRunnable;
+
+    private static class NotifPollRunnable implements Runnable {
+        private final MainActivity activity;
+        private final Handler handler;
+        NotifPollRunnable(MainActivity activity, Handler handler) {
+            this.activity = activity;
+            this.handler = handler;
+        }
+        @Override
+        public void run() {
+            AppNotificationManager.checkRemoteAnnouncements(activity);
+            handler.postDelayed(this, 20000);
+        }
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        AppNotificationManager.checkRemoteAnnouncements(this);
+        if (notifPollHandler == null) {
+            notifPollHandler = new Handler(Looper.getMainLooper());
+        }
+        if (notifPollRunnable == null) {
+            notifPollRunnable = new NotifPollRunnable(this, notifPollHandler);
+        }
+        notifPollHandler.removeCallbacks(notifPollRunnable);
+        notifPollHandler.post(notifPollRunnable);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (notifPollHandler != null && notifPollRunnable != null) {
+            notifPollHandler.removeCallbacks(notifPollRunnable);
+        }
     }
 
     @Override

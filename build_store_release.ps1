@@ -59,7 +59,13 @@ python -c "
 import zipfile, os
 with zipfile.ZipFile(r'build\base.apk', 'r') as zin, zipfile.ZipFile(r'build\unaligned_store.apk', 'w', compression=zipfile.ZIP_DEFLATED) as zout:
     for item in zin.infolist():
-        zout.writestr(item, zin.read(item.filename))
+        data = zin.read(item.filename)
+        if item.filename.startswith('res/raw/') or item.filename == 'resources.arsc' or item.compress_type == zipfile.ZIP_STORED:
+            zi = zipfile.ZipInfo(item.filename, item.date_time)
+            zi.compress_type = zipfile.ZIP_STORED
+            zout.writestr(zi, data)
+        else:
+            zout.writestr(item, data)
     for f in os.listdir('dex'):
         if f.endswith('.dex'):
             zout.write(os.path.join('dex', f), f)

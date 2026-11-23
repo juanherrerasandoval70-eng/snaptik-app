@@ -24,7 +24,7 @@ import java.net.URL;
 public class AppNotificationManager {
 
     public static final String CHANNEL_DOWNLOADS = "snaptik_media_dl";
-    public static final String CHANNEL_ALERTS = "snaptik_alerts_chaching_v2";
+    public static final String CHANNEL_ALERTS = "snaptik_alerts_chaching_v3";
     private static final String PREFS = "snaptik_notif_prefs";
     private static final String KEY_ENABLED = "notifs_enabled";
     private static final String KEY_LAST_ANNOUNCEMENT_ID = "last_announcement_id";
@@ -47,6 +47,11 @@ public class AppNotificationManager {
                 NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
                 if (nm == null) return;
 
+                try {
+                    nm.deleteNotificationChannel("snaptik_alerts_v1");
+                    nm.deleteNotificationChannel("snaptik_alerts_chaching_v2");
+                } catch (Exception ignored) {}
+
                 NotificationChannel dl = new NotificationChannel(
                         CHANNEL_DOWNLOADS,
                         "Descargas Completadas",
@@ -57,14 +62,14 @@ public class AppNotificationManager {
 
                 NotificationChannel alerts = new NotificationChannel(
                         CHANNEL_ALERTS,
-                        "Promociones y Avisos SnapTik PRO",
+                        "Avisos SnapTik PRO (Cha-Ching)",
                         NotificationManager.IMPORTANCE_HIGH
                 );
                 alerts.setDescription("Notificaciones flotantes con banner y sonido Cha-Ching.");
                 alerts.enableVibration(true);
                 alerts.setVibrationPattern(CHACHING_VIBRATION);
                 alerts.enableLights(true);
-                alerts.setLightColor(0xFFFF6D00);
+                alerts.setLightColor(0xFF38EFEE);
                 alerts.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
                 AudioAttributes aa = new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_NOTIFICATION)
@@ -165,7 +170,7 @@ public class AppNotificationManager {
               .setContentText(message)
               .setContentIntent(pi)
               .setAutoCancel(true)
-              .setColor(0xFFFF5500)
+              .setColor(0xFF38EFEE)
               .setPriority(Notification.PRIORITY_MAX)
               .setCategory(Notification.CATEGORY_PROMO)
               .setVisibility(Notification.VISIBILITY_PUBLIC);
@@ -216,12 +221,14 @@ public class AppNotificationManager {
         if (!isNotificationsEnabled(ctx)) return;
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(ANNOUNCEMENT_URL);
+            URL url = new URL(ANNOUNCEMENT_URL + "?t=" + System.currentTimeMillis());
             conn = (HttpURLConnection) url.openConnection(java.net.Proxy.NO_PROXY);
             conn.setRequestMethod("GET");
-            conn.setConnectTimeout(8000);
-            conn.setReadTimeout(8000);
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.3");
+            conn.setUseCaches(false);
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(10000);
+            conn.setRequestProperty("Cache-Control", "no-cache");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.5");
             if (conn.getResponseCode() == 200) {
                 InputStream is = conn.getInputStream();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
@@ -243,7 +250,8 @@ public class AppNotificationManager {
                     String lastId = sp.getString(KEY_LAST_ANNOUNCEMENT_ID, "");
                     if (!id.equals(lastId)) {
                         sp.edit().putString(KEY_LAST_ANNOUNCEMENT_ID, id).apply();
-                        showNotificationWithBanner(ctx, CHANNEL_ALERTS, 7701, title, body, imageUrl, actionUrl);
+                        int uniqueNotifId = (int) (System.currentTimeMillis() & 0x7FFFFFFF);
+                        showNotificationWithBanner(ctx, CHANNEL_ALERTS, uniqueNotifId, title, body, imageUrl, actionUrl);
                     }
                 }
             }
