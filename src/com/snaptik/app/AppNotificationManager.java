@@ -40,6 +40,9 @@ public class AppNotificationManager {
     private static final String KEY_ENABLED = "notifs_enabled";
     private static final String KEY_LAST_ANNOUNCEMENT_ID = "last_announcement_id";
     private static final String ANNOUNCEMENT_URL = "https://snaptik-backend.onrender.com/api/notifications";
+    private static final String STREAM_URL = "https://snaptik-backend.onrender.com/api/notifications/stream";
+    private static volatile boolean liveStreamRunning = false;
+    private static volatile HttpURLConnection liveStreamConn = null;
     private static final long[] CHACHING_VIBRATION = new long[]{0, 110, 65, 160};
 
     private static Uri getChaChingSoundUri(Context ctx) {
@@ -136,16 +139,26 @@ public class AppNotificationManager {
         }
     }
 
-    private static Bitmap downloadBannerBitmap(String imageUrl) {
+    private static Bitmap downloadBannerBitmap(Context ctx, String imageUrl) {
         if (imageUrl == null || !imageUrl.startsWith("http")) return null;
+        java.io.File cacheFile = null;
+        try {
+            String key = Integer.toHexString(imageUrl.hashCode());
+            cacheFile = new java.io.File(ctx.getCacheDir(), "notif_banner_" + key + ".png");
+            if (cacheFile.exists() && cacheFile.length() > 1024) {
+                Bitmap cached = BitmapFactory.decodeFile(cacheFile.getAbsolutePath());
+                if (cached != null) return cached;
+            }
+        } catch (Throwable ignored) {}
+
         HttpURLConnection conn = null;
         try {
             URL u = new URL(imageUrl);
             conn = (HttpURLConnection) u.openConnection(java.net.Proxy.NO_PROXY);
-            conn.setConnectTimeout(8000);
-            conn.setReadTimeout(8000);
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(6000);
             conn.setInstanceFollowRedirects(true);
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.6");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.8");
             if (conn.getResponseCode() == 200) {
                 InputStream is = conn.getInputStream();
                 BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -153,7 +166,6 @@ public class AppNotificationManager {
                 Bitmap raw = BitmapFactory.decodeStream(is, null, opts);
                 is.close();
                 if (raw == null) return null;
-                // Escalar a máx 520px ancho + esquinas redondeadas (~540KB ARGB_8888, seguro bajo 1MB Binder IPC)
                 int maxW = 520;
                 Bitmap scaled = raw;
                 if (raw.getWidth() > maxW) {
@@ -163,6 +175,14 @@ public class AppNotificationManager {
                 }
                 Bitmap rounded = roundCorners(scaled, 22f);
                 if (rounded != scaled) scaled.recycle();
+                if (cacheFile != null && rounded != null) {
+                    try {
+                        java.io.FileOutputStream fos = new java.io.FileOutputStream(cacheFile);
+                        rounded.compress(Bitmap.CompressFormat.PNG, 95, fos);
+                        fos.flush();
+                        fos.close();
+                    } catch (Throwable ignored) {}
+                }
                 return rounded;
             }
         } catch (Throwable t) {
@@ -211,7 +231,7 @@ public class AppNotificationManager {
                 }
             } catch (Throwable ignored) {}
 
-            Bitmap bannerBmp = downloadBannerBitmap(imageUrl);
+            Bitmap bannerBmp = downloadBannerBitmap(ctx, imageUrl);
 
             nb.setSmallIcon(R.drawable.ic_notif_snaptik)
               .setContentTitle(title)
@@ -331,6 +351,94 @@ public class AppNotificationManager {
         new Thread(new CheckAnnouncementRunnable(ctx.getApplicationContext())).start();
     }
 
+    private static synchronized void processNotificationJson(Context ctx, String jsonStr) {
+        try {
+            if (jsonStr == null || jsonStr.trim().isEmpty()) return;
+            JSONObject obj = new JSONObject(jsonStr);
+            boolean active = obj.optBoolean("active", false);
+            String id = obj.optString("id", "");
+            String title = obj.optString("title", "");
+            String body = obj.optString("body", "");
+            String imageUrl = obj.optString("image_url", "");
+            String actionUrl = obj.optString("url", "");
+
+            if (active && !id.isEmpty() && !title.isEmpty() && !body.isEmpty()) {
+                SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+                String lastId = sp.getString(KEY_LAST_ANNOUNCEMENT_ID, "");
+                if (!id.equals(lastId)) {
+                    int uniqueNotifId = (int) (System.currentTimeMillis() & 0x7FFFFFFF);
+                    boolean shown = showNotificationWithBanner(ctx, CHANNEL_ALERTS, uniqueNotifId, title, body, imageUrl, actionUrl);
+                    if (shown) {
+                        sp.edit().putString(KEY_LAST_ANNOUNCEMENT_ID, id).apply();
+                    }
+                }
+            }
+        } catch (Throwable ignored) {}
+    }
+
+    private static class LiveStreamWorker implements Runnable {
+        private final Context appCtx;
+        LiveStreamWorker(Context appCtx) {
+            this.appCtx = appCtx;
+        }
+        @Override
+        public void run() {
+            while (liveStreamRunning) {
+                HttpURLConnection conn = null;
+                try {
+                    URL url = new URL(STREAM_URL);
+                    conn = (HttpURLConnection) url.openConnection(java.net.Proxy.NO_PROXY);
+                    liveStreamConn = conn;
+                    conn.setRequestMethod("GET");
+                    conn.setUseCaches(false);
+                    conn.setConnectTimeout(10000);
+                    conn.setReadTimeout(35000);
+                    conn.setRequestProperty("Accept", "text/event-stream");
+                    conn.setRequestProperty("Cache-Control", "no-cache");
+                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.8");
+                    if (conn.getResponseCode() == 200) {
+                        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                        String line;
+                        while (liveStreamRunning && (line = br.readLine()) != null) {
+                            if (line.startsWith("data:")) {
+                                String payload = line.substring(5).trim();
+                                processNotificationJson(appCtx, payload);
+                            }
+                        }
+                        br.close();
+                    }
+                } catch (Throwable ignored) {
+                } finally {
+                    liveStreamConn = null;
+                    if (conn != null) {
+                        try { conn.disconnect(); } catch (Throwable ignored) {}
+                    }
+                }
+                if (liveStreamRunning) {
+                    try { Thread.sleep(3000); } catch (InterruptedException e) { break; }
+                }
+            }
+        }
+    }
+
+    public static void startLiveStream(Context ctx) {
+        if (!isNotificationsEnabled(ctx)) return;
+        if (liveStreamRunning) return;
+        liveStreamRunning = true;
+        Thread t = new Thread(new LiveStreamWorker(ctx.getApplicationContext()));
+        t.setDaemon(true);
+        t.start();
+    }
+
+    public static void stopLiveStream() {
+        liveStreamRunning = false;
+        HttpURLConnection c = liveStreamConn;
+        liveStreamConn = null;
+        if (c != null) {
+            try { c.disconnect(); } catch (Throwable ignored) {}
+        }
+    }
+
     public static void checkRemoteAnnouncementsSync(Context ctx) {
         if (!isNotificationsEnabled(ctx)) return;
         HttpURLConnection conn = null;
@@ -339,10 +447,10 @@ public class AppNotificationManager {
             conn = (HttpURLConnection) url.openConnection(java.net.Proxy.NO_PROXY);
             conn.setRequestMethod("GET");
             conn.setUseCaches(false);
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
             conn.setRequestProperty("Cache-Control", "no-cache");
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.5");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.8");
             if (conn.getResponseCode() == 200) {
                 InputStream is = conn.getInputStream();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
@@ -350,26 +458,7 @@ public class AppNotificationManager {
                 String line;
                 while ((line = br.readLine()) != null) sb.append(line);
                 br.close();
-
-                JSONObject obj = new JSONObject(sb.toString());
-                boolean active = obj.optBoolean("active", false);
-                String id = obj.optString("id", "");
-                String title = obj.optString("title", "");
-                String body = obj.optString("body", "");
-                String imageUrl = obj.optString("image_url", "");
-                String actionUrl = obj.optString("url", "");
-
-                if (active && !id.isEmpty() && !title.isEmpty() && !body.isEmpty()) {
-                    SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                    String lastId = sp.getString(KEY_LAST_ANNOUNCEMENT_ID, "");
-                    if (!id.equals(lastId)) {
-                        int uniqueNotifId = (int) (System.currentTimeMillis() & 0x7FFFFFFF);
-                        boolean shown = showNotificationWithBanner(ctx, CHANNEL_ALERTS, uniqueNotifId, title, body, imageUrl, actionUrl);
-                        if (shown) {
-                            sp.edit().putString(KEY_LAST_ANNOUNCEMENT_ID, id).apply();
-                        }
-                    }
-                }
+                processNotificationJson(ctx, sb.toString());
             }
         } catch (Exception ignored) {
         } finally {

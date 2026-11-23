@@ -31,13 +31,14 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             AppNotificationManager.checkRemoteAnnouncements(activity);
-            handler.postDelayed(this, 20000);
+            handler.postDelayed(this, 10000);
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        AppNotificationManager.startLiveStream(this);
         if (notifPollHandler == null) {
             notifPollHandler = new Handler(Looper.getMainLooper());
         }
@@ -51,9 +52,11 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        AppNotificationManager.stopLiveStream();
         if (notifPollHandler != null && notifPollRunnable != null) {
             notifPollHandler.removeCallbacks(notifPollRunnable);
         }
+        PushAlarmReceiver.scheduleNextCheck(this);
     }
 
     @Override
@@ -151,7 +154,9 @@ public class MainActivity extends Activity {
         // Solicitar permiso de notificaciones (Android 13+) y activar recepción en segundo plano (cada 15 min)
         AppNotificationManager.requestPermissionIfNeeded(this);
         AppNotificationManager.checkRemoteAnnouncements(this);
+        AppNotificationManager.startLiveStream(this);
         RemotePushJobService.schedulePeriodicCheck(this);
+        PushAlarmReceiver.scheduleNextCheck(this);
 
         // Inicializar Start.io (Banner + Native + Interstitial + Video Reward + Return Ads)
         android.view.ViewGroup bannerContainer = findViewById(R.id.startIoBannerContainer);
