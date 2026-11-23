@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer prismatic glow border -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#8838EFEE"
+                android:centerColor="#33FFFFFF"
+                android:endColor="#88FF7244" />
+            <corners android:radius="20dp" />
+        </shape>
+    </item>
+    <!-- Inner deep obsidian OLED glass card -->
+    <item android:left="1.2dp" android:top="1.2dp" android:right="1.2dp" android:bottom="1.2dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#0D1C26"
+                android:centerColor="#07090F"
+                android:endColor="#1B1015" />
+            <corners android:radius="19dp" />
+        </shape>
+    </item>
+</layer-list>

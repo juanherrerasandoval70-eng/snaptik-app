@@ -1,8 +1,8 @@
 {
-  "versionCode": 25,
-  "versionName": "3.9.6",
+  "versionCode": 26,
+  "versionName": "3.9.7",
   "backendUrl": "https://snaptik-backend.onrender.com/api/extract",
   "apkUrl": "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/dist/SnapTik_PRO_v1.0.apk",
-  "changelog": "• Corrección crítica TransactionTooLargeException en notificaciones con banner (RGB_565 640x320)\n• Sonido Cha-Ching sin compresión y caída flotante garantizada",
+  "changelog": "• Barra de notificación personalizada de lujo Obsidian + Liquid Glass con mini-banner flotante, esquinas curvas, cápsula 4K y doble botón interactivo\n• Bot automático de notificaciones cada 20 min integrado en el panel online\n• Sonido Cha-Ching sin compresión y verificación en vivo",
   "forceUpdate": false
 }

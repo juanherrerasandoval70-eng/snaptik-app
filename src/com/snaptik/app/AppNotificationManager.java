@@ -11,15 +11,26 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
+import android.view.View;
+import android.widget.RemoteViews;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class AppNotificationManager {
 
@@ -106,6 +117,25 @@ public class AppNotificationManager {
         }
     }
 
+    private static Bitmap roundCorners(Bitmap src, float radiusPx) {
+        if (src == null) return null;
+        try {
+            int w = src.getWidth();
+            int h = src.getHeight();
+            Bitmap out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(out);
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            Rect rect = new Rect(0, 0, w, h);
+            RectF rectF = new RectF(rect);
+            canvas.drawRoundRect(rectF, radiusPx, radiusPx, paint);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+            canvas.drawBitmap(src, rect, rect, paint);
+            return out;
+        } catch (Throwable ignored) {
+            return src;
+        }
+    }
+
     private static Bitmap downloadBannerBitmap(String imageUrl) {
         if (imageUrl == null || !imageUrl.startsWith("http")) return null;
         HttpURLConnection conn = null;
@@ -123,15 +153,17 @@ public class AppNotificationManager {
                 Bitmap raw = BitmapFactory.decodeStream(is, null, opts);
                 is.close();
                 if (raw == null) return null;
-                // Redimensionar a máx 640x320 (RGB_565 ~400KB) para nunca exceder el límite de 1MB de Binder IPC en Android
-                int maxW = 640;
+                // Escalar a máx 520px ancho + esquinas redondeadas (~540KB ARGB_8888, seguro bajo 1MB Binder IPC)
+                int maxW = 520;
+                Bitmap scaled = raw;
                 if (raw.getWidth() > maxW) {
                     int newH = Math.max(1, (raw.getHeight() * maxW) / raw.getWidth());
-                    Bitmap scaled = Bitmap.createScaledBitmap(raw, maxW, newH, true);
+                    scaled = Bitmap.createScaledBitmap(raw, maxW, newH, true);
                     if (scaled != raw) raw.recycle();
-                    return scaled;
                 }
-                return raw;
+                Bitmap rounded = roundCorners(scaled, 22f);
+                if (rounded != scaled) scaled.recycle();
+                return rounded;
             }
         } catch (Throwable t) {
             android.util.Log.e("SnapTikNotif", "Banner download error", t);
@@ -181,9 +213,12 @@ public class AppNotificationManager {
 
             Bitmap bannerBmp = downloadBannerBitmap(imageUrl);
 
-            nb.setSmallIcon(R.drawable.ic_launcher)
+            nb.setSmallIcon(R.drawable.ic_notif_snaptik)
               .setContentTitle(title)
               .setContentText(message)
+              .setSubText("SnapTik PRO Oficial")
+              .setShowWhen(true)
+              .setWhen(System.currentTimeMillis())
               .setContentIntent(pi)
               .setAutoCancel(true)
               .setColor(0xFF38EFEE)
@@ -191,32 +226,87 @@ public class AppNotificationManager {
               .setCategory(Notification.CATEGORY_PROMO)
               .setVisibility(Notification.VISIBILITY_PUBLIC);
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                nb.setSound(getChaChingSoundUri(ctx));
-                nb.setVibrate(CHACHING_VIBRATION);
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                String timeLabel = "• " + new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
+                Bitmap roundedIcon = (appIconBmp != null) ? roundCorners(appIconBmp, 24f) : null;
 
-            if (appIconBmp != null) {
-                nb.setLargeIcon(appIconBmp);
-            }
+                Intent appIntent = new Intent(ctx, MainActivity.class);
+                appIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                PendingIntent appPi = PendingIntent.getActivity(ctx, notifId + 1, appIntent, flags);
 
-            if (bannerBmp != null) {
-                Notification.BigPictureStyle style = new Notification.BigPictureStyle()
-                        .bigPicture(bannerBmp)
-                        .setBigContentTitle(title)
-                        .setSummaryText(message);
-                nb.setStyle(style);
+                RemoteViews compact = new RemoteViews(ctx.getPackageName(), R.layout.notif_snaptik_compact);
+                compact.setTextViewText(R.id.notif_title, title);
+                compact.setTextViewText(R.id.notif_body, message);
+                compact.setTextViewText(R.id.notif_time_compact, timeLabel);
+                compact.setOnClickPendingIntent(R.id.notif_cta, pi);
+                if (roundedIcon != null) {
+                    compact.setImageViewBitmap(R.id.notif_icon, roundedIcon);
+                }
+                if (bannerBmp != null) {
+                    try {
+                        Bitmap miniRaw = Bitmap.createScaledBitmap(bannerBmp, 112, 80, true);
+                        Bitmap miniRounded = roundCorners(miniRaw, 14f);
+                        if (miniRounded != miniRaw) miniRaw.recycle();
+                        compact.setImageViewBitmap(R.id.notif_thumb_compact, miniRounded);
+                        compact.setViewVisibility(R.id.notif_thumb_compact, View.VISIBLE);
+                    } catch (Throwable ignored) {
+                        compact.setViewVisibility(R.id.notif_thumb_compact, View.GONE);
+                    }
+                } else {
+                    compact.setViewVisibility(R.id.notif_thumb_compact, View.GONE);
+                }
+
+                RemoteViews expanded = new RemoteViews(ctx.getPackageName(), R.layout.notif_snaptik_expanded);
+                expanded.setTextViewText(R.id.notif_title_big, title);
+                expanded.setTextViewText(R.id.notif_body_big, message);
+                expanded.setTextViewText(R.id.notif_time_big, timeLabel);
+                expanded.setOnClickPendingIntent(R.id.notif_btn_paste, appPi);
+                expanded.setOnClickPendingIntent(R.id.notif_cta_big, pi);
+                if (roundedIcon != null) {
+                    expanded.setImageViewBitmap(R.id.notif_icon_big, roundedIcon);
+                }
+                if (bannerBmp != null) {
+                    expanded.setImageViewBitmap(R.id.notif_banner_big, bannerBmp);
+                    expanded.setViewVisibility(R.id.notif_banner_wrap, View.VISIBLE);
+                } else {
+                    expanded.setViewVisibility(R.id.notif_banner_wrap, View.GONE);
+                }
+
+                nb.setCustomContentView(compact);
+                nb.setCustomBigContentView(expanded);
+                nb.setCustomHeadsUpContentView(compact);
             } else {
-                nb.setStyle(new Notification.BigTextStyle().bigText(message));
+                if (appIconBmp != null) {
+                    nb.setLargeIcon(appIconBmp);
+                }
+                if (bannerBmp != null) {
+                    Notification.BigPictureStyle style = new Notification.BigPictureStyle()
+                            .bigPicture(bannerBmp)
+                            .setBigContentTitle(title)
+                            .setSummaryText(message);
+                    nb.setStyle(style);
+                } else {
+                    nb.setStyle(new Notification.BigTextStyle().bigText(message));
+                }
             }
 
             try {
                 nm.notify(notifId, nb.build());
                 return true;
             } catch (Throwable binderErr) {
-                android.util.Log.e("SnapTikNotif", "Notify with banner failed, retrying text-only", binderErr);
-                nb.setStyle(new Notification.BigTextStyle().bigText(message));
-                nm.notify(notifId, nb.build());
+                android.util.Log.e("SnapTikNotif", "Custom notify failed, retrying standard style", binderErr);
+                Notification.Builder fallback = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                        ? new Notification.Builder(ctx, channelId)
+                        : new Notification.Builder(ctx);
+                fallback.setSmallIcon(R.drawable.ic_notif_snaptik)
+                        .setContentTitle(title)
+                        .setContentText(message)
+                        .setContentIntent(pi)
+                        .setAutoCancel(true)
+                        .setColor(0xFF38EFEE)
+                        .setPriority(Notification.PRIORITY_MAX)
+                        .setStyle(new Notification.BigTextStyle().bigText(message));
+                nm.notify(notifId, fallback.build());
                 return true;
             }
         } catch (Throwable t) {
