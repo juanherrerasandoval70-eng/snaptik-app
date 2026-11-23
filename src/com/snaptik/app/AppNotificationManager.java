@@ -112,17 +112,29 @@ public class AppNotificationManager {
         try {
             URL u = new URL(imageUrl);
             conn = (HttpURLConnection) u.openConnection(java.net.Proxy.NO_PROXY);
-            conn.setConnectTimeout(7000);
-            conn.setReadTimeout(7000);
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
             conn.setInstanceFollowRedirects(true);
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.3");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13) SnapTikPRO/3.9.6");
             if (conn.getResponseCode() == 200) {
                 InputStream is = conn.getInputStream();
-                Bitmap bmp = BitmapFactory.decodeStream(is);
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inPreferredConfig = Bitmap.Config.RGB_565;
+                Bitmap raw = BitmapFactory.decodeStream(is, null, opts);
                 is.close();
-                return bmp;
+                if (raw == null) return null;
+                // Redimensionar a máx 640x320 (RGB_565 ~400KB) para nunca exceder el límite de 1MB de Binder IPC en Android
+                int maxW = 640;
+                if (raw.getWidth() > maxW) {
+                    int newH = Math.max(1, (raw.getHeight() * maxW) / raw.getWidth());
+                    Bitmap scaled = Bitmap.createScaledBitmap(raw, maxW, newH, true);
+                    if (scaled != raw) raw.recycle();
+                    return scaled;
+                }
+                return raw;
             }
-        } catch (Exception ignored) {
+        } catch (Throwable t) {
+            android.util.Log.e("SnapTikNotif", "Banner download error", t);
         } finally {
             if (conn != null) conn.disconnect();
         }
@@ -133,12 +145,12 @@ public class AppNotificationManager {
         showNotificationWithBanner(ctx, channelId, notifId, title, message, "", openUrl);
     }
 
-    public static void showNotificationWithBanner(Context ctx, String channelId, int notifId, String title, String message, String imageUrl, String openUrl) {
-        if (!isNotificationsEnabled(ctx)) return;
+    public static boolean showNotificationWithBanner(Context ctx, String channelId, int notifId, String title, String message, String imageUrl, String openUrl) {
+        if (!isNotificationsEnabled(ctx)) return false;
         ensureChannels(ctx);
         try {
             NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-            if (nm == null) return;
+            if (nm == null) return false;
 
             Intent intent;
             if (openUrl != null && openUrl.startsWith("http")) {
@@ -160,8 +172,12 @@ public class AppNotificationManager {
 
             Bitmap appIconBmp = null;
             try {
-                appIconBmp = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_launcher);
-            } catch (Exception ignored) {}
+                Bitmap rawIcon = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_launcher);
+                if (rawIcon != null) {
+                    appIconBmp = Bitmap.createScaledBitmap(rawIcon, 128, 128, true);
+                    if (appIconBmp != rawIcon) rawIcon.recycle();
+                }
+            } catch (Throwable ignored) {}
 
             Bitmap bannerBmp = downloadBannerBitmap(imageUrl);
 
@@ -180,25 +196,33 @@ public class AppNotificationManager {
                 nb.setVibrate(CHACHING_VIBRATION);
             }
 
+            if (appIconBmp != null) {
+                nb.setLargeIcon(appIconBmp);
+            }
+
             if (bannerBmp != null) {
-                nb.setLargeIcon(bannerBmp);
                 Notification.BigPictureStyle style = new Notification.BigPictureStyle()
                         .bigPicture(bannerBmp)
                         .setBigContentTitle(title)
                         .setSummaryText(message);
-                if (appIconBmp != null) {
-                    style.bigLargeIcon(appIconBmp);
-                }
                 nb.setStyle(style);
             } else {
-                if (appIconBmp != null) {
-                    nb.setLargeIcon(appIconBmp);
-                }
                 nb.setStyle(new Notification.BigTextStyle().bigText(message));
             }
 
-            nm.notify(notifId, nb.build());
-        } catch (Exception ignored) {}
+            try {
+                nm.notify(notifId, nb.build());
+                return true;
+            } catch (Throwable binderErr) {
+                android.util.Log.e("SnapTikNotif", "Notify with banner failed, retrying text-only", binderErr);
+                nb.setStyle(new Notification.BigTextStyle().bigText(message));
+                nm.notify(notifId, nb.build());
+                return true;
+            }
+        } catch (Throwable t) {
+            android.util.Log.e("SnapTikNotif", "showNotificationWithBanner failed", t);
+            return false;
+        }
     }
 
     private static class CheckAnnouncementRunnable implements Runnable {
@@ -249,9 +273,11 @@ public class AppNotificationManager {
                     SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
                     String lastId = sp.getString(KEY_LAST_ANNOUNCEMENT_ID, "");
                     if (!id.equals(lastId)) {
-                        sp.edit().putString(KEY_LAST_ANNOUNCEMENT_ID, id).apply();
                         int uniqueNotifId = (int) (System.currentTimeMillis() & 0x7FFFFFFF);
-                        showNotificationWithBanner(ctx, CHANNEL_ALERTS, uniqueNotifId, title, body, imageUrl, actionUrl);
+                        boolean shown = showNotificationWithBanner(ctx, CHANNEL_ALERTS, uniqueNotifId, title, body, imageUrl, actionUrl);
+                        if (shown) {
+                            sp.edit().putString(KEY_LAST_ANNOUNCEMENT_ID, id).apply();
+                        }
                     }
                 }
             }

@@ -1,8 +1,8 @@
 {
-  "versionCode": 24,
-  "versionName": "3.9.5",
+  "versionCode": 25,
+  "versionName": "3.9.6",
   "backendUrl": "https://snaptik-backend.onrender.com/api/extract",
   "apkUrl": "https://raw.githubusercontent.com/juanherrerasandoval70-eng/snaptik-app/main/dist/SnapTik_PRO_v1.0.apk",
-  "changelog": "• Corrección de sonido Cha-Ching sin compresión y notificaciones flotantes en vivo cada 20s\n• 10 banners oficiales basados en la interfaz real de SnapTik PRO",
+  "changelog": "• Corrección crítica TransactionTooLargeException en notificaciones con banner (RGB_565 640x320)\n• Sonido Cha-Ching sin compresión y caída flotante garantizada",
   "forceUpdate": false
 }
